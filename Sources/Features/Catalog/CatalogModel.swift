@@ -44,9 +44,10 @@ enum ReleaseFeed: Hashable {
             try Task.checkCancellation()
             guard generation == self.generation else { return }
             var seen = Set(releases.map(\.id))
-            releases += content.filter { seen.insert($0.id).inserted }
+            let fresh = content.filter { seen.insert($0.id).inserted }
+            releases += fresh
             page += 1
-            hasMore = !content.isEmpty && totalPages.map { page < $0 } != false
+            hasMore = !fresh.isEmpty && totalPages.map { page < $0 } != false
             if reset, feed == .catalog, query.isEmpty, filter == CatalogFilter(), token == nil { await cache.write(content) }
         } catch is CancellationError { }
         catch let error as URLError where error.code == .cancelled { }

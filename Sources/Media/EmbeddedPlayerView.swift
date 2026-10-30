@@ -22,17 +22,17 @@ struct EmbeddedPlayerView: UIViewRepresentable {
     final class Coordinator: NSObject, WKNavigationDelegate, WKUIDelegate {
         var parent: EmbeddedPlayerView
         init(_ parent: EmbeddedPlayerView) { self.parent = parent }
-        func webView(_ webView: WKWebView, decidePolicyFor action: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
+        func webView(_ webView: WKWebView, decidePolicyFor action: WKNavigationAction) async -> WKNavigationActionPolicy {
             guard let url = action.request.url, ["https", "about"].contains(url.scheme ?? ""), action.targetFrame != nil else {
-                decisionHandler(.cancel); return
+                return .cancel
             }
-            decisionHandler(.allow)
+            return .allow
         }
         func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) { parent.error = error.localizedDescription }
         func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) { parent.error = error.localizedDescription }
-        func webView(_ webView: WKWebView, decidePolicyFor response: WKNavigationResponse, decisionHandler: @escaping (WKNavigationResponsePolicy) -> Void) {
+        func webView(_ webView: WKWebView, decidePolicyFor response: WKNavigationResponse) async -> WKNavigationResponsePolicy {
             if let http = response.response as? HTTPURLResponse, http.statusCode >= 400 { parent.error = "Веб-источник вернул HTTP \(http.statusCode)." }
-            decisionHandler(response.canShowMIMEType ? .allow : .cancel)
+            return response.canShowMIMEType ? .allow : .cancel
         }
         func webViewWebContentProcessDidTerminate(_ webView: WKWebView) { parent.error = "Веб-плеер остановлен системой. Повторите загрузку." }
     }

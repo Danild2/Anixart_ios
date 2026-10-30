@@ -44,9 +44,7 @@ jobs:
         run: |
           set -euo pipefail
           xcrun simctl list runtimes -j > Artifacts/runtimes.json
-          runtime=$(python3 -c 'import json; r=json.load(open("Artifacts/runtimes.json"))["runtimes"]; a=[x for x in r if x.get("isAvailable") and "iOS" in x["name"] and tuple(map(int,x["version"].split("."))) >= (27,1)]; print(sorted(a,key=lambda x:tuple(map(int,x["version"].split("."))))[0]["identifier"])')
-          simulator=$(xcrun simctl create Anixart-CI com.apple.CoreSimulator.SimDeviceType.iPhone-17 "$runtime")
-          echo "SIMULATOR_ID=$simulator" >> "$GITHUB_ENV"
+          python3 tools/select_simulator.py
       - name: Unit and UI tests
         shell: bash
         run: |

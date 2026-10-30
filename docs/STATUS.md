@@ -1,0 +1,38 @@
+# Проверяемый статус переноса — 2026-10-30
+
+Проект не соответствует всем критериям приёмки и не заявляется завершённым.
+
+| Этап | Реальный результат | Оставшиеся ограничения |
+|---|---|---|
+| A: анализ | Прочитаны APK 10.5, все четыре DEX через JADX, Manifest, XML menu/layout/colors/dimens/strings, модели/Retrofit/Room/Prefs, оба HTML-плеера, выбор parser adapters; проверен starter и старая API-спецификация. Индекс 300 маршрутов и 215 Fragment-классов. | 123 ошибки отдельных методов JADX; нет Android screenshots; не все жесты/переходы изучены динамически. |
+| B: UI | SwiftUI-модули, 5 вкладок, каталог/поиск/фильтр/релиз/коллекции/профиль/настройки/закладки/комментарии/выбор видео. Original и выборочное системное Glass. Первое Xcode analyze успешно с реальной компиляцией. | Не полное воспроизведение главной/обзора; лента и дополнительные модули отсутствуют; парное визуальное сравнение не выполнено. |
+| C: данные | 24 подтверждённых APK маршрута используются рабочей логикой. Гостевые API проверяются облаком; Swift production-код декодировал каталог, поиск, релиз, озвучки и источники. | Вход реальным аккаунтом, защищённые пользовательские данные и server mutations не проверены; нет регистрации/social auth. |
+| D: видео | Прямая цепочка type/source/episode/target, AVPlayer для прямых HLS/MP4, WKWebView для iframe, позиции native по account/release/type/source/position. Реальный API вернул Kodik iframe для release 20290. | Декодирование серий потребовало исправления отсутствующего wire id; реальное воспроизведение ещё не подтверждено. Нет специальных provider parsers/ручного rendition selector/iframe seconds sync. |
+| E: качество | 7 Python-тестов упаковщика, 15 Swift unit-тестов и 3 UI-теста прошли. Xcode analyze, компиляция и UI-навигация с настоящим каталогом прошли. Реальные screenshots каталога/релиза экспортированы и просмотрены. | Симулятор iPhone 17 / iOS 27.0, SDK 27.1. Память, VoiceOver, long-scroll, offline, rotation и физическая iOS27.1 ещё требуют устройства. |
+| F: IPA | **Run 41089213117 success**: unsigned Release для iphoneos27.1 собран, IPA упакована, CRC/Bundle ID/ARM64/physical iOS Mach-O platform проверены. ZIP и IPA SHA256 сверены после скачивания на Windows. | SideStore, реальное воспроизведение, вход на устройстве и 7-дневный цикл подписи не проверены. Полнота переноса не заявляется. |
+
+## CI — история и причины
+
+- Run 41055508118, commit 36bb504: source checks и Xcode analyze **успешны**. Ошибка `simctl create`: Incompatible device для iPhone 17 + runtime 27.1. Release/тесты/IPA не выполнялись. Исправлен выбор совместимого runtime; минимум iOS 27.0, SDK 27.1. Фактическая версия симулятора сохраняется в artifact; проверка физического iPhone 17/iOS27.1 остаётся отдельной.
+- Промежуточные iOS runs отменялись новой версией исходников через workflow concurrency. Отменённый run не является пройденным тестом.
+- Guest API run 41056314496: реальные HTTP200/code0 для filter/search/release/types. Первый выбранный релиз не имел серий; тест расширен выбором доступного релиза.
+- Guest API run 41056503224: production Swift code декодировал 25 релизов, поиск и карточку. Python прошёл полную цепочку release20290/type143/source153/episode1 → iframe на kodikplayer.com. Секретные или подписанные media URL не сохранены.
+- Swift live run 41056704076 завершился **ошибкой декодирования**. Диагностический run 41056906552 локализовал её: `episodes.Index 0.id`. Исправлен Episode: wire id необязателен, UI identity — position в выбранном source; добавлен regression test.
+- **Run 41057109715 прошёл**: production Swift декодировал каталог (25), поиск (4), релиз, озвучки (27), источники и по семь серий для type143/source153 и type141/source151; оба target разрешились как embedded. Реальное воспроизведение не выполнялось.
+- **Run 41057537419 прошёл**: дополнительно Swift production-код прочитал сейчас смотрят (25), коллекции (25), релизы коллекции (8), комментарии (25).
+- Run 41057391702: 3 UI-теста прошли; из 15 unit-тестов один упал в тестовом перехватчике — URLSession передал тело запроса как stream, а тест читал только Data. Перехватчик исправлен; продуктовый запрос и живой поиск работали.
+- **Run 41089213117, source commit 0b337cd7d1511121917c603058c263d5a979d1fc — SUCCESS**. 15 unit + 3 UI без ошибок; Xcode analyze и Release build успешны; экспортированы два iOS screenshots. IPA проверена и опубликована как artifact 12994715735, диагностика 12994061481. Фактический simulator runtime — 27.0; установленный runtime27.1 отвергает iPhone17 как incompatible device.
+
+## Подтверждение на устройстве
+
+Ни вход в реальный аккаунт, ни запуск видео на iPhone, ни установка/обновление/продление в SideStore не проверены. Это обязательные оставшиеся критерии. Пошаговый протокол — IPHONE_TEST_PLAN.md. Сессии и позиции обновления предполагают неизменные Bundle ID `local.anixartport.client` и совместимую переподпись; гарантия сохранения Keychain без теста не заявляется.
+
+## Где находятся результаты
+
+- Исходники: этот репозиторий, каталог Sources; тесты Tests/UITests/tools.
+- Аудит/матрицы: docs/APK_AUDIT.md, docs/FEATURE_MATRIX.md, docs/FUNCTION_MATRIX.csv, API_INVENTORY.json и SCREEN_INVENTORY.json.
+- На Windows оригинальные исследования и starter остаются только в `.private/`, вне Git.
+- IPA на Windows: `C:\Users\danil\Downloads\Anixart-iOS-0b337cd-unsigned.ipa`, копия в локальном `Artifacts/AnixartPort-unsigned.ipa`.
+- Размер IPA: **522460 bytes**. SHA256: `c9dae950c4db38382712bab94cbff0b39305658b14fc5920eda500094f3edb2e`.
+- [Успешный CI](https://github.com/Danild2/Anixart_ios/actions/runs/41089213117), [IPA artifact ZIP](https://github.com/Danild2/Anixart_ios/actions/runs/41089213117/artifacts/12994715735), [диагностика и screenshots](https://github.com/Danild2/Anixart_ios/actions/runs/41089213117/artifacts/12994061481). Artifacts хранятся до 2026-11-13; локальная копия остаётся на диске.
+- Screenshots Original: локально `Artifacts/CI-diagnostics/Screenshots/`; это реальные экраны iOS с данными API, а не изображения оригинального Android. Пиксельное сравнение с оригиналом отсутствует. Снимок Liquid Glass пока не получен.

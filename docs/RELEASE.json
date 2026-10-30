@@ -1,0 +1,20 @@
+{
+  "source_commit": "0b337cd7d1511121917c603058c263d5a979d1fc",
+  "workflow_run_id": 41089213117,
+  "workflow_conclusion": "success",
+  "ipa_artifact_id": 12994715735,
+  "diagnostics_artifact_id": 12994061481,
+  "bundle_id": "local.anixartport.client",
+  "sdk": "iphoneos27.1",
+  "minimum_ios": "27.0",
+  "simulator": "iPhone 17 / iOS 27.0",
+  "swift_unit_tests_passed": 15,
+  "ui_tests_passed": 3,
+  "python_tests_passed": 7,
+  "ipa_bytes": 522460,
+  "ipa_sha256": "c9dae950c4db38382712bab94cbff0b39305658b14fc5920eda500094f3edb2e",
+  "signing": "unsigned; re-sign with SideStore",
+  "physical_device_tested": false,
+  "actual_anixart_video_playback_tested": false,
+  "port_feature_complete": false
+}

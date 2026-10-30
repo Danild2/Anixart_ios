@@ -74,6 +74,40 @@ def probe():
                         'extension': pathlib.PurePosixPath(media.path).suffix,
                         'playback': 'not tested; no stream download or DRM/access-control bypass'}
     REPORT['result'] = 'guest response inspection performed; see per-route results; authentication and playback unverified'
+    # Additional bounded inspection for the provider that failed the iOS video test.
+    # Record hosts/schema only; never publish the target's signed URL or HTML.
+    provider_types = request(base, 'episode/20290')
+    providers = []
+    if provider_types:
+        for translation in provider_types.get('types', [])[:4]:
+            sources = request(base, f"episode/20290/{translation['id']}")
+            for source in (sources or {}).get('sources', [])[:2]:
+                target = request(base, f"episode/target/20290/{source['id']}/1")
+                episode = (target or {}).get('episode', {})
+                media = urllib.parse.urlsplit(episode.get('url') or '')
+                providers.append({'type_id': translation['id'], 'source_id': source['id'],
+                                  'source_name': source.get('name'), 'iframe': episode.get('iframe'),
+                                  'host': media.hostname, 'extension': pathlib.PurePosixPath(media.path).suffix})
+                if 'wrapper' not in REPORT and episode.get('iframe') and media.scheme == 'https':
+                    wrapper = 'https://anixmirai.com/iframe?' + urllib.parse.urlencode({'url': episode['url']})
+                    try:
+                        with urllib.request.urlopen(wrapper, timeout=15) as response:
+                            page = response.read(1_000_000).decode('utf-8', errors='replace')
+                            REPORT['wrapper'] = {'http': response.status, 'has_iframe': '<iframe' in page.lower(),
+                                                 'has_video': '<video' in page.lower(), 'bytes': len(page)}
+                    except urllib.error.HTTPError as error:
+                        REPORT['wrapper'] = {'http': error.code}
+                    except Exception as error:
+                        REPORT['wrapper'] = {'error_type': type(error).__name__}
+    REPORT['providers'] = providers
+    for path in ['feed/latest/all/0', 'channel/recommendations/0', 'schedule']:
+        response = request(base, path)
+        if response:
+            sample = (response.get('content') or [{}])[0]
+            REPORT.setdefault('additional_schemas', {})[path] = {
+                'keys': sorted(response), 'content_count': len(response.get('content') or []),
+                'sample_keys': sorted(sample),
+                'block_types': sorted({block.get('type', '') for block in (sample.get('payload') or {}).get('blocks', [])})}
 
 
 if __name__ == '__main__':

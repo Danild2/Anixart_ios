@@ -45,7 +45,8 @@ struct VideoSource: Codable, Identifiable, Hashable, Sendable {
 }
 
 struct Episode: Codable, Identifiable, Hashable, Sendable {
-    let id: Int64
+    // APK entity id belongs to local persistence; live episode objects may omit it.
+    var serverID: Int64?
     let position: Int
     var name: String?
     var url: String?
@@ -53,7 +54,14 @@ struct Episode: Codable, Identifiable, Hashable, Sendable {
     var quality: Int?
     var isWatched: Bool?
     var isFiller: Bool?
+    var id: Int { position }
     var title: String { name?.isEmpty == false ? name! : "Серия \(position)" }
+    enum CodingKeys: String, CodingKey { case serverID = "id", position, name, url, iframe, quality, isWatched, isFiller }
+    init(id: Int64? = nil, position: Int, name: String? = nil, url: String? = nil, iframe: Bool? = nil,
+         quality: Int? = nil, isWatched: Bool? = nil, isFiller: Bool? = nil) {
+        serverID = id; self.position = position; self.name = name; self.url = url; self.iframe = iframe
+        self.quality = quality; self.isWatched = isWatched; self.isFiller = isFiller
+    }
 }
 
 struct ReleaseComment: Codable, Identifiable, Sendable {

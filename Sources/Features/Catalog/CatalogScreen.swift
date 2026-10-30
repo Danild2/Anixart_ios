@@ -39,7 +39,7 @@ struct CatalogScreen: View {
             }
             if let error = model.error { FailureNotice(message: error) { Task { await load(reset: true) } } }
             ForEach(model.releases) { release in
-                NavigationLink(value: release) { ReleaseRow(release: release) }
+                NavigationLink(value: release) { ReleaseRow(release: release) }.accessibilityIdentifier("release.\(release.id)")
             }
             if model.loading { HStack { Spacer(); ProgressView(); Spacer() } }
             else if model.releases.isEmpty && model.error == nil { ContentUnavailableView("Нет релизов", systemImage: "magnifyingglass", description: Text("Измените поиск или фильтры.")) }

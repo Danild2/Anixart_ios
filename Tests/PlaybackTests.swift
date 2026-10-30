@@ -2,6 +2,13 @@ import XCTest
 @testable import AnixartPort
 
 @MainActor final class PlaybackTests: XCTestCase {
+    func testLiveEpisodeShapeDoesNotRequireLocalDatabaseID() throws {
+        let data = Data(#"{"code":0,"episodes":[{"position":1,"name":"Серия 1","iframe":true,"url":"https://example.test/embed/1","is_watched":false}]}"#.utf8)
+        let response = try APIClient.decoder().decode(EpisodesResponse.self, from: data)
+        XCTAssertEqual(response.episodes.first?.id, 1)
+        XCTAssertNil(response.episodes.first?.serverID)
+        XCTAssertEqual(response.episodes.first?.isWatched, false)
+    }
     func testNativeAndEmbeddedSelection() throws {
         let native = Episode(id: 1, position: 1, url: "https://example.test/video.m3u8?quality=720", iframe: false)
         let embedded = Episode(id: 2, position: 2, url: "https://example.test/embed/2", iframe: true)

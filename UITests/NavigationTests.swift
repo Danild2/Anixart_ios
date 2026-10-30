@@ -1,6 +1,19 @@
 import XCTest
 
 @MainActor final class NavigationTests: XCTestCase {
+    func testGuestCatalogOpensRealRelease() {
+        let app = XCUIApplication()
+        app.launchArguments = ["-theme", "original", "-regionalAPI", "NO"]
+        app.launch()
+        let release = app.descendants(matching: .any).matching(NSPredicate(format: "identifier BEGINSWITH %@", "release.")).firstMatch
+        XCTAssertTrue(release.waitForExistence(timeout: 45), "A real server release must appear; no fixture or offline demo is used")
+        let catalog = XCTAttachment(screenshot: app.screenshot()); catalog.name = "iPhone17-catalog-original"; catalog.lifetime = .keepAlways; add(catalog)
+        release.tap()
+        XCTAssertTrue(app.navigationBars["О релизе"].waitForExistence(timeout: 10))
+        let detail = XCTAttachment(screenshot: app.screenshot()); detail.name = "iPhone17-release-original"; detail.lifetime = .keepAlways; add(detail)
+        app.navigationBars.buttons.element(boundBy: 0).tap()
+        XCTAssertTrue(app.navigationBars["Anixart"].exists)
+    }
     func testSettingsThemeAndBackNavigation() {
         let app = XCUIApplication()
         app.launchArguments = ["-theme", "original"]

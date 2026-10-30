@@ -22,6 +22,10 @@ struct DiscoverScreen: View {
     @State private var selection = 0
     var body: some View {
         VStack(spacing: 0) {
+            NavigationLink { ScheduleScreen() } label: {
+                Label(OriginalCopy.text("schedule"), systemImage: "calendar")
+                    .frame(maxWidth: .infinity, alignment: .leading).padding()
+            }.buttonStyle(.plain).accessibilityIdentifier("openSchedule")
             Picker("Раздел обзора", selection: $selection) {
                 Text("Сейчас смотрят").tag(0); Text("Рекомендации").tag(1); Text("Коллекции").tag(2)
             }.pickerStyle(.menu).padding(.horizontal).frame(maxWidth: .infinity, alignment: .leading)

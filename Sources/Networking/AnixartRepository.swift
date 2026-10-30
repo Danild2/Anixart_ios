@@ -62,6 +62,11 @@ struct AnixartRepository: Sendable {
     func recordHistory(_ id: Int64, source: Int64, position: Int, token: String) async throws {
         let _: Acknowledgement = try await client.request(Endpoint(path: "history/add/\(id)/\(source)/\(position)", isReadOnly: false), token: token)
     }
+    func setEpisodeWatched(_ id: Int64, source: Int64, position: Int? = nil, watched: Bool, token: String) async throws {
+        let suffix = position.map { "/\($0)" } ?? ""
+        let _: Acknowledgement = try await client.request(Endpoint(path: "episode/\(watched ? "watch" : "unwatch")/\(id)/\(source)\(suffix)",
+            method: "POST", isReadOnly: false), token: token)
+    }
     func comments(_ id: Int64, page: Int, token: String?) async throws -> Page<ReleaseComment> {
         try await client.request(Endpoint(path: "release/comment/all/\(id)/\(page)", query: ["sort":"0"]), token: token)
     }
@@ -75,5 +80,8 @@ struct AnixartRepository: Sendable {
     }
     func collectionReleases(_ id: Int64, page: Int, token: String?) async throws -> Page<Release> {
         try await client.request(Endpoint(path: "collection/\(id)/releases/\(page)"), token: token)
+    }
+    func schedule() async throws -> ScheduleResponse {
+        try await client.request(Endpoint(path: "schedule"))
     }
 }

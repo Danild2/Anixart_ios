@@ -2,6 +2,15 @@ import Foundation
 import Observation
 import UIKit
 
+@MainActor protocol ExternalURLOpener {
+    func canOpen(_ url: URL) -> Bool
+    func open(_ url: URL) async -> Bool
+}
+struct ApplicationURLOpener: ExternalURLOpener {
+    func canOpen(_ url: URL) -> Bool { UIApplication.shared.canOpenURL(url) }
+    func open(_ url: URL) async -> Bool { await UIApplication.shared.open(url) }
+}
+
 @MainActor @Observable final class ExternalPlayback {
     struct Handoff: Sendable {
         let requestID: UUID
@@ -11,19 +20,22 @@ import UIKit
     private(set) var active: Handoff?
     private(set) var message: String?
     private(set) var error: String?
-    var isVLCInstalled: Bool { UIApplication.shared.canOpenURL(URL(string: "vlc-x-callback://x-callback-url/stream")!) }
+    private let opener: any ExternalURLOpener
+    init(opener: any ExternalURLOpener = ApplicationURLOpener()) { self.opener = opener }
+    var isVLCInstalled: Bool { opener.canOpen(URL(string: "vlc-x-callback://x-callback-url/stream")!) }
 
-    func open(media: URL, key: PlaybackKey, title: String, subtitles: URL? = nil) async {
+    @discardableResult func open(media: URL, key: PlaybackKey, title: String, subtitles: URL? = nil) async -> Bool {
         error = nil; message = nil
-        guard isVLCInstalled else { error = "Установите VLC для iOS, затем повторите открытие серии."; return }
+        guard isVLCInstalled else { error = "Установите VLC для iOS, затем повторите открытие серии."; return false }
         do {
             let handoff = Handoff(requestID: UUID(), key: key, title: title)
             let link = try VLCLink.stream(media: media, title: title, subtitles: subtitles, requestID: handoff.requestID)
             active = handoff
-            let opened = await UIApplication.shared.open(link)
+            let opened = await opener.open(link)
             if opened { message = "Серия передана в VLC." }
             else { active = nil; error = "Не удалось открыть VLC." }
-        } catch { self.error = error.localizedDescription }
+            return opened
+        } catch { self.error = error.localizedDescription; return false }
     }
     @discardableResult func handleCallback(_ url: URL) -> Bool {
         guard url.scheme == "anixartport", url.host == "vlc-return", let active,

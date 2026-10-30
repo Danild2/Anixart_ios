@@ -10,6 +10,7 @@ struct PlaybackScreen: View {
     @Environment(SessionStore.self) private var session
     @Environment(AppSettings.self) private var settings
     @Environment(ExternalPlayback.self) private var externalPlayback
+    @Environment(NavigationChrome.self) private var chrome
     @Environment(\.scenePhase) private var scenePhase
     @State private var native: NativePlayback
     @State private var embedded: EmbeddedPlayback
@@ -17,6 +18,7 @@ struct PlaybackScreen: View {
     @State private var episodes: [Episode] = []
     @State private var chooseEpisode = false
     @State private var qualities: [HLSQuality] = []
+    @State private var providerVariants: [HLSQuality] = []
     @State private var selectedQuality = "Авто"
     @State private var qualityError: String?
     @State private var selectedMedia: URL?
@@ -43,7 +45,7 @@ struct PlaybackScreen: View {
                     vlcControls
                     Spacer()
                 } else if let player = native.player { NativePlayerView(player: player).frame(maxHeight: .infinity).background(.black) }
-                HStack {
+                if settings.playbackMode == .inApp { HStack {
                     if !qualities.isEmpty {
                         Menu("Качество: \(selectedQuality)") {
                             Button("Авто") { selectedMedia = nil; if settings.playbackMode == .inApp, case .native(let url) = target { native.quality(url) }; selectedQuality = "Авто" }
@@ -54,7 +56,7 @@ struct PlaybackScreen: View {
                     if settings.playbackMode == .inApp { Menu("Скорость: \(native.speed.formatted())×") {
                         ForEach([Float(0.5), 0.75, 1, 1.25, 1.5, 2], id: \.self) { speed in Button("\(speed.formatted())×") { native.setSpeed(speed) } }
                     } }
-                }.font(.caption).padding(.horizontal)
+                }.font(.caption).padding(.horizontal) }
                 if let qualityError { Text(qualityError).font(.caption).foregroundStyle(.secondary) }
             case .embedded(let url):
                 EmbeddedPlayerView(url: url, playback: embedded, error: $error).id("\(currentEpisode.position)-\(attempt)")
@@ -92,14 +94,15 @@ struct PlaybackScreen: View {
             }
             .task(id: "\(currentEpisode.position)-\(attempt)") { await load() }
             .task(id: resolvedMedia) {
-                qualities = []; selectedQuality = "Авто"; qualityError = nil
+                qualities = providerVariants; selectedQuality = "Авто"; qualityError = nil
                 if let url = resolvedMedia, url.pathExtension.lowercased() == "m3u8" {
-                    do { qualities = try await HLSQualities.load(url) }
+                    do { let manifestQualities = try await HLSQualities.load(url); if !manifestQualities.isEmpty { qualities = manifestQualities } }
                     catch is CancellationError { }
                     catch { qualityError = "Список качеств недоступен. Работает автоматический выбор: \(error.localizedDescription)" }
                 }
             }
-            .onDisappear { native.stop(); embedded.pause() }
+            .onAppear { chrome.playbackVisible = true }
+            .onDisappear { chrome.playbackVisible = false; native.stop(); embedded.pause() }
             .onChange(of: scenePhase) { _, phase in if phase != .active { native.save(); embedded.save() } }
     }
     private var currentIndex: Int? { episodes.firstIndex { $0.position == currentEpisode.position } }
@@ -132,28 +135,36 @@ struct PlaybackScreen: View {
         embedded.pause(); native.stop()
         let key = PlaybackKey(account: account, releaseID: release.id, typeID: translation.id, sourceID: source.id, position: currentEpisode.position)
         let title = "\(release.title) — \(currentEpisode.title)"
-        Task { await externalPlayback.open(media: media, key: key, title: title) }
+        Task {
+            if await externalPlayback.open(media: media, key: key, title: title) { await recordHistory(position: key.position) }
+        }
     }
     private var previousEpisode: Episode? { guard let i = currentIndex, i > 0 else { return nil }; return episodes[i - 1] }
     private var nextEpisode: Episode? { guard let i = currentIndex, i + 1 < episodes.count else { return nil }; return episodes[i + 1] }
     private func moveEpisode(_ delta: Int) { if let value = delta < 0 ? previousEpisode : nextEpisode { currentEpisode = value } }
     private func load() async {
-        native.stop(); embedded.pause(); target = nil; selectedMedia = nil; error = nil; syncError = nil; loading = true
+        native.stop(); embedded.pause(); target = nil; selectedMedia = nil; providerVariants = []; error = nil; syncError = nil; loading = true
         let key = PlaybackKey(account: account, releaseID: release.id, typeID: translation.id, sourceID: source.id, position: currentEpisode.position)
         native = NativePlayback(key: key); embedded = EmbeddedPlayback(key: key)
         defer { loading = false }
         do {
             let resolved = try await repository.target(release.id, source: source.id, position: currentEpisode.position)
             try Task.checkCancellation()
-            let next = try SourceResolver().resolve(resolved)
+            let resolution = try await SourceResolver().resolveForPlayback(resolved, externalVLC: settings.playbackMode == .vlc)
+            try Task.checkCancellation()
+            let next = resolution.target
+            providerVariants = resolution.variants.map { HLSQuality(url: $0.url, height: $0.height, bandwidth: nil) }
             target = next
+            if case .native(let url) = next { StreamTestCapture.write(url, key: key) }
             if case .native(let url) = next, settings.playbackMode == .inApp { native.start(url: url) }
             if episodes.isEmpty { episodes = try await repository.episodes(release.id, type: translation.id, source: source.id, token: session.token) }
-            if let token = session.token {
-                do { try await repository.recordHistory(release.id, source: source.id, position: currentEpisode.position, token: token) }
-                catch { syncError = "История не синхронизирована: \(error.localizedDescription)" }
-            }
+            if settings.playbackMode == .inApp { await recordHistory(position: currentEpisode.position) }
         } catch is CancellationError { }
         catch { self.error = error.localizedDescription }
+    }
+    private func recordHistory(position: Int) async {
+        guard session.identity == account, let token = session.token else { return }
+        do { try await repository.recordHistory(release.id, source: source.id, position: position, token: token) }
+        catch { syncError = "История не синхронизирована: \(error.localizedDescription)" }
     }
 }

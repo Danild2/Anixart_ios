@@ -25,6 +25,20 @@ struct TypesResponse: ServiceResponse { let code: Int; let types: [Translation] 
 struct SourcesResponse: ServiceResponse { let code: Int; let sources: [VideoSource] }
 struct EpisodesResponse: ServiceResponse { let code: Int; let episodes: [Episode] }
 struct TargetResponse: ServiceResponse { let code: Int; let episode: Episode }
+struct ScheduleResponse: ServiceResponse {
+    let code: Int
+    let monday: [Release]
+    let tuesday: [Release]
+    let wednesday: [Release]
+    let thursday: [Release]
+    let friday: [Release]
+    let saturday: [Release]
+    let sunday: [Release]
+    var days: [(key: String, releases: [Release])] {
+        [("monday", monday), ("tuesday", tuesday), ("wednesday", wednesday), ("thursday", thursday),
+         ("friday", friday), ("saturday", saturday), ("sunday", sunday)]
+    }
+}
 
 enum APIError: LocalizedError, Equatable {
     case http(Int), service(Int), schema(String), malformed, unauthorized, invalidURL, unsupportedMedia

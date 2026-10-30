@@ -35,7 +35,7 @@ struct EmbeddedPlayerView: UIViewRepresentable {
             let origin = message.frameInfo.securityOrigin.host.lowercased().replacingOccurrences(of: "www.", with: "")
             let expected = (parent.url.host ?? "").lowercased().replacingOccurrences(of: "www.", with: "")
             let kodikOrigins: Set<String> = ["kodik.cc", "kodik.info", "aniqit.com", "kodikplayer.com"]
-            let permitted = origin == expected || (kodikOrigins.contains(origin) && kodikOrigins.contains(expected))
+            let permitted = origin == expected || origin == "anixmirai.com" || (kodikOrigins.contains(origin) && kodikOrigins.contains(expected))
             guard !expected.isEmpty, permitted, let values = message.body as? [String: Any] else { return }
             parent.playback.receive(values, frame: message.frameInfo)
         }

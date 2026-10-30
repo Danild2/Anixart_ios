@@ -20,6 +20,11 @@ import Darwin
         print("detail_decoded id=\(detail.id)")
         let watching = try await repository.discover(page: 0, recommendations: false, token: nil)
         print("watching_decoded count=\(watching.content.count)")
+        let schedule = try await repository.schedule()
+        print("schedule_decoded days=\(schedule.days.count) releases=\(schedule.days.reduce(0) { $0 + $1.releases.count })")
+        let libertyEpisode = try await repository.target(20290, source: 413, position: 1)
+        let liberty = try await SourceResolver().resolveForPlayback(libertyEpisode, externalVLC: true)
+        print("liberty_public_api_resolved variants=\(liberty.variants.count); actual playback checked separately in VLC")
         let collections = try await repository.collections(page: 0, token: nil)
         print("collections_decoded count=\(collections.content.count)")
         if let collection = collections.content.first {

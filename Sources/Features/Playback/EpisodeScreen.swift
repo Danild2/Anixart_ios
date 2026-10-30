@@ -25,7 +25,7 @@ struct EpisodeScreen: View {
                 }
             }
             if loading { ProgressView() }
-            else if types.isEmpty && error == nil { Text("Сервер не вернул доступных озвучек.") }
+            else if types.isEmpty && error == nil { Text(OriginalCopy.text("error_no_types")) }
         }.navigationTitle("Смотреть").task(id: session.identity) { await load() }
     }
     private func load() async {
@@ -56,7 +56,7 @@ private struct SourcesScreen: View {
                 .accessibilityIdentifier("source.\(source.id)")
             }
             if loading { ProgressView() }
-            else if sources.isEmpty && error == nil { Text("Источники не найдены.") }
+            else if sources.isEmpty && error == nil { Text(OriginalCopy.text("error_no_sources")) }
         }.navigationTitle(translation.name).task { await load() }
     }
     private func load() async {
@@ -76,6 +76,7 @@ private struct EpisodesListScreen: View {
     @State private var episodes: [Episode] = []
     @State private var error: String?
     @State private var loading = false
+    @State private var updating = false
     var body: some View {
         List {
             if let error { FailureNotice(message: error) { Task { await load() } } }
@@ -94,10 +95,37 @@ private struct EpisodesListScreen: View {
                     }
                 }
                 .accessibilityIdentifier("episode.\(episode.position)")
+                .contextMenu {
+                    if session.token != nil {
+                        Button(OriginalCopy.text(episode.isWatched == true ? "watch_mark_remove" : "watch_mark_add")) {
+                            Task { await mark(position: episode.position, watched: episode.isWatched != true) }
+                        }.disabled(updating)
+                    }
+                }
             }
             if loading { ProgressView() }
-            else if episodes.isEmpty && error == nil { Text("Серии не найдены.") }
-        }.navigationTitle(source.name).task(id: session.identity) { await load() }
+            else if episodes.isEmpty && error == nil { Text(OriginalCopy.text("error_no_episodes")) }
+        }.navigationTitle(source.name)
+            .toolbar {
+                if session.token != nil {
+                    Menu {
+                        Button(OriginalCopy.text("watch_marks_add")) { Task { await mark(watched: true) } }
+                        Button(OriginalCopy.text("watch_marks_remove")) { Task { await mark(watched: false) } }
+                    } label: { Image(systemName: "checkmark.circle") }
+                        .accessibilityLabel("Отметки просмотра").disabled(updating || episodes.isEmpty)
+                }
+            }.task(id: session.identity) { await load() }
+    }
+    private func mark(position: Int? = nil, watched: Bool) async {
+        guard !updating, let token = session.token else { return }
+        updating = true; error = nil
+        defer { updating = false }
+        do {
+            try await repository.setEpisodeWatched(release.id, source: source.id, position: position, watched: watched, token: token)
+            guard session.token == token else { return }
+            await load()
+        } catch is CancellationError { }
+        catch { self.error = error.localizedDescription }
     }
     private func load() async {
         loading = true; error = nil; defer { loading = false }

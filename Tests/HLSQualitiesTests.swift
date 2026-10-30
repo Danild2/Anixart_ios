@@ -19,6 +19,15 @@ final class HLSQualitiesTests: XCTestCase {
         let data = Data("#EXTM3U\n#EXTINF:6,\nsegment.ts\n".utf8)
         XCTAssertTrue(try HLSQualities.parse(data, baseURL: URL(string: "https://example.test/index.m3u8")!).isEmpty)
     }
+    func testSeparateAudioRequiresTheCompleteMasterPlaylist() throws {
+        let data = Data("""
+        #EXTM3U
+        #EXT-X-MEDIA:TYPE=AUDIO,GROUP-ID="audio",NAME="Русский",URI="audio.m3u8"
+        #EXT-X-STREAM-INF:BANDWIDTH=3000000,RESOLUTION=1280x720,AUDIO="audio"
+        video-only.m3u8
+        """.utf8)
+        XCTAssertTrue(try HLSQualities.parse(data, baseURL: URL(string: "https://example.test/master.m3u8")!).isEmpty)
+    }
     func testHTMLAndUnsafeVariantAreRejected() throws {
         let url = URL(string: "https://example.test/master.m3u8")!
         XCTAssertThrowsError(try HLSQualities.parse(Data("<html>Forbidden</html>".utf8), baseURL: url))

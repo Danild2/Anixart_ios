@@ -20,6 +20,12 @@ import XCTest
         XCTAssertThrowsError(try SourceResolver().resolve(Episode(id: 1, position: 1, url: "javascript:alert(1)", iframe: true)))
         XCTAssertThrowsError(try SourceResolver().resolve(Episode(id: 1, position: 1, url: "https://user:password@example.test/video.mp4")))
     }
+    func testVLCContainersAreNotMistakenForAVPlayerCompatibility() throws {
+        let episode = Episode(position: 1, url: "https://example.test/episode.mkv?signature=test", iframe: false)
+        XCTAssertThrowsError(try SourceResolver().resolve(episode))
+        XCTAssertEqual(try SourceResolver().resolve(episode, externalVLC: true), .native(URL(string: episode.url!)!))
+        XCTAssertThrowsError(try SourceResolver().resolve(Episode(position: 1, url: "https://example.test/watch/1", iframe: false), externalVLC: true))
+    }
     func testEpisodeAndSourceProgressAreIsolatedAndPersisted() throws {
         let directory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         defer { try? FileManager.default.removeItem(at: directory) }

@@ -38,16 +38,7 @@ import WebKit
         if let raw = values["media"] as? String, let url = URL(string: raw),
            ["https", "http"].contains(url.scheme ?? ""), url.host != nil, url.user == nil, url.password == nil {
             mediaURL = url
-            #if DEBUG
-            if ProcessInfo.processInfo.arguments.contains("-captureResolvedStream") {
-                let record: [String: Any] = ["url": url.absoluteString, "duration": duration ?? 0, "release_id": key.releaseID,
-                                           "source_id": key.sourceID, "position": key.position]
-                if let data = try? JSONSerialization.data(withJSONObject: record),
-                   let directory = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first {
-                    try? data.write(to: directory.appendingPathComponent("VLCStreamForTest.json"), options: .atomic)
-                }
-            }
-            #endif
+            StreamTestCapture.write(url, key: key, duration: duration)
         }
         if !restored, duration != nil {
             restored = true

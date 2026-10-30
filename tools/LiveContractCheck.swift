@@ -18,10 +18,20 @@ import Darwin
         print("search_decoded count=\(search.count)")
         let detail = try await repository.release(sample.id, token: nil)
         print("detail_decoded id=\(detail.id)")
+        let watching = try await repository.discover(page: 0, recommendations: false, token: nil)
+        print("watching_decoded count=\(watching.content.count)")
+        let collections = try await repository.collections(page: 0, token: nil)
+        print("collections_decoded count=\(collections.content.count)")
+        if let collection = collections.content.first {
+            let content = try await repository.collectionReleases(collection.id, page: 0, token: nil)
+            print("collection_releases_decoded count=\(content.content.count)")
+        }
         let candidates = catalog.content.filter { ($0.episodesReleased ?? 0) > 0 && $0.isPlayDisabled != true && $0.isViewBlocked != true }
         var testedChain = false
         // Bounded to two releases, two translations, two sources and one episode per source.
         for release in candidates.prefix(2) {
+            let comments = try await repository.comments(release.id, page: 0, token: nil)
+            print("comments_decoded release_id=\(release.id) count=\(comments.content.count)")
             let types = try await repository.types(release.id, token: nil)
             print("types_decoded release_id=\(release.id) count=\(types.count)")
             for type in types.prefix(2) {

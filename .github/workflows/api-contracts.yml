@@ -2,7 +2,7 @@ name: Guest API availability (no credentials)
 on:
   workflow_dispatch:
   push:
-    paths: [tools/probe_api.py, .github/workflows/api-contracts.yml]
+    paths: [tools/probe_api.py, tools/LiveContractCheck.swift, .github/workflows/api-contracts.yml]
 permissions:
   contents: read
 jobs:
@@ -21,3 +21,28 @@ jobs:
           name: guest-api-report
           path: Artifacts/api-report.json
           if-no-files-found: error
+  swift-contracts:
+    runs-on: xcode-27
+    timeout-minutes: 12
+    env:
+      DEVELOPER_DIR: /Applications/Xcode_27.1.app/Contents/Developer
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Decode live public responses with production Swift client
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p Artifacts
+          xcrun swiftc -swift-version 6 -parse-as-library \
+            Sources/Domain/Models.swift Sources/Networking/Responses.swift \
+            Sources/Networking/APIClient.swift Sources/Networking/AnixartRepository.swift \
+            Sources/Media/SourceResolver.swift tools/LiveContractCheck.swift \
+            -o Artifacts/live-contract-check
+          Artifacts/live-contract-check 2>&1 | tee Artifacts/swift-live-contracts.log
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: swift-live-contract-report
+          path: Artifacts/swift-live-contracts.log

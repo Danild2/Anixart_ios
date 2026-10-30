@@ -3,6 +3,7 @@ on:
   workflow_dispatch:
   push:
     branches: [main]
+    paths-ignore: ['docs/**', README.md, tools/probe_api.py, tools/LiveContractCheck.swift, .github/workflows/api-contracts.yml]
   pull_request:
 permissions:
   contents: read

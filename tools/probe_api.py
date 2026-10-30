@@ -46,7 +46,8 @@ def probe():
     if not base:
         REPORT['result'] = 'blocked: no guest catalog returned; not an app integration pass'
         return
-    release = catalog['content'][0]
+    release = next((item for item in catalog['content'] if (item.get('episodes_released') or 0) > 0
+                    and not item.get('is_play_disabled') and not item.get('is_view_blocked')), catalog['content'][0])
     REPORT['catalog_sample'] = {'id': release['id'], 'title_ru': release.get('title_ru'), 'count': len(catalog['content']), 'keys': sorted(release.keys())}
     rid = int(release['id'])
     request(base, 'search/releases/0', {'query': release.get('title_ru') or str(rid), 'searchBy': 0}, 'v2')

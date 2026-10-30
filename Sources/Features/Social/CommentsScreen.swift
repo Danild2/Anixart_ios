@@ -18,7 +18,10 @@ struct CommentsScreen: View {
             if let error { FailureNotice(message: error) { Task { await load(reset: true) } } }
             ForEach(comments) { comment in
                 VStack(alignment: .leading, spacing: 8) {
-                    Text(comment.profile?.login ?? "Пользователь").font(.headline)
+                    if let profile = comment.profile {
+                        NavigationLink { PublicProfileScreen(id:profile.id) } label: { Text(profile.login ?? "Пользователь").font(.headline) }
+                            .accessibilityIdentifier("comment.profile.\(profile.id)")
+                    } else { Text("Пользователь").font(.headline) }
                     if comment.isSpoiler == true && !revealed.contains(comment.id) {
                         Button("Показать спойлер") { revealed.insert(comment.id) }
                     } else { Text(comment.message ?? "").textSelection(.enabled) }

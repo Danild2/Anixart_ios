@@ -28,6 +28,33 @@ struct Profile: Codable, Identifiable, Hashable, Sendable {
     var login: String?
     var avatar: String?
     var status: String?
+    var watchingCount: Int?
+    var planCount: Int?
+    var completedCount: Int?
+    var holdOnCount: Int?
+    var droppedCount: Int?
+    var watchedEpisodeCount: Int64?
+    var watchedTime: Int64?
+    var watchDynamics: [ProfileWatchDay]?
+    var preferredGenres: [ProfileGenre]?
+    var preferredAudiences: [ProfileGenre]?
+    var preferredThemes: [ProfileGenre]?
+    var isStatsHidden: Bool?
+    var isCountsHidden: Bool?
+    var hasStatistics: Bool { watchingCount != nil || completedCount != nil || watchedEpisodeCount != nil }
+}
+
+struct ProfileGenre: Codable, Hashable, Sendable {
+    let name: String
+    let percentage: Int
+}
+struct ProfileWatchDay: Codable, Hashable, Identifiable, Sendable {
+    var serverID: Int64?
+    let count: Int
+    var day: Int?
+    var timestamp: Int64?
+    var id: Int64 { serverID.flatMap { $0 > 0 ? $0 : nil } ?? timestamp ?? Int64(day ?? 0) }
+    enum CodingKeys: String, CodingKey { case serverID = "id", count, day, timestamp }
 }
 
 struct Translation: Codable, Identifiable, Hashable, Sendable {

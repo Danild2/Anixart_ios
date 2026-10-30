@@ -38,7 +38,7 @@ jobs:
           xcrun swiftc -swift-version 6 -parse-as-library \
             Sources/Domain/Models.swift Sources/Networking/Responses.swift \
             Sources/Networking/APIClient.swift Sources/Networking/AnixartRepository.swift \
-            Sources/Media/SourceResolver.swift Sources/Media/AniLibriaResolver.swift tools/LiveContractCheck.swift \
+            Sources/Media/SourceResolver.swift Sources/Media/AniLibriaResolver.swift Sources/Media/SibnetResolver.swift tools/LiveContractCheck.swift \
             -o Artifacts/live-contract-check
           Artifacts/live-contract-check 2>&1 | tee Artifacts/swift-live-contracts.log
       - uses: actions/upload-artifact@v4

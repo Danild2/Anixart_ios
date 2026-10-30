@@ -174,6 +174,9 @@ def inspect_media_and_profile(base, catalog):
             target = request(base, f"episode/target/{rid}/{source['id']}/1") or {}
             episode = target.get('episode', {}); raw = episode.get('url') or ''; parsed = urllib.parse.urlsplit(raw)
             result = {'type_id':translation['id'],'source_id':source['id'],'name':name,'iframe':episode.get('iframe'),'host':parsed.hostname}
+            if parsed.hostname == 'video.sibnet.ru':
+                values = urllib.parse.parse_qs(parsed.query)
+                if (values.get('videoid') or [''])[0].isdigit(): result['public_video_id'] = int(values['videoid'][0])
             if parsed.scheme == 'https' and parsed.hostname in ['video.sibnet.ru','kodikplayer.com','kodik.cc','kodik.info','aniqit.com']:
                 try:
                     headers = {'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Safari/537.36', 'Accept':'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'}
@@ -185,6 +188,18 @@ def inspect_media_and_profile(base, catalog):
                     code = re.search(r'Error code:\s*(\w+)',body)
                     result.update(http=error.code,provider_error=code.group(1) if code else None)
                 except Exception as error: result['error_type'] = type(error).__name__
+                if parsed.hostname in ['kodikplayer.com','kodik.cc','kodik.info','aniqit.com']:
+                    # KodikAdActivity deliberately embeds the URI without its query.
+                    clean = urllib.parse.urlunsplit((parsed.scheme,parsed.netloc,parsed.path,'',parsed.fragment))
+                    try:
+                        with urllib.request.urlopen(urllib.request.Request(clean,headers=headers),timeout=15) as response:
+                            body = response.read(2_000_000).decode('utf-8',errors='replace')
+                            result.update(clean_http=response.status, clean_bytes=len(body), clean_has_video='<video' in body.lower(),
+                                          script_paths=[urllib.parse.urlsplit(x).path for x in re.findall(r'<script[^>]+src=[\"\x27]([^\"\x27]+)',body)][:8])
+                    except urllib.error.HTTPError as error:
+                        body = error.read(10000).decode('utf-8',errors='replace'); code = re.search(r'Error code:\s*(\w+)',body)
+                        result.update(clean_http=error.code,clean_error=code.group(1) if code else None)
+                    except Exception as error: result['clean_error_type'] = type(error).__name__
             REPORT['initial_d']['providers'].append(result)
 
 

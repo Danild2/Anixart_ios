@@ -46,6 +46,8 @@ struct ProfileScreen: View {
                         VStack(alignment: .leading) { Text(profile.login ?? "Профиль").font(.title2); if let status = profile.status { Text(status).foregroundStyle(.secondary) } }
                     }
                 }
+                if profile.isStatsHidden != true, let days = profile.watchDynamics, !days.isEmpty { Section { ProfileWatchDynamics(days: days) } }
+                Section("Статистика") { ProfileStatistics(profile: profile) }
                 NavigationLink("История просмотра") { CatalogScreen(title: "История", feed: .library("history")) }
                 if let error = session.error { Text(error).foregroundStyle(.red) }
                 Button("Обновить профиль") { Task { await session.refresh(repository: repository) } }

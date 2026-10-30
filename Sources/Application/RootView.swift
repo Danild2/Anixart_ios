@@ -61,6 +61,7 @@ struct RootView: View {
             }
         }
         .environment(chrome)
+        .overlay(alignment:.topTrailing) { ImageDebugMetrics() }
         .task(id: session.identity) { await session.refresh(repository: AnixartRepository(client: APIClient(baseURL: settings.useRegionalAPI ? APIClient.regionalURL : APIClient.primaryURL))) }
     }
 }

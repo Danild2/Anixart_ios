@@ -1,7 +1,7 @@
 import Foundation
 
 final class StubURLProtocol: URLProtocol, @unchecked Sendable {
-    struct Reply { let status: Int; let body: String }
+    struct Reply { let status: Int; let body: String; var data: Data? = nil; var headers: [String:String] = [:] }
     final class Storage: @unchecked Sendable {
         private let lock = NSLock()
         private var replies: [Reply] = []
@@ -31,9 +31,10 @@ final class StubURLProtocol: URLProtocol, @unchecked Sendable {
             captured.httpBody = body
         }
         let reply = Self.storage.next(captured)
-        let response = HTTPURLResponse(url: request.url!, statusCode: reply.status, httpVersion: nil, headerFields: ["Content-Type":"application/json"])!
+        let headers = ["Content-Type":"application/json"].merging(reply.headers) { _,new in new }
+        let response = HTTPURLResponse(url: request.url!, statusCode: reply.status, httpVersion: nil, headerFields: headers)!
         client?.urlProtocol(self, didReceive: response, cacheStoragePolicy: .notAllowed)
-        client?.urlProtocol(self, didLoad: Data(reply.body.utf8))
+        client?.urlProtocol(self, didLoad: reply.data ?? Data(reply.body.utf8))
         client?.urlProtocolDidFinishLoading(self)
     }
     override func stopLoading() {}

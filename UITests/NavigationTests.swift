@@ -1,6 +1,68 @@
 import XCTest
 
 @MainActor final class NavigationTests: XCTestCase {
+    func testRealPostersDecodeDuringScrolling() {
+        let app = XCUIApplication()
+        app.launchArguments = ["-theme","liquidGlass","-regionalAPI","NO","-verifyPosterLoading","YES"]
+        app.launch()
+        let metric = app.staticTexts["imageMetrics"]
+        XCTAssertTrue(metric.waitForExistence(timeout:15))
+        let first = XCTNSPredicateExpectation(predicate:NSPredicate(format:"value MATCHES %@","decoded=([3-9]|[1-9][0-9]+);.*"),object:metric)
+        XCTAssertEqual(XCTWaiter.wait(for:[first],timeout:30),.completed)
+        app.swipeUp(); app.swipeUp(); app.swipeUp()
+        let scrolled = XCTNSPredicateExpectation(predicate:NSPredicate(format:"value MATCHES %@","decoded=([6-9]|[1-9][0-9]+);.*"),object:metric)
+        XCTAssertEqual(XCTWaiter.wait(for:[scrolled],timeout:30),.completed)
+        XCTAssertTrue((metric.value as? String ?? "").hasSuffix("failed=0"))
+        let screenshot = XCTAttachment(screenshot:app.screenshot()); screenshot.name = "real-posters-decoded-after-scrolling"; screenshot.lifetime = .keepAlways; add(screenshot)
+    }
+    func testRealPublicProfileStatisticsFromCommentAuthor() {
+        let app = XCUIApplication(); app.launchArguments = ["-theme","liquidGlass","-regionalAPI","NO"]; app.launch()
+        let search = app.searchFields.firstMatch
+        guard search.waitForExistence(timeout:15) else { XCTFail("Search unavailable"); return }
+        search.tap(); search.typeText("Инициал Ди")
+        let release = app.descendants(matching:.any).matching(identifier:"release.841").firstMatch
+        guard release.waitForExistence(timeout:30) else { XCTFail("Initial D unavailable"); return }; release.tap()
+        let comments = app.buttons["Комментарии"]
+        for _ in 0..<8 { if comments.isHittable { break }; app.swipeUp() }
+        guard comments.isHittable else { XCTFail("Comments navigation unavailable"); return }; comments.tap()
+        let authors = app.buttons.matching(NSPredicate(format:"identifier BEGINSWITH %@","comment.profile."))
+        guard authors.firstMatch.waitForExistence(timeout:30) else { XCTFail("Real comment authors unavailable"); return }
+        for index in 0..<min(3,authors.count) {
+            authors.element(boundBy:index).tap()
+            let count = app.staticTexts["profile.listCount.0"]
+            if count.waitForExistence(timeout:20) {
+                let screenshot = XCTAttachment(screenshot:app.screenshot()); screenshot.name = "real-public-profile-statistics"; screenshot.lifetime = .keepAlways; add(screenshot)
+                XCTAssertTrue(app.staticTexts["profile.listCount.4"].exists)
+                return
+            }
+            app.navigationBars.buttons.element(boundBy:0).tap()
+        }
+        XCTFail("No public statistics returned by the first three comment authors")
+    }
+    func testKodikResolvesRealMediaStream() { resolveInitialD(source:8) }
+    func testSibnetResolvesRealMediaStream() { resolveInitialD(source:1) }
+    private func resolveInitialD(source:Int) {
+        let app = XCUIApplication()
+        app.launchArguments = ["-theme","liquidGlass","-regionalAPI","NO","-playbackMode","vlc","-captureResolvedStream","YES"]
+        app.launch()
+        let search = app.searchFields.firstMatch
+        guard search.waitForExistence(timeout:15) else { XCTFail("Search unavailable"); return }
+        search.tap(); search.typeText("Инициал Ди")
+        let release = app.descendants(matching:.any).matching(identifier:"release.841").firstMatch
+        guard release.waitForExistence(timeout:30) else { XCTFail("Initial D unavailable"); return }; release.tap()
+        let watch = app.buttons["watchRelease"]
+        guard watch.waitForExistence(timeout:20) else { XCTFail("Server disallowed watching"); return }; watch.tap()
+        for id in ["translation.1","source.\(source)","episode.1"] {
+            let item = app.descendants(matching:.any).matching(identifier:id).firstMatch
+            guard item.waitForExistence(timeout:30) else { XCTFail("Source selection unavailable: \(id)"); return }; item.tap()
+        }
+        if app.webViews.firstMatch.waitForExistence(timeout:10) { app.webViews.firstMatch.tap() }
+        let open = app.buttons["openVLCStream"]
+        let resolved = XCTNSPredicateExpectation(predicate:NSPredicate(format:"enabled == true"),object:open)
+        let result = XCTWaiter.wait(for:[resolved],timeout:120)
+        let screenshot = XCTAttachment(screenshot:app.screenshot()); screenshot.name = "Initial-D-source-\(source)-stream-result"; screenshot.lifetime = .keepAlways; add(screenshot)
+        XCTAssertEqual(result,.completed,"Every required provider must produce an actual media URL")
+    }
     func testScheduleUsesRealServerDataAndOpensRelease() {
         let app = XCUIApplication()
         app.launchArguments = ["-theme", "liquidGlass", "-regionalAPI", "NO"]

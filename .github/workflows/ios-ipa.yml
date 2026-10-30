@@ -69,6 +69,8 @@ jobs:
             -configuration Debug -destination "platform=iOS Simulator,id=$SIMULATOR_ID" \
             -derivedDataPath .build/tests -resultBundlePath Artifacts/Tests.xcresult \
             -skip-testing:AnixartPortUITests/NavigationTests/testVLCResolvesRealMediaStream \
+            -skip-testing:AnixartPortUITests/NavigationTests/testKodikResolvesRealMediaStream \
+            -skip-testing:AnixartPortUITests/NavigationTests/testSibnetResolvesRealMediaStream \
             CODE_SIGNING_ALLOWED=NO test 2>&1 | tee Artifacts/tests.log
       - name: Resolve a real stream through the iOS interface
         id: resolve
@@ -80,6 +82,8 @@ jobs:
             -configuration Debug -destination "platform=iOS Simulator,id=$SIMULATOR_ID" \
             -derivedDataPath .build/tests -resultBundlePath Artifacts/Streaming.xcresult \
             -only-testing:AnixartPortUITests/NavigationTests/testVLCResolvesRealMediaStream \
+            -only-testing:AnixartPortUITests/NavigationTests/testKodikResolvesRealMediaStream \
+            -only-testing:AnixartPortUITests/NavigationTests/testSibnetResolvesRealMediaStream \
             CODE_SIGNING_ALLOWED=NO test-without-building 2>&1 | tee Artifacts/streaming.log
       - name: Export simulator screenshots
         if: ${{ !cancelled() }}
@@ -143,6 +147,7 @@ jobs:
           print(json.dumps(result))
           PY
       - name: Upload unsigned IPA
+        if: steps.resolve.outcome == 'success' && steps.vlc.outcome == 'success'
         uses: actions/upload-artifact@v4
         with:
           name: AnixartPort-unsigned-IPA

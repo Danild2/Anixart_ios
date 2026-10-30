@@ -10,16 +10,31 @@ struct Poster: View {
     let url: URL?
     var width: CGFloat = 104
     var height: CGFloat = 156
+    @Environment(\.displayScale) private var scale
+    @State private var bitmap: PosterBitmap?
+    @State private var failed = false
     var body: some View {
-        AsyncImage(url: url) { phase in
-            if let image = phase.image { image.resizable().scaledToFill() }
+        Group {
+            if let bitmap { Image(decorative: bitmap.image, scale: scale).resizable().scaledToFill() }
             else {
                 RoundedRectangle(cornerRadius: 16).fill(.quaternary)
-                    .overlay { Image(systemName: "photo").foregroundStyle(.secondary) }
+                    .overlay {
+                        if url != nil && !failed { ProgressView().controlSize(.small) }
+                        else { Image(systemName: failed ? "exclamationmark.triangle" : "photo").foregroundStyle(.secondary) }
+                    }
             }
         }
         .frame(width: width, height: height).clipped().clipShape(RoundedRectangle(cornerRadius: 16))
         .accessibilityHidden(true)
+        .task(id: "\(url?.absoluteString ?? "")|\(Int(max(width, height) * scale))") {
+            bitmap = nil; failed = false
+            guard let url else { return }
+            do {
+                let next = try await ImagePipeline.shared.image(url, pixels: Int(max(width, height) * scale))
+                try Task.checkCancellation(); bitmap = next
+            } catch is CancellationError { }
+            catch { if !Task.isCancelled { failed = true } }
+        }
     }
 }
 

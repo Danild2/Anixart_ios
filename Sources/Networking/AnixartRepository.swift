@@ -27,7 +27,7 @@ struct AnixartRepository: Sendable {
             body: APIClient.form(["login": login, "password": password]),
             contentType: "application/x-www-form-urlencoded", isReadOnly: false))
     }
-    func profile(_ id: Int64, token: String) async throws -> Profile {
+    func profile(_ id: Int64, token: String?) async throws -> Profile {
         let response: ProfileResponse = try await client.request(Endpoint(path: "profile/\(id)"), token: token)
         return response.profile
     }

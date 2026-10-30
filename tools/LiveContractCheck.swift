@@ -5,7 +5,7 @@ import Foundation
 @main struct LiveContractCheck {
     static func main() async throws {
         let repository = AnixartRepository()
-        let catalog = try await repository.catalog(page: 0, filter: CatalogFilter(sort: 6), token: nil)
+        let catalog = try await repository.catalog(page: 0, filter: CatalogFilter(), token: nil)
         guard let sample = catalog.content.first else { throw APIError.malformed }
         print("catalog_decoded count=\(catalog.content.count) sample_id=\(sample.id)")
         let query = sample.titleRu ?? sample.titleOriginal ?? String(sample.id)

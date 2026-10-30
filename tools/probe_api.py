@@ -163,6 +163,18 @@ def inspect_media_and_profile(base, catalog):
     sample = next((x for x in matches if 'первая' in (x.get('title_ru') or '').lower()), None)
     if not sample: return
     rid = int(sample['id']); REPORT['initial_d'] = {'release_id':rid,'providers':[]}
+    comments = request(base, f'release/comment/all/{rid}/0?sort=0') or {}
+    profile_samples = []
+    for comment in comments.get('content', [])[:3]:
+        public_id = (comment.get('profile') or {}).get('id')
+        if not public_id: continue
+        response = request(base, f'profile/{int(public_id)}') or {}
+        public_profile = response.get('profile') or {}
+        profile_samples.append({'id':public_id,'stats_hidden':public_profile.get('is_stats_hidden'),
+            'watch_dynamics_count':len(public_profile.get('watch_dynamics') or []),
+            'genre_count':len(public_profile.get('preferred_genres') or []),
+            'watch_day_keys':sorted((public_profile.get('watch_dynamics') or [{}])[0])})
+    REPORT['initial_d_profile_samples'] = profile_samples
     types = request(base, f'episode/{rid}') or {}
     seen = set()
     for translation in types.get('types', [])[:12]:
@@ -200,6 +212,16 @@ def inspect_media_and_profile(base, catalog):
                         body = error.read(10000).decode('utf-8',errors='replace'); code = re.search(r'Error code:\s*(\w+)',body)
                         result.update(clean_http=error.code,clean_error=code.group(1) if code else None)
                     except Exception as error: result['clean_error_type'] = type(error).__name__
+                    ad = 'https://anixmirai.com/iframe/ad?' + urllib.parse.urlencode({'url':clean,'v':'26101718'})
+                    try:
+                        with urllib.request.urlopen(urllib.request.Request(ad,headers=headers),timeout=15) as response:
+                            body = response.read(2_000_000).decode('utf-8',errors='replace')
+                            result.update(ad_http=response.status,ad_bytes=len(body),
+                                          has_original_ad_bridge='KodikInterface' in body and 'advertEnded' in body,
+                                          iframe_hosts=sorted({urllib.parse.urlsplit(x if not x.startswith('//') else 'https:'+x).hostname or 'relative'
+                                              for x in re.findall(r'<iframe[^>]+src=[\"\x27]([^\"\x27]+)',body)}))
+                    except urllib.error.HTTPError as error: result['ad_http'] = error.code
+                    except Exception as error: result['ad_error_type'] = type(error).__name__
             REPORT['initial_d']['providers'].append(result)
 
 

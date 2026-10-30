@@ -2,7 +2,7 @@ name: Guest API availability (no credentials)
 on:
   workflow_dispatch:
   push:
-    paths: [tools/probe_api.py, tools/LiveContractCheck.swift, .github/workflows/api-contracts.yml]
+    paths: [tools/probe_api.py, tools/LiveContractCheck.swift, .github/workflows/api-contracts.yml, 'Sources/Domain/**', 'Sources/Networking/**', Sources/Media/SourceResolver.swift]
 permissions:
   contents: read
 jobs:

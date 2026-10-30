@@ -1,6 +1,39 @@
 import XCTest
 
 @MainActor final class NavigationTests: XCTestCase {
+    func testRealEmbeddedVideoProducesDecodedFrames() {
+        let app = XCUIApplication()
+        app.launchArguments = ["-theme", "liquidGlass", "-regionalAPI", "NO"]
+        app.launch()
+        let search = app.searchFields.firstMatch
+        XCTAssertTrue(search.waitForExistence(timeout: 15)); search.tap(); search.typeText("Гонка")
+        let release = app.descendants(matching: .any).matching(identifier: "release.20290").firstMatch
+        guard release.waitForExistence(timeout: 30) else { XCTFail("Live Anixart release 20290 is unavailable"); return }
+        release.tap()
+        let watch = app.buttons["watchRelease"]
+        guard watch.waitForExistence(timeout: 15) else { XCTFail("Server did not allow playback for the selected release"); return }
+        watch.tap()
+        for identifier in ["translation.143", "source.153", "episode.1"] {
+            let item = app.descendants(matching: .any).matching(identifier: identifier).firstMatch
+            guard item.waitForExistence(timeout: 30) else { XCTFail("Live playback chain is unavailable: \(identifier)"); return }
+            item.tap()
+        }
+        let web = app.webViews.firstMatch
+        guard web.waitForExistence(timeout: 30) else { XCTFail("Embedded player did not appear"); return }
+        let state = app.staticTexts["playbackState"]
+        XCTAssertTrue(state.waitForExistence(timeout: 10))
+        let loaded = XCTNSPredicateExpectation(predicate: NSPredicate(format: "label != %@", "Загрузка плеера…"), object: state)
+        XCTAssertEqual(XCTWaiter.wait(for: [loaded], timeout: 45), .completed)
+        web.tap() // Ordinary user gesture on the legitimate provider's play surface.
+        if app.buttons["Воспроизвести"].isEnabled { app.buttons["Воспроизвести"].tap() }
+        let playing = XCTNSPredicateExpectation(predicate: NSPredicate(format: "label == %@", "Воспроизводится"), object: state)
+        XCTAssertEqual(XCTWaiter.wait(for: [playing], timeout: 120), .completed, "Requires advancing currentTime plus readyState >= 3 and nonzero decoded video dimensions")
+        XCTAssertGreaterThanOrEqual(Int(state.value as? String ?? "0") ?? 0, 2)
+        let screenshot = XCTAttachment(screenshot: app.screenshot()); screenshot.name = "real-Anixart-source-video-playing"; screenshot.lifetime = .keepAlways; add(screenshot)
+        app.buttons["Пауза"].tap()
+        let paused = XCTNSPredicateExpectation(predicate: NSPredicate(format: "label == %@", "Пауза"), object: state)
+        XCTAssertEqual(XCTWaiter.wait(for: [paused], timeout: 10), .completed)
+    }
     func testNativeLiquidGlassTabsAndScreenshot() {
         let app = XCUIApplication()
         app.launchArguments = ["-theme", "liquidGlass", "-regionalAPI", "NO"]

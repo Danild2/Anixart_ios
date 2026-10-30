@@ -5,7 +5,7 @@ struct AnixartRepository: Sendable {
     init(client: APIClient = APIClient()) { self.client = client }
 
     func catalog(page: Int, filter: CatalogFilter, token: String?) async throws -> Page<Release> {
-        try await client.request(Endpoint(path: "filter/\(page)", method: "POST",
+        try await client.request(Endpoint(path: "filter/\(page)", method: "POST", query: ["extended_mode":"true"],
             body: JSONEncoder().encode(filter)), token: token)
     }
     func search(_ query: String, page: Int, token: String?) async throws -> [Release] {

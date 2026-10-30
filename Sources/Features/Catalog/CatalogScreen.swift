@@ -4,6 +4,7 @@ struct CatalogScreen: View {
     let title: String
     let feed: ReleaseFeed
     var searchable = false
+    let persistenceKey: String?
     @Environment(\.repository) private var repository
     @Environment(SessionStore.self) private var session
     @Environment(AppSettings.self) private var settings
@@ -11,6 +12,12 @@ struct CatalogScreen: View {
     @State private var query = ""
     @State private var filter = CatalogFilter()
     @State private var showFilters = false
+    init(title: String, feed: ReleaseFeed, searchable: Bool = false, initialFilter: CatalogFilter = CatalogFilter(), persistenceKey: String? = nil) {
+        self.title = title; self.feed = feed; self.searchable = searchable
+        self.persistenceKey = persistenceKey
+        let saved = persistenceKey.flatMap { UserDefaults.standard.data(forKey: $0) }.flatMap { try? JSONDecoder().decode(CatalogFilter.self, from: $0) }
+        _filter = State(initialValue: saved ?? initialFilter)
+    }
     private var reloadID: String { "\(query)|\(filter)|\(feed)|\(session.identity)|\(settings.useRegionalAPI)" }
 
     var body: some View {
@@ -31,6 +38,7 @@ struct CatalogScreen: View {
             await load(reset: true)
         }
         .refreshable { await load(reset: true) }
+        .onChange(of: filter) { _, value in if let persistenceKey, let data = try? JSONEncoder().encode(value) { UserDefaults.standard.set(data, forKey: persistenceKey) } }
     }
     private var content: some View {
         List {
@@ -60,7 +68,7 @@ private struct FilterScreen: View {
     @State private var startYear = ""
     @State private var endYear = ""
     @State private var genres = ""
-    private let sorts = ["По дате добавления ↓", "По дате добавления ↑", "По рейтингу ↓", "По рейтингу ↑", "По годам ↓", "По годам ↑", "По популярности ↓", "По популярности ↑"]
+    private let sorts = OriginalCopy.array("sort")
     private var valid: Bool {
         let first = Int(startYear), last = Int(endYear)
         return (startYear.isEmpty || first != nil) && (endYear.isEmpty || last != nil)

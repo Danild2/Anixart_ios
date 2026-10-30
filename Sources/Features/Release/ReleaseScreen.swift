@@ -28,7 +28,7 @@ struct ReleaseScreen: View {
                 } else {
                     NavigationLink { EpisodeScreen(release: item) } label: {
                         Label("Смотреть", systemImage: "play.fill").frame(maxWidth: .infinity).modifier(GlassAction())
-                    }.buttonStyle(.plain)
+                    }.buttonStyle(.plain).accessibilityIdentifier("watchRelease")
                 }
                 if session.token != nil {
                     HStack {

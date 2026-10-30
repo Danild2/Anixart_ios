@@ -21,6 +21,7 @@ struct EpisodeScreen: View {
                             if let count = type.episodesCount { Text("Серий: \(count)").font(.caption).foregroundStyle(.secondary) }
                         }
                     }
+                    .accessibilityIdentifier("translation.\(type.id)")
                 }
             }
             if loading { ProgressView() }
@@ -52,6 +53,7 @@ private struct SourcesScreen: View {
                         if let quality = source.quality, quality > 0 { Text("Качество источника: \(quality)").font(.caption).foregroundStyle(.secondary) }
                     }
                 }
+                .accessibilityIdentifier("source.\(source.id)")
             }
             if loading { ProgressView() }
             else if sources.isEmpty && error == nil { Text("Источники не найдены.") }
@@ -91,6 +93,7 @@ private struct EpisodesListScreen: View {
                         if episode.isWatched == true { Image(systemName: "checkmark.circle.fill").foregroundStyle(.secondary) }
                     }
                 }
+                .accessibilityIdentifier("episode.\(episode.position)")
             }
             if loading { ProgressView() }
             else if episodes.isEmpty && error == nil { Text("Серии не найдены.") }

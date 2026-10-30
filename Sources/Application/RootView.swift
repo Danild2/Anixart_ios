@@ -4,7 +4,7 @@ private enum MainTab: Int, CaseIterable, Identifiable {
     case home, discover, bookmarks, feed, profile
     var id: Int { rawValue }
     var title: String {
-        switch self { case .home: "Главная"; case .discover: "Обзор"; case .bookmarks: "Закладки"; case .feed: "Лента"; case .profile: "Профиль" }
+        OriginalCopy.text(["home", "discover", "bookmarks", "feed", "profile"][rawValue])
     }
     var icon: String {
         switch self { case .home: "house"; case .discover: "safari"; case .bookmarks: "bookmark"; case .feed: "text.bubble"; case .profile: "person.crop.circle" }
@@ -22,7 +22,7 @@ struct RootView: View {
                   NavigationStack {
                     Group {
                         switch item {
-                        case .home: CatalogScreen(title: "Anixart", feed: .catalog, searchable: true)
+                        case .home: HomeScreen()
                         case .discover: DiscoverScreen()
                         case .bookmarks: LibraryScreen()
                         case .feed: FeedScreen()

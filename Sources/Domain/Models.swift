@@ -93,13 +93,17 @@ enum WatchStatus: Int, CaseIterable, Identifiable, Sendable {
     }
 }
 
-struct CatalogFilter: Encodable, Equatable, Sendable {
+struct CatalogFilter: Codable, Equatable, Sendable {
     var sort = 0
     var startYear: Int?
     var endYear: Int?
     var genres: [String] = []
+    var country: String?
+    var categoryId: Int64?
+    var statusId: Int64?
     enum CodingKeys: String, CodingKey {
-        case sort, genres
+        case sort, genres, country
         case startYear = "start_year", endYear = "end_year"
+        case categoryId = "category_id", statusId = "status_id"
     }
 }

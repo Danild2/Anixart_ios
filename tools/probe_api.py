@@ -5,6 +5,9 @@ import pathlib
 import urllib.error
 import urllib.parse
 import urllib.request
+import concurrent.futures
+import time
+import re
 
 REPORT = {'time_utc': datetime.datetime.now(datetime.timezone.utc).isoformat(),
           'authentication': 'guest only; no account credentials used', 'requests': []}
@@ -46,6 +49,7 @@ def probe():
     if not base:
         REPORT['result'] = 'blocked: no guest catalog returned; not an app integration pass'
         return
+    inspect_media_and_profile(base, catalog)
     release = next((item for item in catalog['content'] if (item.get('episodes_released') or 0) > 0
                     and not item.get('is_play_disabled') and not item.get('is_view_blocked')), catalog['content'][0])
     REPORT['catalog_sample'] = {'id': release['id'], 'title_ru': release.get('title_ru'), 'count': len(catalog['content']), 'keys': sorted(release.keys())}
@@ -108,6 +112,74 @@ def probe():
                 'keys': sorted(response), 'content_count': len(response.get('content') or []),
                 'sample_keys': sorted(sample),
                 'block_types': sorted({block.get('type', '') for block in (sample.get('payload') or {}).get('blocks', [])})}
+
+
+def inspect_media_and_profile(base, catalog):
+    def inspect_image(item):
+        raw = item.get('image')
+        record = {'release_id': item['id'], 'image_present': bool(raw), 'poster_type': type(item.get('poster')).__name__}
+        if not isinstance(raw, str): return record
+        url = urllib.parse.urlsplit(raw)
+        record.update(host=url.hostname, scheme=url.scheme, extension=pathlib.PurePosixPath(url.path).suffix)
+        started = time.monotonic()
+        try:
+            req = urllib.request.Request(raw, headers={'User-Agent':'AnixartPort/0.1 (image diagnostics)', 'Accept':'image/*'})
+            with urllib.request.urlopen(req, timeout=20) as response:
+                data = response.read(6_000_001)
+                record.update(http=response.status, content_type=response.headers.get('Content-Type'), bytes=len(data),
+                              prefix_hex=data[:12].hex(), cache_control=response.headers.get('Cache-Control'))
+        except urllib.error.HTTPError as error: record['http'] = error.code
+        except Exception as error: record['error_type'] = type(error).__name__
+        record['elapsed_ms'] = round((time.monotonic()-started)*1000)
+        return record
+    with concurrent.futures.ThreadPoolExecutor(max_workers=4) as pool:
+        REPORT['image_diagnostics'] = list(pool.map(inspect_image, catalog.get('content', [])[:12]))
+    for path in ['config/toggles', 'config/urls']:
+        response = request(base, path + '?version_code=26101718&is_beta=false&is_api_alt=false')
+        if response:
+            public = {}
+            for key in ['iframeEmbedUrl','iframe_embed_url','staticDomain','static_domain','sibnetUserAgent','sibnet_user_agent','consentRequired','consent_required']:
+                value = response.get(key)
+                if value is not None:
+                    if isinstance(value, str) and value.startswith('https://'):
+                        parsed = urllib.parse.urlsplit(value)
+                        public[key] = {'host': parsed.hostname, 'path': parsed.path, 'query_names': [x[0] for x in urllib.parse.parse_qsl(parsed.query,keep_blank_values=True)]}
+                    elif key.lower().replace('_','') == 'staticdomain': public[key] = value
+                    elif isinstance(value,bool): public[key] = value
+            REPORT.setdefault('public_configuration', {})[path] = public
+    profile = request(base, 'profile/1')
+    if profile and isinstance(profile.get('profile'), dict):
+        value = profile['profile']
+        REPORT['profile_statistics_schema'] = {key: {'type':type(value.get(key)).__name__, 'count':len(value[key]) if isinstance(value.get(key),list) else None,
+            'sample_keys':sorted(value[key][0]) if isinstance(value.get(key),list) and value[key] and isinstance(value[key][0],dict) else None}
+            for key in ['watching_count','plan_count','completed_count','hold_on_count','dropped_count','watched_time','watched_episode_count','watch_dynamics','preferred_genres','preferred_audiences','preferred_themes','is_stats_hidden']}
+    search = request(base, 'search/releases/0', {'query':'Инициал Ди', 'searchBy':0}, 'v2')
+    matches = (search or {}).get('releases', [])
+    sample = next((x for x in matches if 'первая' in (x.get('title_ru') or '').lower()), None)
+    if not sample: return
+    rid = int(sample['id']); REPORT['initial_d'] = {'release_id':rid,'providers':[]}
+    types = request(base, f'episode/{rid}') or {}
+    seen = set()
+    for translation in types.get('types', [])[:12]:
+        sources = request(base, f"episode/{rid}/{translation['id']}") or {}
+        for source in sources.get('sources', [])[:4]:
+            name = source.get('name','')
+            if name in seen: continue
+            seen.add(name)
+            target = request(base, f"episode/target/{rid}/{source['id']}/1") or {}
+            episode = target.get('episode', {}); raw = episode.get('url') or ''; parsed = urllib.parse.urlsplit(raw)
+            result = {'type_id':translation['id'],'source_id':source['id'],'name':name,'iframe':episode.get('iframe'),'host':parsed.hostname}
+            if parsed.scheme == 'https' and parsed.hostname in ['video.sibnet.ru','kodikplayer.com','kodik.cc','kodik.info','aniqit.com']:
+                try:
+                    with urllib.request.urlopen(raw,timeout=15) as response:
+                        page = response.read(2_000_000).decode('utf-8',errors='replace')
+                        result.update(http=response.status,bytes=len(page),has_media_source=bool(re.search(r'src\s*:\s*[\"\x27]',page)))
+                except urllib.error.HTTPError as error:
+                    body = error.read(10000).decode('utf-8',errors='replace')
+                    code = re.search(r'Error code:\s*(\w+)',body)
+                    result.update(http=error.code,provider_error=code.group(1) if code else None)
+                except Exception as error: result['error_type'] = type(error).__name__
+            REPORT['initial_d']['providers'].append(result)
 
 
 if __name__ == '__main__':

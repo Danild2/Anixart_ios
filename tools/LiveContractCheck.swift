@@ -18,6 +18,16 @@ import Darwin
         print("search_decoded count=\(search.count)")
         let detail = try await repository.release(sample.id, token: nil)
         print("detail_decoded id=\(detail.id)")
+        let initialComments = try await repository.comments(841, page: 0, token: nil)
+        var decodedActiveProfile = false
+        for comment in initialComments.content.prefix(3) {
+            guard let author = comment.profile else { continue }
+            let profile = try await repository.profile(author.id, token: nil)
+            guard profile.isStatsHidden != true, profile.hasStatistics, let days = profile.watchDynamics, !days.isEmpty else { continue }
+            print("profile_statistics_decoded days=\(days.count) genres=\(profile.preferredGenres?.count ?? 0) audiences=\(profile.preferredAudiences?.count ?? 0) themes=\(profile.preferredThemes?.count ?? 0)")
+            decodedActiveProfile = true; break
+        }
+        guard decodedActiveProfile else { throw APIError.schema("public_profile_statistics") }
         let watching = try await repository.discover(page: 0, recommendations: false, token: nil)
         print("watching_decoded count=\(watching.content.count)")
         let schedule = try await repository.schedule()

@@ -1,9 +1,40 @@
 import XCTest
 
 @MainActor final class NavigationTests: XCTestCase {
-    func testRealEmbeddedVideoProducesDecodedFrames() {
+    func testVLCResolvesRealMediaStream() {
         let app = XCUIApplication()
-        app.launchArguments = ["-theme", "liquidGlass", "-regionalAPI", "NO"]
+        app.launchArguments = ["-theme", "liquidGlass", "-regionalAPI", "NO", "-playbackMode", "vlc", "-captureResolvedStream", "YES"]
+        app.launch()
+        let search = app.searchFields.firstMatch
+        XCTAssertTrue(search.waitForExistence(timeout: 15)); search.tap(); search.typeText("Гонка")
+        let release = app.descendants(matching: .any).matching(identifier: "release.20290").firstMatch
+        guard release.waitForExistence(timeout: 30) else { XCTFail("Live release unavailable"); return }; release.tap()
+        let watch = app.buttons["watchRelease"]
+        guard watch.waitForExistence(timeout: 15) else { XCTFail("Playback is restricted by the server"); return }; watch.tap()
+        for identifier in ["translation.143", "source.153", "episode.1"] {
+            let item = app.descendants(matching: .any).matching(identifier: identifier).firstMatch
+            guard item.waitForExistence(timeout: 30) else { XCTFail("Live source selection unavailable: \(identifier)"); return }; item.tap()
+        }
+        let web = app.webViews.firstMatch
+        guard web.waitForExistence(timeout: 30) else { XCTFail("Legitimate embedding flow did not load"); return }
+        let state = app.staticTexts["playbackState"]
+        XCTAssertTrue(state.waitForExistence(timeout: 10))
+        let loaded = XCTNSPredicateExpectation(predicate: NSPredicate(format: "label != %@", "Загрузка плеера…"), object: state)
+        XCTAssertEqual(XCTWaiter.wait(for: [loaded], timeout: 45), .completed)
+        web.tap()
+        if app.buttons["Воспроизвести"].isEnabled { app.buttons["Воспроизвести"].tap() }
+        let open = app.buttons["openVLCStream"]
+        let resolved = XCTNSPredicateExpectation(predicate: NSPredicate(format: "enabled == true"), object: open)
+        let result = XCTWaiter.wait(for: [resolved], timeout: 120)
+        let screenshot = XCTAttachment(screenshot: app.screenshot()); screenshot.name = "VLC-live-stream-resolution-result"; screenshot.lifetime = .keepAlways; add(screenshot)
+        XCTAssertEqual(result, .completed, "Requires an actual HTTP(S) media URL observed in the authorized player, not an iframe URL")
+    }
+    func testRealEmbeddedVideoProducesDecodedFrames() throws {
+        guard ProcessInfo.processInfo.environment["ANIXART_EMBEDDED_PLAYBACK_TEST"] == "1" else {
+            throw XCTSkip("Version 1 uses external VLC; embedded playback remains a separately invoked compatibility test.")
+        }
+        let app = XCUIApplication()
+        app.launchArguments = ["-theme", "liquidGlass", "-regionalAPI", "NO", "-playbackMode", "inApp"]
         app.launch()
         let search = app.searchFields.firstMatch
         XCTAssertTrue(search.waitForExistence(timeout: 15)); search.tap(); search.typeText("Гонка")

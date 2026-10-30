@@ -67,6 +67,10 @@ struct SettingsScreen: View {
                 Toggle("Официальный RU-сервер", isOn: $settings.useRegionalAPI)
                 Text(settings.useRegionalAPI ? "api.anixsekai.com" : "api-s.anixsekai.com").font(.caption).foregroundStyle(.secondary)
             }
+            Section("Воспроизведение") {
+                Picker("Плеер", selection: $settings.playbackMode) { ForEach(PlaybackMode.allCases) { Text($0.title).tag($0) } }
+                Text("В первой версии медиапоток открывается в VLC. Историю серий ведёт Anixart; точная позиция внешнего воспроизведения управляется VLC.").font(.caption).foregroundStyle(.secondary)
+            }
             Section("О переносе") {
                 Text("Неофициальный нативный клиент на основе исследования Anixart 10.5.")
                 Text("Функции и источники ещё требуют проверки с доступным сервером и на iPhone. Лента, каналы, друзья, уведомления и часть настроек оригинала пока не перенесены.").foregroundStyle(.secondary)

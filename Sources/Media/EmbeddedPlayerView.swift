@@ -17,7 +17,12 @@ struct EmbeddedPlayerView: UIViewRepresentable {
         view.navigationDelegate = context.coordinator
         view.uiDelegate = context.coordinator
         playback.attach(view)
-        view.load(URLRequest(url: url))
+        // WebPlayerActivity in APK 10.5 uses this public wrapper for IFRAME=true.
+        // Reuse its normal embedding flow; never manufacture partner keys or bypass access controls.
+        var wrapper = URLComponents(string: "https://anixmirai.com/iframe")!
+        let unreserved = CharacterSet(charactersIn: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~")
+        wrapper.percentEncodedQuery = "url=" + (url.absoluteString.addingPercentEncoding(withAllowedCharacters: unreserved) ?? "")
+        view.load(URLRequest(url: wrapper.url!))
         return view
     }
     func updateUIView(_ view: WKWebView, context: Context) { context.coordinator.parent = self }
@@ -29,7 +34,9 @@ struct EmbeddedPlayerView: UIViewRepresentable {
         func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
             let origin = message.frameInfo.securityOrigin.host.lowercased().replacingOccurrences(of: "www.", with: "")
             let expected = (parent.url.host ?? "").lowercased().replacingOccurrences(of: "www.", with: "")
-            guard !expected.isEmpty, origin == expected, let values = message.body as? [String: Any] else { return }
+            let kodikOrigins: Set<String> = ["kodik.cc", "kodik.info", "aniqit.com", "kodikplayer.com"]
+            let permitted = origin == expected || (kodikOrigins.contains(origin) && kodikOrigins.contains(expected))
+            guard !expected.isEmpty, permitted, let values = message.body as? [String: Any] else { return }
             parent.playback.receive(values, frame: message.frameInfo)
         }
         func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) { parent.playback.loaded() }
@@ -39,10 +46,10 @@ struct EmbeddedPlayerView: UIViewRepresentable {
             }
             return .allow
         }
-        func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) { parent.error = error.localizedDescription }
-        func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) { parent.error = error.localizedDescription }
+        func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) { parent.error = error.localizedDescription; parent.playback.fail(error.localizedDescription) }
+        func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) { parent.error = error.localizedDescription; parent.playback.fail(error.localizedDescription) }
         func webView(_ webView: WKWebView, decidePolicyFor response: WKNavigationResponse) async -> WKNavigationResponsePolicy {
-            if let http = response.response as? HTTPURLResponse, http.statusCode >= 400 { parent.error = "Веб-источник вернул HTTP \(http.statusCode)." }
+            if let http = response.response as? HTTPURLResponse, http.statusCode >= 400 { let message = "Веб-источник вернул HTTP \(http.statusCode)."; parent.error = message; parent.playback.fail(message) }
             return response.canShowMIMEType ? .allow : .cancel
         }
         func webViewWebContentProcessDidTerminate(_ webView: WKWebView) { parent.error = "Веб-плеер остановлен системой. Повторите загрузку." }

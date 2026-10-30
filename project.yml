@@ -19,6 +19,10 @@ targets:
       path: Config/Info.plist
       properties:
         CFBundleDisplayName: Anixart
+        LSApplicationQueriesSchemes: [vlc-x-callback, vlc]
+        CFBundleURLTypes:
+          - CFBundleURLName: local.anixartport.client.vlc-return
+            CFBundleURLSchemes: [anixartport]
         UILaunchScreen: {}
         UIApplicationSceneManifest:
           UIApplicationSupportsMultipleScenes: false

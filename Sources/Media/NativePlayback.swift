@@ -6,6 +6,7 @@ import Observation
     private(set) var player: AVPlayer?
     private(set) var error: String?
     private(set) var ready = false
+    private(set) var speed: Float = 1
     private let progress: ProgressStore
     private let key: PlaybackKey
     private var timer: Any?
@@ -13,14 +14,14 @@ import Observation
     private var startupTask: Task<Void, Never>?
 
     init(key: PlaybackKey, progress: ProgressStore = ProgressStore()) { self.key = key; self.progress = progress }
-    func start(url: URL) {
+    func start(url: URL, autoplay: Bool = true, resumeOverride: Double? = nil) {
         stop(); error = nil; ready = false
         do { try AVAudioSession.sharedInstance().setCategory(.playback, mode: .moviePlayback); try AVAudioSession.sharedInstance().setActive(true) }
         catch { self.error = "Не удалось настроить звук: \(error.localizedDescription)" }
         let item = AVPlayerItem(url: url)
         let player = AVPlayer(playerItem: item)
         self.player = player
-        let resume = progress.progress(for: key)?.resumeSeconds ?? 0
+        let resume = resumeOverride ?? progress.progress(for: key)?.resumeSeconds ?? 0
         if resume > 0 { player.seek(to: CMTime(seconds: resume, preferredTimescale: 600)) }
         statusObserver = item.observe(\.status, options: [.initial, .new]) { [weak self] _, _ in
             Task { @MainActor [weak self] in self?.updateStatus() }
@@ -33,7 +34,18 @@ import Observation
             guard let self, !self.ready else { return }
             self.error = "Источник не начал воспроизведение. Выберите другой источник или повторите попытку."
         }
-        player.play()
+        player.defaultRate = speed
+        if autoplay { player.play() }
+    }
+    func quality(_ url: URL) {
+        let position = player?.currentTime().seconds
+        let playing = (player?.rate ?? 0) > 0
+        start(url: url, autoplay: playing, resumeOverride: position.flatMap { $0.isFinite ? $0 : nil })
+    }
+    func setSpeed(_ value: Float) {
+        guard [0.5, 0.75, 1, 1.25, 1.5, 2].contains(value) else { return }
+        speed = value; player?.defaultRate = value
+        if (player?.rate ?? 0) > 0 { player?.rate = value }
     }
     private func updateStatus() {
         guard let item = player?.currentItem else { return }

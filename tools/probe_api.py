@@ -140,7 +140,7 @@ def inspect_media_and_profile(base, catalog):
         if response:
             if path == 'config/toggles': configuration = response
             public = {}
-            for key in ['iframeEmbedUrl','iframe_embed_url','staticDomain','static_domain','sibnetUserAgent','sibnet_user_agent','consentRequired','consent_required','kodikVideoLinksUrl']:
+            for key in ['iframeEmbedUrl','iframe_embed_url','staticDomain','static_domain','sibnetRandUserAgent','sibnetUserAgent','sibnet_user_agent','consentRequired','consent_required','kodikVideoLinksUrl','kodikIframeAd']:
                 value = response.get(key)
                 if value is not None:
                     if isinstance(value, str) and value.startswith('https://'):
@@ -208,6 +208,11 @@ def inspect_media_and_profile(base, catalog):
                             body = response.read(2_000_000).decode('utf-8',errors='replace')
                             result.update(clean_http=response.status, clean_bytes=len(body), clean_has_video='<video' in body.lower(),
                                           script_paths=[urllib.parse.urlsplit(x).path for x in re.findall(r'<script[^>]+src=[\"\x27]([^\"\x27]+)',body)][:8])
+                            controls = []
+                            for tag in re.findall(r'<(?:button|div|span)[^>]+>',body):
+                                attrs = dict(re.findall(r'(id|class|role|aria-label)=[\"\x27]([^\"\x27]*)[\"\x27]',tag))
+                                if any(re.search(r'play|poster|start',x,re.I) for x in attrs.values()): controls.append(attrs)
+                            result['public_control_hints'] = controls[:16]
                     except urllib.error.HTTPError as error:
                         body = error.read(10000).decode('utf-8',errors='replace'); code = re.search(r'Error code:\s*(\w+)',body)
                         result.update(clean_http=error.code,clean_error=code.group(1) if code else None)

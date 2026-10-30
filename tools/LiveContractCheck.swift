@@ -37,6 +37,12 @@ import Darwin
         let libertyEpisode = try await repository.target(20290, source: 413, position: 1)
         let liberty = try await SourceResolver().resolveForPlayback(libertyEpisode, externalVLC: true)
         print("liberty_public_api_resolved variants=\(liberty.variants.count); actual playback checked separately in VLC")
+        do {
+            let episode = try await repository.target(841, source:1, position:1)
+            let resolved = try await SourceResolver().resolveForPlayback(episode,externalVLC:true,configuration:configuration)
+            if case .native = resolved.target { print("sibnet_original_public_parser_resolved; actual playback NOT checked by this probe") }
+        } catch APIError.http(let status) { print("sibnet_original_public_parser_http=\(status)") }
+        catch { print("sibnet_original_public_parser_error=\(String(describing:type(of:error)))") }
         let collections = try await repository.collections(page: 0, token: nil)
         print("collections_decoded count=\(collections.content.count)")
         if let collection = collections.content.first {

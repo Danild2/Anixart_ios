@@ -1,0 +1,14 @@
+.private/
+.build/
+DerivedData/
+*.xcodeproj/
+*.xcworkspace/
+*.ipa
+*.apk
+*.p12
+*.mobileprovision
+*.log
+.DS_Store
+Payload/
+Artifacts/
+__pycache__/

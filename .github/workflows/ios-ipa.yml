@@ -1,0 +1,95 @@
+name: Build and verify iPhone IPA
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+  pull_request:
+permissions:
+  contents: read
+concurrency:
+  group: ios-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  ios:
+    runs-on: xcode-27
+    timeout-minutes: 55
+    env:
+      DEVELOPER_DIR: /Applications/Xcode_27.1.app/Contents/Developer
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Verify tools and source
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p Artifacts
+          xcodebuild -version | tee Artifacts/toolchain.log
+          xcodebuild -showsdks | tee -a Artifacts/toolchain.log
+          python3 tools/check_source.py
+          python3 -m unittest discover -s tools -p 'test_*.py' -v
+          brew install xcodegen
+          xcodegen --version | tee -a Artifacts/toolchain.log
+          xcodegen generate
+      - name: Static analysis
+        shell: bash
+        run: |
+          set -euo pipefail
+          xcodebuild -project AnixartPort.xcodeproj -scheme AnixartPort \
+            -configuration Debug -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' \
+            -derivedDataPath .build/analyze CODE_SIGNING_ALLOWED=NO analyze \
+            2>&1 | tee Artifacts/analyze.log
+      - name: Select iPhone 17 simulator
+        shell: bash
+        run: |
+          set -euo pipefail
+          xcrun simctl list runtimes -j > Artifacts/runtimes.json
+          runtime=$(python3 -c 'import json; r=json.load(open("Artifacts/runtimes.json"))["runtimes"]; a=[x for x in r if x.get("isAvailable") and "iOS" in x["name"] and tuple(map(int,x["version"].split("."))) >= (27,1)]; print(sorted(a,key=lambda x:tuple(map(int,x["version"].split("."))))[0]["identifier"])')
+          simulator=$(xcrun simctl create Anixart-CI com.apple.CoreSimulator.SimDeviceType.iPhone-17 "$runtime")
+          echo "SIMULATOR_ID=$simulator" >> "$GITHUB_ENV"
+      - name: Unit and UI tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          xcodebuild -project AnixartPort.xcodeproj -scheme AnixartPort \
+            -configuration Debug -destination "platform=iOS Simulator,id=$SIMULATOR_ID" \
+            -derivedDataPath .build/tests -resultBundlePath Artifacts/Tests.xcresult \
+            CODE_SIGNING_ALLOWED=NO test 2>&1 | tee Artifacts/tests.log
+      - name: Build Release for iPhone
+        shell: bash
+        run: |
+          set -euo pipefail
+          xcodebuild -project AnixartPort.xcodeproj -scheme AnixartPort \
+            -configuration Release -sdk iphoneos -destination 'generic/platform=iOS' \
+            -derivedDataPath .build/release CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY='' build 2>&1 | tee Artifacts/build.log
+      - name: Package and verify IPA
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p Payload
+          ditto .build/release/Build/Products/Release-iphoneos/AnixartPort.app Payload/AnixartPort.app
+          executable=$(/usr/libexec/PlistBuddy -c 'Print CFBundleExecutable' Payload/AnixartPort.app/Info.plist)
+          test -x "Payload/AnixartPort.app/$executable"
+          file "Payload/AnixartPort.app/$executable" | tee Artifacts/executable.log
+          lipo -verify_arch arm64 "Payload/AnixartPort.app/$executable"
+          ditto -c -k --keepParent Payload Artifacts/AnixartPort-unsigned.ipa
+          python3 tools/verify_ipa.py Artifacts/AnixartPort-unsigned.ipa
+          shasum -a 256 Artifacts/AnixartPort-unsigned.ipa > Artifacts/SHA256SUMS
+      - name: Upload unsigned IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: AnixartPort-unsigned-IPA
+          path: |
+            Artifacts/AnixartPort-unsigned.ipa
+            Artifacts/SHA256SUMS
+          if-no-files-found: error
+          retention-days: 14
+      - name: Upload diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: AnixartPort-diagnostics
+          path: Artifacts/
+          if-no-files-found: warn
+          retention-days: 14

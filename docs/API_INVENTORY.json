@@ -1,0 +1,2702 @@
+[
+  {
+    "interface": "AchievementApi",
+    "method": "GET",
+    "path": "achievement/get/{code}",
+    "signature": "Observable<AchievementResponse> claimCode(@Path(\"code\") String code, @Query(\"badge_id\") long badgeId, @Query(\"token\") String token);",
+    "evidence": "network/api/AchievementApi.java",
+    "line": 15,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "AchievementApi",
+    "method": "GET",
+    "path": "achievement/preview/{code}",
+    "signature": "Observable<AchievementPreviewResponse> previewCode(@Path(\"code\") String code);",
+    "evidence": "network/api/AchievementApi.java",
+    "line": 18,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ArticleApi",
+    "method": "GET",
+    "path": "article/{a_id}",
+    "signature": "Observable<ArticleResponse> article(@Path(\"a_id\") long articleId, @Query(\"token\") String token);",
+    "evidence": "network/api/ArticleApi.java",
+    "line": 27,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ArticleApi",
+    "method": "POST",
+    "path": "article/create/{c_id}",
+    "signature": "Observable<ArticleCreateEditResponse> create(@Path(\"c_id\") long channelId, @Body ArticleCreateEditRequest articleCreateEditRequest, @Query(\"token\") String token);",
+    "evidence": "network/api/ArticleApi.java",
+    "line": 30,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ArticleApi",
+    "method": "POST",
+    "path": "article/delete/{a_id}",
+    "signature": "Observable<ArticleDeleteResponse> delete(@Path(\"a_id\") long articleId, @Query(\"token\") String token);",
+    "evidence": "network/api/ArticleApi.java",
+    "line": 33,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ArticleApi",
+    "method": "POST",
+    "path": "article/edit/{a_id}",
+    "signature": "Observable<ArticleCreateEditResponse> edit(@Path(\"a_id\") long articleId, @Body ArticleCreateEditRequest articleCreateEditRequest, @Query(\"token\") String token);",
+    "evidence": "network/api/ArticleApi.java",
+    "line": 36,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ArticleApi",
+    "method": "GET",
+    "path": "article/edit/pinned/{a_id}",
+    "signature": "Observable<ArticleEditPinnedResponse> editIsPinned(@Path(\"a_id\") long articleId, @Query(\"is_pinned\") boolean isPinned, @Query(\"token\") String token);",
+    "evidence": "network/api/ArticleApi.java",
+    "line": 39,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ArticleApi",
+    "method": "POST",
+    "path": "article/event",
+    "signature": "Observable<Response> hits(@Body ArticleEventRequest articleEventRequest, @Query(\"token\") String token);",
+    "evidence": "network/api/ArticleApi.java",
+    "line": 42,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ArticleApi",
+    "method": "GET",
+    "path": "article/mute/{a_id}",
+    "signature": "Observable<ArticleMuteResponse> mute(@Path(\"a_id\") long articleId, @Query(\"token\") String token);",
+    "evidence": "network/api/ArticleApi.java",
+    "line": 45,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ArticleApi",
+    "method": "GET",
+    "path": "article/reposts/{a_id}/{page}",
+    "signature": "Observable<PageableResponse<Article>> reposts(@Path(\"a_id\") long articleId, @Path(\"page\") int page, @Query(\"sort\") int sort, @Query(\"token\") String token);",
+    "evidence": "network/api/ArticleApi.java",
+    "line": 48,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ArticleApi",
+    "method": "GET",
+    "path": "article/unmute/{a_id}",
+    "signature": "Observable<ArticleMuteResponse> unmute(@Path(\"a_id\") long articleId, @Query(\"token\") String token);",
+    "evidence": "network/api/ArticleApi.java",
+    "line": 51,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ArticleApi",
+    "method": "GET",
+    "path": "article/vote/{a_id}/{vote}",
+    "signature": "Observable<Response> vote(@Path(\"a_id\") long articleId, @Path(\"vote\") int vote, @Query(\"token\") String token);",
+    "evidence": "network/api/ArticleApi.java",
+    "line": 54,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ArticleApi",
+    "method": "POST",
+    "path": "article/votes/{a_id}/{page}",
+    "signature": "Observable<PageableResponse<Profile>> votes(@Path(\"a_id\") long articleId, @Path(\"page\") int page, @Query(\"sort\") int sort, @Query(\"token\") String token);",
+    "evidence": "network/api/ArticleApi.java",
+    "line": 57,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ArticleCommentApi",
+    "method": "POST",
+    "path": "article/comment/add/{articleId}",
+    "signature": "Observable<CommentAddResponse<ArticleComment>> add(@Path(\"articleId\") long articleId, @Body CommentAddRequest commentAddRequest, @Query(\"token\") String token);",
+    "evidence": "network/api/ArticleCommentApi.java",
+    "line": 25,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ArticleCommentApi",
+    "method": "GET",
+    "path": "article/comment/{articleId}",
+    "signature": "Observable<ArticleComment> comment(@Path(\"articleId\") long articleId, @Query(\"token\") String token);",
+    "evidence": "network/api/ArticleCommentApi.java",
+    "line": 28,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ArticleCommentApi",
+    "method": "GET",
+    "path": "article/comment/all/{a_id}/{page}",
+    "signature": "Observable<PageableResponse<ArticleComment>> comments(@Path(\"a_id\") long articleId, @Path(\"page\") int page, @Query(\"sort\") int sort, @Query(\"token\") String token);",
+    "evidence": "network/api/ArticleCommentApi.java",
+    "line": 31,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ArticleCommentApi",
+    "method": "GET",
+    "path": "article/comment/all/{a_id}/popular",
+    "signature": "Observable<PageableResponse<ArticleComment>> commentsPopular(@Path(\"a_id\") long articleId, @Query(\"token\") String token);",
+    "evidence": "network/api/ArticleCommentApi.java",
+    "line": 34,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ArticleCommentApi",
+    "method": "GET",
+    "path": "article/comment/delete/{commentId}",
+    "signature": "Observable<CommentDeleteResponse> delete(@Path(\"commentId\") long commentId, @Query(\"token\") String token);",
+    "evidence": "network/api/ArticleCommentApi.java",
+    "line": 37,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ArticleCommentApi",
+    "method": "POST",
+    "path": "article/comment/edit/{commentId}",
+    "signature": "Observable<CommentEditResponse> edit(@Path(\"commentId\") long commentId, @Body CommentEditRequest commentEditRequest, @Query(\"token\") String token);",
+    "evidence": "network/api/ArticleCommentApi.java",
+    "line": 40,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ArticleCommentApi",
+    "method": "POST",
+    "path": "article/comment/process/{commentId}",
+    "signature": "Observable<Response> process(@Path(\"commentId\") long commentId, @Body CommentProcessRequest commentProcessRequest, @Query(\"token\") String token);",
+    "evidence": "network/api/ArticleCommentApi.java",
+    "line": 43,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ArticleCommentApi",
+    "method": "GET",
+    "path": "article/comment/all/profile/{p_id}/{page}",
+    "signature": "Observable<PageableResponse<ArticleComment>> profileComments(@Path(\"p_id\") long profileId, @Path(\"page\") int page, @Query(\"sort\") int sort, @Query(\"token\") String token);",
+    "evidence": "network/api/ArticleCommentApi.java",
+    "line": 46,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ArticleCommentApi",
+    "method": "POST",
+    "path": "article/comment/replies/{commentId}/{page}",
+    "signature": "Observable<PageableResponse<ArticleComment>> replies(@Path(\"commentId\") long commentId, @Path(\"page\") int page, @Query(\"sort\") int sort, @Query(\"token\") String token);",
+    "evidence": "network/api/ArticleCommentApi.java",
+    "line": 49,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ArticleCommentApi",
+    "method": "GET",
+    "path": "article/comment/vote/{commentId}/{vote}",
+    "signature": "Observable<Response> vote(@Path(\"commentId\") long commentId, @Path(\"vote\") int vote, @Query(\"token\") String token);",
+    "evidence": "network/api/ArticleCommentApi.java",
+    "line": 52,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ArticleCommentApi",
+    "method": "POST",
+    "path": "article/comment/votes/{commentId}/{page}",
+    "signature": "Observable<PageableResponse<Profile>> votes(@Path(\"commentId\") long commentId, @Path(\"page\") int page, @Query(\"sort\") int sort, @Query(\"token\") String token);",
+    "evidence": "network/api/ArticleCommentApi.java",
+    "line": 55,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ArticleSuggestionApi",
+    "method": "GET",
+    "path": "article/suggestion/{a_id}",
+    "signature": "Observable<ArticleResponse> articleSuggestion(@Path(\"a_id\") long articleSuggestionId, @Query(\"token\") String token);",
+    "evidence": "network/api/ArticleSuggestionApi.java",
+    "line": 22,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ArticleSuggestionApi",
+    "method": "POST",
+    "path": "article/suggestion/all/{page}",
+    "signature": "Observable<PageableResponse<Article>> articleSuggestions(@Path(\"page\") int page, @Body ArticleSuggestionsFilterRequest articlesFilterRequest, @Query(\"token\") String token);",
+    "evidence": "network/api/ArticleSuggestionApi.java",
+    "line": 25,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ArticleSuggestionApi",
+    "method": "POST",
+    "path": "article/suggestion/create/{b_id}",
+    "signature": "Observable<ArticleCreateEditResponse> create(@Path(\"b_id\") long channelId, @Body ArticleSuggestionCreateEditRequest articleSuggestionCreateEditRequest, @Query(\"token\") String token);",
+    "evidence": "network/api/ArticleSuggestionApi.java",
+    "line": 28,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ArticleSuggestionApi",
+    "method": "POST",
+    "path": "article/suggestion/delete/{a_id}",
+    "signature": "Observable<ArticleSuggestionDeleteResponse> delete(@Path(\"a_id\") long articleSuggestionId, @Query(\"token\") String token);",
+    "evidence": "network/api/ArticleSuggestionApi.java",
+    "line": 31,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ArticleSuggestionApi",
+    "method": "POST",
+    "path": "article/suggestion/edit/{a_id}",
+    "signature": "Observable<ArticleCreateEditResponse> edit(@Path(\"a_id\") long articleSuggestionId, @Body ArticleSuggestionCreateEditRequest articleSuggestionCreateEditRequest, @Query(\"token\") String token);",
+    "evidence": "network/api/ArticleSuggestionApi.java",
+    "line": 34,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ArticleSuggestionApi",
+    "method": "POST",
+    "path": "article/suggestion/publish/{a_id}",
+    "signature": "Observable<ArticleCreateEditResponse> publish(@Path(\"a_id\") long articleSuggestionId, @Query(\"is_signed\") boolean isSigned, @Query(\"token\") String token);",
+    "evidence": "network/api/ArticleSuggestionApi.java",
+    "line": 37,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "AuthApi",
+    "method": "POST",
+    "path": "auth/checkLogin",
+    "signature": "Observable<CheckLoginResponse> checkLogin(@Field(\"login\") String login);",
+    "evidence": "network/api/AuthApi.java",
+    "line": 30,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "AuthApi",
+    "method": "POST",
+    "path": "auth/firebase",
+    "signature": "Observable<FirebaseResponse> firebase(@Query(\"token\") String token);",
+    "evidence": "network/api/AuthApi.java",
+    "line": 33,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "AuthApi",
+    "method": "POST",
+    "path": "auth/resend",
+    "signature": "Observable<ResendResponse> resend(@Field(\"login\") String login, @Field(\"email\") String email, @Field(\"password\") String password, @Field(\"vkAccessToken\") String vkAccessToken, @Field(\"googleIdToken\") String googleIdToken, @Field(\"telegramIdToken\") String telegramIdToken, @Field(\"yandexAccessToken\") String yandexAccessToken, @Field(\"hash\") String hash);",
+    "evidence": "network/api/AuthApi.java",
+    "line": 38,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "AuthApi",
+    "method": "POST",
+    "path": "auth/restore",
+    "signature": "Observable<RestoreResponse> restore(@Field(\"data\") String data);",
+    "evidence": "network/api/AuthApi.java",
+    "line": 43,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "AuthApi",
+    "method": "POST",
+    "path": "auth/restore/resend",
+    "signature": "Observable<RestoreResendResponse> restoreResend(@Field(\"data\") String data, @Field(\"password\") String token, @Field(\"hash\") String hash);",
+    "evidence": "network/api/AuthApi.java",
+    "line": 48,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "AuthApi",
+    "method": "POST",
+    "path": "auth/restore/verify",
+    "signature": "Observable<RestoreVerifyResponse> restoreVerify(@Field(\"data\") String data, @Field(\"password\") String token, @Field(\"hash\") String hash, @Field(\"code\") String code);",
+    "evidence": "network/api/AuthApi.java",
+    "line": 52,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "AuthApi",
+    "method": "POST",
+    "path": "auth/signIn",
+    "signature": "Observable<SignInResponse> signIn(@Field(\"login\") String login, @Field(\"password\") String token);",
+    "evidence": "network/api/AuthApi.java",
+    "line": 56,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "AuthApi",
+    "method": "POST",
+    "path": "auth/google",
+    "signature": "Observable<GoogleResponse> signInWithGoogle(@Field(\"googleIdToken\") String googleIdToken);",
+    "evidence": "network/api/AuthApi.java",
+    "line": 60,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "AuthApi",
+    "method": "POST",
+    "path": "auth/telegram",
+    "signature": "Observable<TelegramResponse> signInWithTelegram(@Field(\"telegramIdToken\") String telegramIdToken);",
+    "evidence": "network/api/AuthApi.java",
+    "line": 64,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "AuthApi",
+    "method": "POST",
+    "path": "auth/vk",
+    "signature": "Observable<VkResponse> signInWithVk(@Field(\"vkAccessToken\") String vkAccessToken);",
+    "evidence": "network/api/AuthApi.java",
+    "line": 68,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "AuthApi",
+    "method": "POST",
+    "path": "auth/yandex",
+    "signature": "Observable<YandexResponse> signInWithYandex(@Field(\"yandexAccessToken\") String yandexAccessToken);",
+    "evidence": "network/api/AuthApi.java",
+    "line": 72,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "AuthApi",
+    "method": "POST",
+    "path": "auth/signUp",
+    "signature": "Observable<SignUpResponse> signUp(@Field(\"login\") String login, @Field(\"email\") String email, @Field(\"password\") String token);",
+    "evidence": "network/api/AuthApi.java",
+    "line": 77,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "AuthApi",
+    "method": "POST",
+    "path": "auth/google",
+    "signature": "Observable<GoogleResponse> signUpWithGoogle(@Field(\"login\") String login, @Field(\"email\") String email, @Field(\"googleIdToken\") String googleIdToken);",
+    "evidence": "network/api/AuthApi.java",
+    "line": 82,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "AuthApi",
+    "method": "POST",
+    "path": "auth/telegram",
+    "signature": "Observable<TelegramResponse> signUpWithTelegram(@Field(\"login\") String login, @Field(\"email\") String email, @Field(\"telegramIdToken\") String telegramIdToken);",
+    "evidence": "network/api/AuthApi.java",
+    "line": 87,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "AuthApi",
+    "method": "POST",
+    "path": "auth/vk",
+    "signature": "Observable<VkResponse> signUpWithVk(@Field(\"login\") String login, @Field(\"email\") String email, @Field(\"vkAccessToken\") String vkAccessToken);",
+    "evidence": "network/api/AuthApi.java",
+    "line": 92,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "AuthApi",
+    "method": "POST",
+    "path": "auth/yandex",
+    "signature": "Observable<YandexResponse> signUpWithYandex(@Field(\"login\") String login, @Field(\"email\") String email, @Field(\"yandexAccessToken\") String yandexAccessToken);",
+    "evidence": "network/api/AuthApi.java",
+    "line": 97,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "AuthApi",
+    "method": "POST",
+    "path": "auth/verify",
+    "signature": "Observable<VerifyResponse> verify(@Field(\"login\") String login, @Field(\"email\") String email, @Field(\"password\") String password, @Field(\"vkAccessToken\") String vkAccessToken, @Field(\"googleIdToken\") String googleIdToken, @Field(\"telegramIdToken\") String telegramIdToken, @Field(\"yandexAccessToken\") String yandexAccessToken, @Field(\"hash\") String hash, @Field(\"code\") String code);",
+    "evidence": "network/api/AuthApi.java",
+    "line": 101,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ChannelApi",
+    "method": "POST",
+    "path": "channel/{c_id}/article/all/{page}",
+    "signature": "Observable<PageableResponse<Article>> articles(@Path(\"c_id\") long channelId, @Path(\"page\") int page, @Query(\"token\") String token);",
+    "evidence": "network/api/ChannelApi.java",
+    "line": 40,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ChannelApi",
+    "method": "POST",
+    "path": "channel/avatar/upload/{c_id}",
+    "signature": "Observable<ChannelUploadCoverAvatarResponse> avatarUpload(@Path(\"c_id\") long channelId, @Part MultipartBody.Part image, @Query(\"token\") String token);",
+    "evidence": "network/api/ChannelApi.java",
+    "line": 43,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ChannelApi",
+    "method": "GET",
+    "path": "channel/{c_id}/block/{p_id}",
+    "signature": "Observable<ChannelBlockResponse> block(@Path(\"c_id\") long channelId, @Path(\"p_id\") long profileId, @Query(\"token\") String token);",
+    "evidence": "network/api/ChannelApi.java",
+    "line": 47,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ChannelApi",
+    "method": "POST",
+    "path": "channel/{c_id}/block/manage",
+    "signature": "Observable<ChannelBlockResponse> blockManage(@Path(\"c_id\") long channelId, @Body ChannelBlockManageRequest channelBlockManageRequest, @Query(\"token\") String token);",
+    "evidence": "network/api/ChannelApi.java",
+    "line": 50,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ChannelApi",
+    "method": "GET",
+    "path": "channel/{c_id}/block/all/{page}",
+    "signature": "Observable<PageableResponse<ChannelProfile>> blocks(@Path(\"c_id\") long channelId, @Path(\"page\") int page, @Query(\"token\") String token);",
+    "evidence": "network/api/ChannelApi.java",
+    "line": 53,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ChannelApi",
+    "method": "GET",
+    "path": "channel/blog/{p_id}",
+    "signature": "Observable<ChannelResponse> blog(@Path(\"p_id\") long profileId, @Query(\"token\") String token);",
+    "evidence": "network/api/ChannelApi.java",
+    "line": 56,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ChannelApi",
+    "method": "GET",
+    "path": "channel/{c_id}",
+    "signature": "Observable<ChannelResponse> channel(@Path(\"c_id\") long channelId, @Query(\"token\") String token);",
+    "evidence": "network/api/ChannelApi.java",
+    "line": 59,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ChannelApi",
+    "method": "POST",
+    "path": "channel/all/{page}",
+    "signature": "Observable<PageableResponse<Channel>> channels(@Path(\"page\") int page, @Body ChannelsFilterRequest channelsFilterRequest, @Query(\"token\") String token);",
+    "evidence": "network/api/ChannelApi.java",
+    "line": 62,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ChannelApi",
+    "method": "POST",
+    "path": "channel/cover/delete/{c_id}",
+    "signature": "Observable<ChannelUploadCoverAvatarResponse> coverDelete(@Path(\"c_id\") long channelId, @Query(\"token\") String token);",
+    "evidence": "network/api/ChannelApi.java",
+    "line": 65,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ChannelApi",
+    "method": "POST",
+    "path": "channel/cover/upload/{c_id}",
+    "signature": "Observable<ChannelUploadCoverAvatarResponse> coverUpload(@Path(\"c_id\") long channelId, @Part MultipartBody.Part image, @Query(\"token\") String token);",
+    "evidence": "network/api/ChannelApi.java",
+    "line": 68,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ChannelApi",
+    "method": "POST",
+    "path": "channel/create",
+    "signature": "Observable<ChannelCreateEditResponse> create(@Body ChannelCreateEditRequest channelCreateEditRequest, @Query(\"token\") String token);",
+    "evidence": "network/api/ChannelApi.java",
+    "line": 72,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ChannelApi",
+    "method": "POST",
+    "path": "channel/blog/create",
+    "signature": "Observable<BlogCreateResponse> createBlog(@Query(\"token\") String token);",
+    "evidence": "network/api/ChannelApi.java",
+    "line": 75,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ChannelApi",
+    "method": "POST",
+    "path": "channel/delete/{c_id}",
+    "signature": "Observable<ChannelDeleteResponse> delete(@Path(\"c_id\") long channelId, @Query(\"token\") String token);",
+    "evidence": "network/api/ChannelApi.java",
+    "line": 78,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ChannelApi",
+    "method": "POST",
+    "path": "channel/edit/{c_id}",
+    "signature": "Observable<ChannelCreateEditResponse> edit(@Path(\"c_id\") long channelId, @Body ChannelCreateEditRequest channelCreateEditRequest, @Query(\"token\") String token);",
+    "evidence": "network/api/ChannelApi.java",
+    "line": 81,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ChannelApi",
+    "method": "GET",
+    "path": "channel/{c_id}/editor/available",
+    "signature": "Observable<EditorAvailableResponse> editorAvailable(@Path(\"c_id\") long channelId, @Query(\"is_suggestion\") boolean isSuggestion, @Query(\"is_edit_mode\") boolean isEditMode, @Query(\"token\") String token);",
+    "evidence": "network/api/ChannelApi.java",
+    "line": 84,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ChannelApi",
+    "method": "GET",
+    "path": "channel/editor/available/all",
+    "signature": "Observable<EditorChannelsResponse> editorAvailableChannels(@Query(\"token\") String token, @Query(\"only_subscribed\") Boolean onlySubscribed);",
+    "evidence": "network/api/ChannelApi.java",
+    "line": 87,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ChannelApi",
+    "method": "POST",
+    "path": "channel/mute/{c_id}",
+    "signature": "Observable<ArticleMuteResponse> mute(@Path(\"c_id\") long channelId, @Query(\"token\") String token);",
+    "evidence": "network/api/ChannelApi.java",
+    "line": 90,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ChannelApi",
+    "method": "GET",
+    "path": "channel/mute/all/{page}",
+    "signature": "Observable<PageableResponse<Channel>> mutes(@Path(\"page\") int page, @Query(\"token\") String token);",
+    "evidence": "network/api/ChannelApi.java",
+    "line": 93,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ChannelApi",
+    "method": "POST",
+    "path": "channel/{c_id}/permission/manage",
+    "signature": "Observable<ChannelPermissionManageResponse> permissionManage(@Path(\"c_id\") long channelId, @Body ChannelPermissionManageRequest channelPermissionManageRequest, @Query(\"token\") String token);",
+    "evidence": "network/api/ChannelApi.java",
+    "line": 96,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ChannelApi",
+    "method": "POST",
+    "path": "channel/{c_id}/permission/all/{page}",
+    "signature": "Observable<PageableResponse<ChannelProfile>> permissions(@Path(\"c_id\") long channelId, @Path(\"page\") int page, @Body ChannelPermissionsFilterRequest channelPermissionsFilterRequest, @Query(\"token\") String token);",
+    "evidence": "network/api/ChannelApi.java",
+    "line": 99,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ChannelApi",
+    "method": "GET",
+    "path": "channel/recommendations/{page}",
+    "signature": "Observable<PageableResponse<Channel>> recommendations(@Path(\"page\") int page, @Query(\"token\") String token, @Query(\"is_blog\") Boolean isBlog, @Query(\"exclude_subscribed\") Boolean excludeSubscribed);",
+    "evidence": "network/api/ChannelApi.java",
+    "line": 102,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ChannelApi",
+    "method": "POST",
+    "path": "channel/subscribe/{c_id}",
+    "signature": "Observable<ChannelSubscribeResponse> subscribe(@Path(\"c_id\") long channelId, @Query(\"token\") String token);",
+    "evidence": "network/api/ChannelApi.java",
+    "line": 105,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ChannelApi",
+    "method": "GET",
+    "path": "channel/subscription/count",
+    "signature": "Observable<SubscriptionCountResponse> subscriptionCount(@Query(\"token\") String token);",
+    "evidence": "network/api/ChannelApi.java",
+    "line": 108,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ChannelApi",
+    "method": "GET",
+    "path": "channel/subscription/all/{page}",
+    "signature": "Observable<PageableResponse<Channel>> subscriptions(@Path(\"page\") int page, @Query(\"token\") String token, @Query(\"sort\") int sort);",
+    "evidence": "network/api/ChannelApi.java",
+    "line": 111,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ChannelApi",
+    "method": "POST",
+    "path": "channel/unmute/{c_id}",
+    "signature": "Observable<ArticleMuteResponse> unmute(@Path(\"c_id\") long channelId, @Query(\"token\") String token);",
+    "evidence": "network/api/ChannelApi.java",
+    "line": 114,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ChannelApi",
+    "method": "POST",
+    "path": "channel/unsubscribe/{c_id}",
+    "signature": "Observable<ChannelUnsubscribeResponse> unsubscribe(@Path(\"c_id\") long channelId, @Query(\"token\") String token);",
+    "evidence": "network/api/ChannelApi.java",
+    "line": 117,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "CollectionApi",
+    "method": "GET",
+    "path": "collection/{id}",
+    "signature": "Observable<CollectionResponse> collection(@Path(\"id\") long collectionId, @Query(\"token\") String token);",
+    "evidence": "network/api/CollectionApi.java",
+    "line": 17,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "CollectionApi",
+    "method": "GET",
+    "path": "collection/all/{page}",
+    "signature": "Observable<PageableResponse<Collection>> collections(@Path(\"page\") int page, @Query(\"previous_page\") int previousPage, @Query(\"where\") int where, @Query(\"sort\") int sort, @Query(\"token\") String token);",
+    "evidence": "network/api/CollectionApi.java",
+    "line": 20,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "CollectionApi",
+    "method": "GET",
+    "path": "collection/all/profile/{p_id}/{page}",
+    "signature": "Observable<PageableResponse<Collection>> profileCollections(@Path(\"p_id\") long profileId, @Path(\"page\") int page, @Query(\"token\") String token);",
+    "evidence": "network/api/CollectionApi.java",
+    "line": 23,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "CollectionApi",
+    "method": "GET",
+    "path": "collection/all/release/{r_id}/{page}",
+    "signature": "Observable<PageableResponse<Collection>> releaseCollections(@Path(\"r_id\") long releaseId, @Path(\"page\") int page, @Query(\"sort\") int sort, @Query(\"token\") String token);",
+    "evidence": "network/api/CollectionApi.java",
+    "line": 26,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "CollectionApi",
+    "method": "GET",
+    "path": "collection/{id}/releases/{page}",
+    "signature": "Observable<PageableResponse<Release>> releases(@Path(\"id\") long collectionId, @Path(\"page\") int page, @Query(\"token\") String token);",
+    "evidence": "network/api/CollectionApi.java",
+    "line": 29,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "CollectionCommentApi",
+    "method": "POST",
+    "path": "collection/comment/add/{collectionId}",
+    "signature": "Observable<CommentAddResponse<CollectionComment>> add(@Path(\"collectionId\") long collectionId, @Body CommentAddRequest collectionCommentAddRequest, @Query(\"token\") String token);",
+    "evidence": "network/api/CollectionCommentApi.java",
+    "line": 25,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "CollectionCommentApi",
+    "method": "GET",
+    "path": "collection/comment/{collectionId}",
+    "signature": "Observable<CollectionComment> comment(@Path(\"collectionId\") long collectionId, @Query(\"token\") String token);",
+    "evidence": "network/api/CollectionCommentApi.java",
+    "line": 28,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "CollectionCommentApi",
+    "method": "GET",
+    "path": "collection/comment/all/{collectionId}/{page}",
+    "signature": "Observable<PageableResponse<CollectionComment>> comments(@Path(\"collectionId\") long collectionId, @Path(\"page\") int page, @Query(\"sort\") int sort, @Query(\"token\") String token);",
+    "evidence": "network/api/CollectionCommentApi.java",
+    "line": 31,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "CollectionCommentApi",
+    "method": "GET",
+    "path": "collection/comment/delete/{commentId}",
+    "signature": "Observable<CommentDeleteResponse> delete(@Path(\"commentId\") long commentId, @Query(\"token\") String token);",
+    "evidence": "network/api/CollectionCommentApi.java",
+    "line": 34,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "CollectionCommentApi",
+    "method": "POST",
+    "path": "collection/comment/edit/{commentId}",
+    "signature": "Observable<CommentEditResponse> edit(@Path(\"commentId\") long commentId, @Body CommentEditRequest commentEditRequest, @Query(\"token\") String token);",
+    "evidence": "network/api/CollectionCommentApi.java",
+    "line": 37,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "CollectionCommentApi",
+    "method": "POST",
+    "path": "collection/comment/process/{commentId}",
+    "signature": "Observable<Response> process(@Path(\"commentId\") long commentId, @Body CommentProcessRequest commentProcessRequest, @Query(\"token\") String token);",
+    "evidence": "network/api/CollectionCommentApi.java",
+    "line": 40,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "CollectionCommentApi",
+    "method": "GET",
+    "path": "collection/comment/all/profile/{p_id}/{page}",
+    "signature": "Observable<PageableResponse<CollectionComment>> profileComments(@Path(\"p_id\") long profileId, @Path(\"page\") int page, @Query(\"sort\") int sort, @Query(\"token\") String token);",
+    "evidence": "network/api/CollectionCommentApi.java",
+    "line": 43,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "CollectionCommentApi",
+    "method": "POST",
+    "path": "collection/comment/replies/{commentId}/{page}",
+    "signature": "Observable<PageableResponse<CollectionComment>> replies(@Path(\"commentId\") long commentId, @Path(\"page\") int page, @Query(\"sort\") int sort, @Query(\"token\") String token);",
+    "evidence": "network/api/CollectionCommentApi.java",
+    "line": 46,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "CollectionCommentApi",
+    "method": "GET",
+    "path": "collection/comment/vote/{commentId}/{vote}",
+    "signature": "Observable<Response> vote(@Path(\"commentId\") long commentId, @Path(\"vote\") int vote, @Query(\"token\") String token);",
+    "evidence": "network/api/CollectionCommentApi.java",
+    "line": 49,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "CollectionCommentApi",
+    "method": "GET",
+    "path": "collection/comment/votes/{commentId}/{page}",
+    "signature": "Observable<PageableResponse<Profile>> votes(@Path(\"commentId\") long commentId, @Path(\"page\") int page, @Query(\"sort\") Integer sort, @Query(\"token\") String token);",
+    "evidence": "network/api/CollectionCommentApi.java",
+    "line": 52,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "CollectionFavoriteApi",
+    "method": "GET",
+    "path": "collectionFavorite/add/{id}",
+    "signature": "Observable<FavoriteCollectionAddResponse> add(@Path(\"id\") long collectionId, @Query(\"token\") String token);",
+    "evidence": "network/api/CollectionFavoriteApi.java",
+    "line": 17,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "CollectionFavoriteApi",
+    "method": "GET",
+    "path": "collectionFavorite/delete/{id}",
+    "signature": "Observable<FavoriteCollectionDeleteResponse> delete(@Path(\"id\") long collectionId, @Query(\"token\") String token);",
+    "evidence": "network/api/CollectionFavoriteApi.java",
+    "line": 20,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "CollectionFavoriteApi",
+    "method": "GET",
+    "path": "collectionFavorite/all/{page}",
+    "signature": "Observable<PageableResponse<Collection>> favorites(@Path(\"page\") int page, @Query(\"token\") String token);",
+    "evidence": "network/api/CollectionFavoriteApi.java",
+    "line": 23,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "CollectionMyApi",
+    "method": "POST",
+    "path": "collectionMy/create",
+    "signature": "Observable<CollectionCreateEditResponse> create(@Body CollectionCreateEditRequest collectionCreateEditRequest, @Query(\"token\") String token);",
+    "evidence": "network/api/CollectionMyApi.java",
+    "line": 26,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "CollectionMyApi",
+    "method": "GET",
+    "path": "collectionMy/delete/{collectionId}",
+    "signature": "Observable<CollectionDeleteResponse> delete(@Path(\"collectionId\") long collectionId, @Query(\"token\") String token);",
+    "evidence": "network/api/CollectionMyApi.java",
+    "line": 29,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "CollectionMyApi",
+    "method": "POST",
+    "path": "collectionMy/edit/{collectionId}",
+    "signature": "Observable<CollectionCreateEditResponse> edit(@Path(\"collectionId\") long collectionId, @Body CollectionCreateEditRequest collectionCreateEditRequest, @Query(\"token\") String token);",
+    "evidence": "network/api/CollectionMyApi.java",
+    "line": 32,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "CollectionMyApi",
+    "method": "POST",
+    "path": "collectionMy/editImage/{collectionId}",
+    "signature": "Observable<CollectionEditImageResponse> editImage(@Path(\"collectionId\") long collectionId, @Part MultipartBody.Part image, @Part(\"name\") RequestBody name, @Query(\"token\") String token);",
+    "evidence": "network/api/CollectionMyApi.java",
+    "line": 35,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "CollectionMyApi",
+    "method": "GET",
+    "path": "collectionMy/release/add/{collectionId}",
+    "signature": "Observable<ReleaseAddCollectionResponse> releaseAdd(@Path(\"collectionId\") long collectionId, @Query(\"release_id\") long releaseId, @Query(\"token\") String token);",
+    "evidence": "network/api/CollectionMyApi.java",
+    "line": 39,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "CollectionMyApi",
+    "method": "GET",
+    "path": "collectionMy/{id}/releases",
+    "signature": "Observable<PageableResponse<Release>> releases(@Path(\"id\") long collectionId, @Query(\"token\") String token);",
+    "evidence": "network/api/CollectionMyApi.java",
+    "line": 42,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ConfigApi",
+    "method": "GET",
+    "path": "config/anixplayer",
+    "signature": "",
+    "evidence": "network/api/ConfigApi.java",
+    "line": 15,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ConfigApi",
+    "method": "GET",
+    "path": "config/toggles",
+    "signature": "",
+    "evidence": "network/api/ConfigApi.java",
+    "line": 18,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ConfigApi",
+    "method": "GET",
+    "path": "config/urls",
+    "signature": "",
+    "evidence": "network/api/ConfigApi.java",
+    "line": 21,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "DiscoverApi",
+    "method": "POST",
+    "path": "discover/comments",
+    "signature": "Observable<PageableResponse<ReleaseComment>> commentsWeek();",
+    "evidence": "network/api/DiscoverApi.java",
+    "line": 17,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "DiscoverApi",
+    "method": "POST",
+    "path": "discover/discussing",
+    "signature": "Observable<PageableResponse<Release>> discussing(@Query(\"token\") String token);",
+    "evidence": "network/api/DiscoverApi.java",
+    "line": 20,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "DiscoverApi",
+    "method": "POST",
+    "path": "discover/interesting",
+    "signature": "Observable<PageableResponse<Interesting>> interesting();",
+    "evidence": "network/api/DiscoverApi.java",
+    "line": 23,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "DiscoverApi",
+    "method": "POST",
+    "path": "discover/recommendations/{page}",
+    "signature": "Observable<PageableResponse<Release>> recommendations(@Path(\"page\") int page, @Query(\"previous_page\") int previousPage, @Query(\"token\") String token);",
+    "evidence": "network/api/DiscoverApi.java",
+    "line": 26,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "DiscoverApi",
+    "method": "POST",
+    "path": "discover/watching/{page}",
+    "signature": "Observable<PageableResponse<Release>> watching(@Path(\"page\") int page, @Query(\"token\") String token);",
+    "evidence": "network/api/DiscoverApi.java",
+    "line": 29,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "EpisodeApi",
+    "method": "GET",
+    "path": "episode/target/{releaseId}/{sourceId}/{position}",
+    "signature": "Observable<EpisodeTargetResponse> episodeTarget(@Path(\"releaseId\") long releaseId, @Path(\"sourceId\") long sourceId, @Path(\"position\") int position);",
+    "evidence": "network/api/EpisodeApi.java",
+    "line": 22,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "EpisodeApi",
+    "method": "GET",
+    "path": "episode/{releaseId}/{typeId}/{sourceId}",
+    "signature": "Observable<EpisodeResponse> episodes(@Path(\"releaseId\") long releaseId, @Path(\"typeId\") long typeId, @Path(\"sourceId\") long sourceId, @Query(\"sort\") int sort, @Query(\"token\") String token);",
+    "evidence": "network/api/EpisodeApi.java",
+    "line": 25,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "EpisodeApi",
+    "method": "GET",
+    "path": "episode/{releaseId}/{typeId}",
+    "signature": "Observable<SourcesResponse> sources(@Path(\"releaseId\") long releaseId, @Path(\"typeId\") long typeId);",
+    "evidence": "network/api/EpisodeApi.java",
+    "line": 28,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "EpisodeApi",
+    "method": "GET",
+    "path": "episode/{releaseId}",
+    "signature": "Observable<TypesResponse> types(@Path(\"releaseId\") long releaseId, @Query(\"token\") String token);",
+    "evidence": "network/api/EpisodeApi.java",
+    "line": 31,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "EpisodeApi",
+    "method": "POST",
+    "path": "episode/unwatch/{releaseId}/{sourceId}/{position}",
+    "signature": "Observable<EpisodeUnwatchResponse> unwatch(@Path(\"releaseId\") long releaseId, @Path(\"sourceId\") long sourceId, @Path(\"position\") int position, @Query(\"token\") String token);",
+    "evidence": "network/api/EpisodeApi.java",
+    "line": 34,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "EpisodeApi",
+    "method": "POST",
+    "path": "episode/unwatch/{releaseId}/{sourceId}",
+    "signature": "Observable<EpisodeUnwatchResponse> unwatch(@Path(\"releaseId\") long releaseId, @Path(\"sourceId\") long sourceId, @Query(\"token\") String token);",
+    "evidence": "network/api/EpisodeApi.java",
+    "line": 37,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "EpisodeApi",
+    "method": "GET",
+    "path": "episode/updates/{releaseId}/{page}",
+    "signature": "Observable<PageableResponse<EpisodeUpdate>> updates(@Path(\"releaseId\") long releaseId, @Path(\"page\") int page);",
+    "evidence": "network/api/EpisodeApi.java",
+    "line": 40,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "EpisodeApi",
+    "method": "POST",
+    "path": "episode/watch/{releaseId}/{sourceId}/{position}",
+    "signature": "Observable<EpisodeWatchResponse> watch(@Path(\"releaseId\") long releaseId, @Path(\"sourceId\") long sourceId, @Path(\"position\") int position, @Query(\"token\") String token);",
+    "evidence": "network/api/EpisodeApi.java",
+    "line": 43,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "EpisodeApi",
+    "method": "POST",
+    "path": "episode/watch/{releaseId}/{sourceId}",
+    "signature": "Observable<EpisodeWatchResponse> watch(@Path(\"releaseId\") long releaseId, @Path(\"sourceId\") long sourceId, @Query(\"token\") String token);",
+    "evidence": "network/api/EpisodeApi.java",
+    "line": 46,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ExportApi",
+    "method": "POST",
+    "path": "export/bookmarks",
+    "signature": "Observable<BookmarksExportResponse> bookmarks(@Query(\"sort\") Integer sort, @Body BookmarksExportRequest bookmarksExportRequest, @Query(\"token\") String token);",
+    "evidence": "network/api/ExportApi.java",
+    "line": 15,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "FavoriteApi",
+    "method": "GET",
+    "path": "favorite/add/{r_id}",
+    "signature": "Observable<FavoritesResponse> add(@Path(\"r_id\") long id2, @Query(\"token\") String token);",
+    "evidence": "network/api/FavoriteApi.java",
+    "line": 16,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "FavoriteApi",
+    "method": "GET",
+    "path": "favorite/delete/{r_id}",
+    "signature": "Observable<FavoritesResponse> delete(@Path(\"r_id\") long id2, @Query(\"token\") String token);",
+    "evidence": "network/api/FavoriteApi.java",
+    "line": 19,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "FavoriteApi",
+    "method": "GET",
+    "path": "favorite/all/{page}",
+    "signature": "Observable<PageableResponse<Release>> favorites(@Path(\"page\") int page, @Query(\"sort\") Integer sort, @Query(\"filter_announce\") Integer filterAnnounce, @Query(\"token\") String token);",
+    "evidence": "network/api/FavoriteApi.java",
+    "line": 22,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "FeedApi",
+    "method": "GET",
+    "path": "feed/all/{page}",
+    "signature": "Observable<PageableResponse<Article>> feed(@Path(\"page\") int page, @Query(\"channel_id\") Long channelId, @Query(\"date\") int date, @Query(\"token\") String token);",
+    "evidence": "network/api/FeedApi.java",
+    "line": 16,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "FeedApi",
+    "method": "GET",
+    "path": "feed/latest",
+    "signature": "Observable<LatestArticleResponse> latestArticle(@Query(\"token\") String token);",
+    "evidence": "network/api/FeedApi.java",
+    "line": 19,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "FeedApi",
+    "method": "GET",
+    "path": "feed/latest/all/{page}",
+    "signature": "Observable<PageableResponse<Article>> latestArticles(@Path(\"page\") int page, @Query(\"token\") String token);",
+    "evidence": "network/api/FeedApi.java",
+    "line": 22,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "FilterApi",
+    "method": "POST",
+    "path": "filter/{page}",
+    "signature": "Observable<PageableResponse<Release>> filter(@Path(\"page\") int page, @Body FilterRequest filterRequest, @Query(\"extended_mode\") Boolean extendedMode, @Query(\"token\") String token);",
+    "evidence": "network/api/FilterApi.java",
+    "line": 17,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "HistoryApi",
+    "method": "GET",
+    "path": "history/add/{r_id}/{s_id}/{position}",
+    "signature": "Observable<HistoryResponse> add(@Path(\"r_id\") long releaseId, @Path(\"s_id\") long sourceId, @Path(\"position\") int position, @Query(\"token\") String token);",
+    "evidence": "network/api/HistoryApi.java",
+    "line": 16,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "HistoryApi",
+    "method": "GET",
+    "path": "history/delete/{r_id}",
+    "signature": "Observable<HistoryResponse> delete(@Path(\"r_id\") long id2, @Query(\"token\") String token);",
+    "evidence": "network/api/HistoryApi.java",
+    "line": 19,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "HistoryApi",
+    "method": "GET",
+    "path": "history/{page}",
+    "signature": "Observable<PageableResponse<Release>> history(@Path(\"page\") int page, @Query(\"token\") String token);",
+    "evidence": "network/api/HistoryApi.java",
+    "line": 22,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ImportApi",
+    "method": "POST",
+    "path": "import/bookmarks",
+    "signature": "Observable<BookmarksImportResponse> bookmarks(@Body BookmarksImportRequest bookmarksImportRequest, @Query(\"token\") String token);",
+    "evidence": "network/api/ImportApi.java",
+    "line": 16,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ImportApi",
+    "method": "POST",
+    "path": "import/status",
+    "signature": "Observable<BookmarksImportStatusResponse> status(@Query(\"token\") String token);",
+    "evidence": "network/api/ImportApi.java",
+    "line": 19,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "NotificationApi",
+    "method": "GET",
+    "path": "notification/all/{page}",
+    "signature": "Observable<PageableResponse<ProfileNotification>> all(@Path(\"page\") int page, @Query(\"token\") String token);",
+    "evidence": "network/api/NotificationApi.java",
+    "line": 24,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "NotificationApi",
+    "method": "GET",
+    "path": "notification/article/comments/{page}",
+    "signature": "Observable<PageableResponse<ProfileArticleCommentNotification>> articleComments(@Path(\"page\") int page, @Query(\"token\") String token);",
+    "evidence": "network/api/NotificationApi.java",
+    "line": 27,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "NotificationApi",
+    "method": "GET",
+    "path": "notification/articles/{page}",
+    "signature": "Observable<PageableResponse<ProfileArticleNotification>> articles(@Path(\"page\") int page, @Query(\"token\") String token);",
+    "evidence": "network/api/NotificationApi.java",
+    "line": 30,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "NotificationApi",
+    "method": "GET",
+    "path": "notification/collectionComments/{page}",
+    "signature": "Observable<PageableResponse<ProfileCollectionCommentNotification>> collectionComments(@Path(\"page\") int page, @Query(\"token\") String token);",
+    "evidence": "network/api/NotificationApi.java",
+    "line": 33,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "NotificationApi",
+    "method": "GET",
+    "path": "notification/count",
+    "signature": "Observable<NotificationCountResponse> count(@Query(\"token\") String token);",
+    "evidence": "network/api/NotificationApi.java",
+    "line": 36,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "NotificationApi",
+    "method": "GET",
+    "path": "notification/delete/all",
+    "signature": "Observable<Response> deleteAll(@Query(\"token\") String token);",
+    "evidence": "network/api/NotificationApi.java",
+    "line": 39,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "NotificationApi",
+    "method": "GET",
+    "path": "notification/articleComment/delete/{id}",
+    "signature": "Observable<Response> deleteArticleCommentNotification(@Path(\"id\") long id2, @Query(\"token\") String token);",
+    "evidence": "network/api/NotificationApi.java",
+    "line": 42,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "NotificationApi",
+    "method": "GET",
+    "path": "notification/article/delete/{id}",
+    "signature": "Observable<Response> deleteArticleNotification(@Path(\"id\") long id2, @Query(\"token\") String token);",
+    "evidence": "network/api/NotificationApi.java",
+    "line": 45,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "NotificationApi",
+    "method": "GET",
+    "path": "notification/collectionComment/delete/{id}",
+    "signature": "Observable<Response> deleteCollectionCommentNotification(@Path(\"id\") long id2, @Query(\"token\") String token);",
+    "evidence": "network/api/NotificationApi.java",
+    "line": 48,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "NotificationApi",
+    "method": "GET",
+    "path": "notification/episode/delete/{id}",
+    "signature": "Observable<Response> deleteEpisodeNotification(@Path(\"id\") long id2, @Query(\"token\") String token);",
+    "evidence": "network/api/NotificationApi.java",
+    "line": 51,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "NotificationApi",
+    "method": "GET",
+    "path": "notification/friend/delete/{id}",
+    "signature": "Observable<Response> deleteFriendNotification(@Path(\"id\") long id2, @Query(\"token\") String token);",
+    "evidence": "network/api/NotificationApi.java",
+    "line": 54,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "NotificationApi",
+    "method": "GET",
+    "path": "notification/my/article/comment/delete/{id}",
+    "signature": "Observable<Response> deleteMyArticleCommentNotification(@Path(\"id\") long id2, @Query(\"token\") String token);",
+    "evidence": "network/api/NotificationApi.java",
+    "line": 57,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "NotificationApi",
+    "method": "GET",
+    "path": "notification/my/collection/comment/delete/{id}",
+    "signature": "Observable<Response> deleteMyCollectionCommentNotification(@Path(\"id\") long id2, @Query(\"token\") String token);",
+    "evidence": "network/api/NotificationApi.java",
+    "line": 60,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "NotificationApi",
+    "method": "GET",
+    "path": "notification/related/release/delete/{id}",
+    "signature": "Observable<Response> deleteRelatedReleaseNotification(@Path(\"id\") long id2, @Query(\"token\") String token);",
+    "evidence": "network/api/NotificationApi.java",
+    "line": 63,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "NotificationApi",
+    "method": "GET",
+    "path": "notification/releaseComment/delete/{id}",
+    "signature": "Observable<Response> deleteReleaseCommentNotification(@Path(\"id\") long id2, @Query(\"token\") String token);",
+    "evidence": "network/api/NotificationApi.java",
+    "line": 66,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "NotificationApi",
+    "method": "GET",
+    "path": "notification/episodes/{page}",
+    "signature": "Observable<PageableResponse<ProfileEpisodeNotification>> episodes(@Path(\"page\") int page, @Query(\"token\") String token);",
+    "evidence": "network/api/NotificationApi.java",
+    "line": 69,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "NotificationApi",
+    "method": "GET",
+    "path": "notification/friends/{page}",
+    "signature": "Observable<PageableResponse<ProfileFriendNotification>> friends(@Path(\"page\") int page, @Query(\"token\") String token);",
+    "evidence": "network/api/NotificationApi.java",
+    "line": 72,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "NotificationApi",
+    "method": "GET",
+    "path": "notification/read",
+    "signature": "Observable<Response> read(@Query(\"token\") String token);",
+    "evidence": "network/api/NotificationApi.java",
+    "line": 75,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "NotificationApi",
+    "method": "GET",
+    "path": "notification/related/release/{page}",
+    "signature": "Observable<PageableResponse<ProfileRelatedReleaseNotification>> relatedReleases(@Path(\"page\") int page, @Query(\"token\") String token);",
+    "evidence": "network/api/NotificationApi.java",
+    "line": 78,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "NotificationApi",
+    "method": "GET",
+    "path": "notification/releaseComments/{page}",
+    "signature": "Observable<PageableResponse<ProfileReleaseCommentNotification>> releaseComments(@Path(\"page\") int page, @Query(\"token\") String token);",
+    "evidence": "network/api/NotificationApi.java",
+    "line": 81,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "NotificationPreferenceApi",
+    "method": "GET",
+    "path": "profile/preference/notification/article/edit",
+    "signature": "Observable<Response> articleNotificationsEdit(@Query(\"token\") String token);",
+    "evidence": "network/api/NotificationPreferenceApi.java",
+    "line": 23,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "NotificationPreferenceApi",
+    "method": "GET",
+    "path": "profile/preference/notification/comment/edit",
+    "signature": "Observable<Response> commentNotificationsEdit(@Query(\"token\") String token);",
+    "evidence": "network/api/NotificationPreferenceApi.java",
+    "line": 26,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "NotificationPreferenceApi",
+    "method": "GET",
+    "path": "profile/preference/notification/episode/edit",
+    "signature": "Observable<Response> episodeNotificationsEdit(@Query(\"token\") String token);",
+    "evidence": "network/api/NotificationPreferenceApi.java",
+    "line": 29,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "NotificationPreferenceApi",
+    "method": "GET",
+    "path": "profile/preference/notification/episode/first/edit",
+    "signature": "Observable<Response> firstEpisodeNotificationsEdit(@Query(\"token\") String token);",
+    "evidence": "network/api/NotificationPreferenceApi.java",
+    "line": 32,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "NotificationPreferenceApi",
+    "method": "GET",
+    "path": "profile/preference/notification/my",
+    "signature": "Observable<NotificationPreferenceResponse> my(@Query(\"token\") String token);",
+    "evidence": "network/api/NotificationPreferenceApi.java",
+    "line": 35,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "NotificationPreferenceApi",
+    "method": "GET",
+    "path": "profile/preference/notification/my/article/comment/edit",
+    "signature": "Observable<Response> myArticleCommentNotificationsEdit(@Query(\"token\") String token);",
+    "evidence": "network/api/NotificationPreferenceApi.java",
+    "line": 38,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "NotificationPreferenceApi",
+    "method": "GET",
+    "path": "profile/preference/notification/my/collection/comment/edit",
+    "signature": "Observable<Response> myCollectionCommentNotificationsEdit(@Query(\"token\") String token);",
+    "evidence": "network/api/NotificationPreferenceApi.java",
+    "line": 41,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "NotificationPreferenceApi",
+    "method": "GET",
+    "path": "profile/preference/notification/release/all/{page}",
+    "signature": "Observable<PageableResponse<Release>> profileReleaseNotificationPreferences(@Path(\"page\") int page, @Query(\"token\") String token);",
+    "evidence": "network/api/NotificationPreferenceApi.java",
+    "line": 44,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "NotificationPreferenceApi",
+    "method": "GET",
+    "path": "profile/preference/notification/release/type/{releaseId}",
+    "signature": "Observable<ProfileReleaseTypeNotificationPreferencesResponse> profileReleaseTypeNotificationPreferences(@Path(\"releaseId\") long releaseId, @Query(\"token\") String token);",
+    "evidence": "network/api/NotificationPreferenceApi.java",
+    "line": 47,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "NotificationPreferenceApi",
+    "method": "POST",
+    "path": "profile/preference/notification/release/type/edit",
+    "signature": "Observable<Response> profileReleaseTypeNotificationPreferencesEdit(@Body ProfileReleaseTypeNotificationPreferencesEditRequest profileReleaseTypeNotificationPreferencesEditRequest, @Query(\"token\") String token);",
+    "evidence": "network/api/NotificationPreferenceApi.java",
+    "line": 50,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "NotificationPreferenceApi",
+    "method": "POST",
+    "path": "profile/preference/notification/status/edit",
+    "signature": "Observable<Response> profileStatusNotificationPreferencesEdit(@Body ProfileStatusNotificationPreferencesEditRequest profileStatusNotificationPreferencesEditRequest, @Query(\"token\") String token);",
+    "evidence": "network/api/NotificationPreferenceApi.java",
+    "line": 53,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "NotificationPreferenceApi",
+    "method": "POST",
+    "path": "profile/preference/notification/type/edit",
+    "signature": "Observable<Response> profileTypeNotificationPreferencesEdit(@Body ProfileTypeNotificationPreferencesEditRequest profileTypeNotificationPreferencesEditRequest, @Query(\"token\") String token);",
+    "evidence": "network/api/NotificationPreferenceApi.java",
+    "line": 56,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "NotificationPreferenceApi",
+    "method": "GET",
+    "path": "profile/preference/notification/related/release/edit",
+    "signature": "Observable<Response> relatedReleaseNotificationsEdit(@Query(\"token\") String token);",
+    "evidence": "network/api/NotificationPreferenceApi.java",
+    "line": 59,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "NotificationPreferenceApi",
+    "method": "GET",
+    "path": "profile/preference/notification/report/process/edit",
+    "signature": "Observable<Response> reportProcessNotificationsEdit(@Query(\"token\") String token);",
+    "evidence": "network/api/NotificationPreferenceApi.java",
+    "line": 62,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "NotificationPreferenceApi",
+    "method": "GET",
+    "path": "profile/preference/notification/selected/releases/edit",
+    "signature": "Observable<Response> selectedReleasesNotificationsEdit(@Query(\"token\") String token);",
+    "evidence": "network/api/NotificationPreferenceApi.java",
+    "line": 65,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ProfileApi",
+    "method": "GET",
+    "path": "profile/login/history/all/{id}/{page}",
+    "signature": "Observable<PageableResponse<ChangeLogin>> changeLoginHistory(@Path(\"id\") long profileId, @Path(\"page\") int page, @Query(\"token\") String token);",
+    "evidence": "network/api/ProfileApi.java",
+    "line": 22,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ProfileApi",
+    "method": "GET",
+    "path": "profile/info",
+    "signature": "Observable<ProfileInfoResponse> info(@Query(\"token\") String token);",
+    "evidence": "network/api/ProfileApi.java",
+    "line": 25,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ProfileApi",
+    "method": "POST",
+    "path": "profile/process/{id}",
+    "signature": "Observable<Response> process(@Path(\"id\") long id2, @Body ProfileProcessRequest profileProcessRequest, @Query(\"token\") String token);",
+    "evidence": "network/api/ProfileApi.java",
+    "line": 28,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ProfileApi",
+    "method": "GET",
+    "path": "profile/{id}",
+    "signature": "Observable<ProfileResponse> profile(@Path(\"id\") long id2, @Query(\"token\") String token);",
+    "evidence": "network/api/ProfileApi.java",
+    "line": 31,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ProfileApi",
+    "method": "GET",
+    "path": "profile/social/{id}",
+    "signature": "Observable<ProfileSocialResponse> social(@Path(\"id\") long id2, @Query(\"token\") String token);",
+    "evidence": "network/api/ProfileApi.java",
+    "line": 34,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ProfileBadgeApi",
+    "method": "GET",
+    "path": "profile/preference/badge/edit/{id}",
+    "signature": "Observable<ProfileBadgeResponse> edit(@Path(\"id\") long id2, @Query(\"token\") String token);",
+    "evidence": "network/api/ProfileBadgeApi.java",
+    "line": 23,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ProfileBadgeApi",
+    "method": "GET",
+    "path": "profile/{id}/badge/list",
+    "signature": "Observable<ProfileBadgeSectionsResponse> list(@Path(\"id\") long profileId, @Query(\"recent\") String recent, @Query(\"token\") String token);",
+    "evidence": "network/api/ProfileBadgeApi.java",
+    "line": 26,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ProfileBadgeApi",
+    "method": "POST",
+    "path": "profile/preference/badge/showcase/pin/{id}",
+    "signature": "Observable<ProfileBadgeShowcaseResponse> pinToShowcase(@Path(\"id\") long id2, @Query(\"token\") String token);",
+    "evidence": "network/api/ProfileBadgeApi.java",
+    "line": 29,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ProfileBadgeApi",
+    "method": "GET",
+    "path": "profile/preference/badge/remove",
+    "signature": "Observable<Response> remove(@Query(\"token\") String token);",
+    "evidence": "network/api/ProfileBadgeApi.java",
+    "line": 32,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ProfileBadgeApi",
+    "method": "POST",
+    "path": "profile/preference/badge/showcase/reorder",
+    "signature": "Observable<ProfileBadgeShowcaseResponse> reorderShowcase(@Body ReorderBadgeShowcaseRequest request, @Query(\"token\") String token);",
+    "evidence": "network/api/ProfileBadgeApi.java",
+    "line": 35,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ProfileBadgeApi",
+    "method": "GET",
+    "path": "profile/{id}/badge/list/{categoryId}/{page}",
+    "signature": "Observable<ProfileBadgePageableResponse<Badge>> section(@Path(\"id\") long profileId, @Path(\"categoryId\") long categoryId, @Path(\"page\") int page, @Query(\"token\") String token);",
+    "evidence": "network/api/ProfileBadgeApi.java",
+    "line": 38,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ProfileBadgeApi",
+    "method": "POST",
+    "path": "profile/preference/badge/showcase/unpin/{id}",
+    "signature": "Observable<ProfileBadgeShowcaseResponse> unpinFromShowcase(@Path(\"id\") long id2, @Query(\"token\") String token);",
+    "evidence": "network/api/ProfileBadgeApi.java",
+    "line": 41,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ProfileBlockListApi",
+    "method": "GET",
+    "path": "profile/blocklist/add/{id}",
+    "signature": "Observable<BlockProfileListAddResponse> addToBlockList(@Path(\"id\") long id2, @Query(\"token\") String token);",
+    "evidence": "network/api/ProfileBlockListApi.java",
+    "line": 17,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ProfileBlockListApi",
+    "method": "GET",
+    "path": "profile/blocklist/all/{page}",
+    "signature": "Observable<PageableResponse<Profile>> blockList(@Path(\"page\") int page, @Query(\"token\") String token);",
+    "evidence": "network/api/ProfileBlockListApi.java",
+    "line": 20,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ProfileBlockListApi",
+    "method": "GET",
+    "path": "profile/blocklist/remove/{id}",
+    "signature": "Observable<Response> removeFromBlockList(@Path(\"id\") long id2, @Query(\"token\") String token);",
+    "evidence": "network/api/ProfileBlockListApi.java",
+    "line": 23,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ProfileDeletionApi",
+    "method": "POST",
+    "path": "profile/deletion/cancel",
+    "signature": "Observable<ProfileDeletionResponse> cancel(@Query(\"token\") String token);",
+    "evidence": "network/api/ProfileDeletionApi.java",
+    "line": 16,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ProfileDeletionApi",
+    "method": "POST",
+    "path": "profile/deletion/request",
+    "signature": "Observable<ProfileDeletionResponse> request(@Query(\"token\") String token, @Field(\"password\") String password);",
+    "evidence": "network/api/ProfileDeletionApi.java",
+    "line": 20,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ProfileDeletionApi",
+    "method": "GET",
+    "path": "profile/deletion/status",
+    "signature": "Observable<ProfileDeletionResponse> status(@Query(\"token\") String token);",
+    "evidence": "network/api/ProfileDeletionApi.java",
+    "line": 23,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ProfileFriendApi",
+    "method": "GET",
+    "path": "profile/friend/all/{id}/{page}",
+    "signature": "Observable<PageableResponse<Profile>> friends(@Path(\"id\") long id2, @Path(\"page\") int page, @Query(\"token\") String token);",
+    "evidence": "network/api/ProfileFriendApi.java",
+    "line": 18,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ProfileFriendApi",
+    "method": "GET",
+    "path": "profile/friend/recommendations",
+    "signature": "Observable<PageableResponse<Profile>> recommendations(@Query(\"token\") String token);",
+    "evidence": "network/api/ProfileFriendApi.java",
+    "line": 21,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ProfileFriendApi",
+    "method": "GET",
+    "path": "profile/friend/request/hide/{id}",
+    "signature": "Observable<Response> requestHide(@Path(\"id\") long id2, @Query(\"token\") String token);",
+    "evidence": "network/api/ProfileFriendApi.java",
+    "line": 24,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ProfileFriendApi",
+    "method": "GET",
+    "path": "profile/friend/request/remove/{id}",
+    "signature": "Observable<RemoveFriendRequestResponse> requestRemove(@Path(\"id\") long id2, @Query(\"token\") String token);",
+    "evidence": "network/api/ProfileFriendApi.java",
+    "line": 27,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ProfileFriendApi",
+    "method": "GET",
+    "path": "profile/friend/request/send/{id}",
+    "signature": "Observable<SendFriendRequestResponse> requestSend(@Path(\"id\") long id2, @Query(\"token\") String token);",
+    "evidence": "network/api/ProfileFriendApi.java",
+    "line": 30,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ProfileFriendApi",
+    "method": "GET",
+    "path": "profile/friend/requests/in/{page}",
+    "signature": "Observable<PageableResponse<Profile>> requestsIn(@Path(\"page\") int page, @Query(\"token\") String token);",
+    "evidence": "network/api/ProfileFriendApi.java",
+    "line": 33,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ProfileFriendApi",
+    "method": "GET",
+    "path": "profile/friend/requests/in/last",
+    "signature": "Observable<PageableResponse<Profile>> requestsInLast(@Query(\"count\") int count, @Query(\"token\") String token);",
+    "evidence": "network/api/ProfileFriendApi.java",
+    "line": 36,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ProfileFriendApi",
+    "method": "GET",
+    "path": "profile/friend/requests/out/{page}",
+    "signature": "Observable<PageableResponse<Profile>> requestsOut(@Path(\"page\") int page, @Query(\"token\") String token);",
+    "evidence": "network/api/ProfileFriendApi.java",
+    "line": 39,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ProfileFriendApi",
+    "method": "GET",
+    "path": "profile/friend/requests/out/last",
+    "signature": "Observable<PageableResponse<Profile>> requestsOutLast(@Query(\"count\") int count, @Query(\"token\") String token);",
+    "evidence": "network/api/ProfileFriendApi.java",
+    "line": 42,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ProfileHealthApi",
+    "method": "GET",
+    "path": "profile/health/enforcement/account/all/{page}",
+    "signature": "Observable<List<ProfileEnforcement>> account(@Path(\"page\") int page, @Query(\"token\") String token);",
+    "evidence": "network/api/ProfileHealthApi.java",
+    "line": 21,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ProfileHealthApi",
+    "method": "POST",
+    "path": "profile/health/enforcement/{id}/appeal",
+    "signature": "Observable<ProfileEnforcementAppealResponse> appeal(@Path(\"id\") long enforcementId, @Body ProfileEnforcementAppealRequest profileEnforcementAppealRequest, @Query(\"token\") String token);",
+    "evidence": "network/api/ProfileHealthApi.java",
+    "line": 24,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ProfileHealthApi",
+    "method": "GET",
+    "path": "profile/health/enforcement/content/all/{page}",
+    "signature": "Observable<List<ProfileEnforcement>> content(@Path(\"page\") int page, @Query(\"token\") String token);",
+    "evidence": "network/api/ProfileHealthApi.java",
+    "line": 27,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ProfileHealthApi",
+    "method": "GET",
+    "path": "profile/health/enforcement/{id}",
+    "signature": "Observable<ProfileEnforcementResponse> enforcement(@Path(\"id\") long id2, @Query(\"token\") String token);",
+    "evidence": "network/api/ProfileHealthApi.java",
+    "line": 30,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ProfileHealthApi",
+    "method": "GET",
+    "path": "profile/health/status",
+    "signature": "Observable<ProfileHealthStatusResponse> status(@Query(\"token\") String token);",
+    "evidence": "network/api/ProfileHealthApi.java",
+    "line": 33,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ProfileListApi",
+    "method": "GET",
+    "path": "profile/list/add/{status}/{r_id}",
+    "signature": "Observable<ProfileListResponse> add(@Path(\"status\") int status, @Path(\"r_id\") long id2, @Query(\"token\") String token);",
+    "evidence": "network/api/ProfileListApi.java",
+    "line": 16,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ProfileListApi",
+    "method": "GET",
+    "path": "profile/list/delete/{status}/{r_id}",
+    "signature": "Observable<ProfileListResponse> delete(@Path(\"status\") int status, @Path(\"r_id\") long id2, @Query(\"token\") String token);",
+    "evidence": "network/api/ProfileListApi.java",
+    "line": 19,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ProfileListApi",
+    "method": "GET",
+    "path": "profile/list/all/{status}/{page}",
+    "signature": "Observable<PageableResponse<Release>> profileList(@Path(\"status\") int status, @Path(\"page\") int page, @Query(\"sort\") Integer sort, @Query(\"filter_announce\") Integer filterAnnounce, @Query(\"token\") String token);",
+    "evidence": "network/api/ProfileListApi.java",
+    "line": 22,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ProfileListApi",
+    "method": "GET",
+    "path": "profile/list/all/{p_id}/{status}/{page}",
+    "signature": "Observable<PageableResponse<Release>> profileListByProfile(@Path(\"p_id\") long profileId, @Path(\"status\") int status, @Path(\"page\") int page, @Query(\"sort\") Integer sort, @Query(\"filter_announce\") Integer filterAnnounce, @Query(\"token\") String token);",
+    "evidence": "network/api/ProfileListApi.java",
+    "line": 25,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ProfilePreferenceApi",
+    "method": "GET",
+    "path": "profile/preference/avatar/delete",
+    "signature": "Observable<ProfilePreferenceResponse> avatarDelete(@Query(\"token\") String token);",
+    "evidence": "network/api/ProfilePreferenceApi.java",
+    "line": 45,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ProfilePreferenceApi",
+    "method": "POST",
+    "path": "profile/preference/avatar/edit",
+    "signature": "Observable<ProfilePreferenceResponse> avatarEdit(@Query(\"token\") String token, @Part MultipartBody.Part image, @Part(\"name\") RequestBody name);",
+    "evidence": "network/api/ProfilePreferenceApi.java",
+    "line": 48,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ProfilePreferenceApi",
+    "method": "POST",
+    "path": "profile/preference/email/change",
+    "signature": "Observable<ChangeEmailResponse> changeEmail(@Field(\"current_email\") String currentEmail, @Field(\"current_password\") String currentPassword, @Field(\"new_email\") String newEmail, @Query(\"token\") String token, @Header(\"API-Version\") String apiVersion);",
+    "evidence": "network/api/ProfilePreferenceApi.java",
+    "line": 53,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ProfilePreferenceApi",
+    "method": "POST",
+    "path": "profile/preference/email/resend",
+    "signature": "Observable<ChangeEmailResendResponse> changeEmailResend(@Field(\"new_email\") String newEmail, @Field(\"current_email\") String currentEmail, @Field(\"current_password\") String currentPassword, @Field(\"hash\") String hash, @Query(\"token\") String token);",
+    "evidence": "network/api/ProfilePreferenceApi.java",
+    "line": 57,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ProfilePreferenceApi",
+    "method": "GET",
+    "path": "profile/preference/email/verify",
+    "signature": "Observable<ChangeEmailVerifyResponse> changeEmailVerify(@Query(\"new_email\") String newEmail, @Query(\"code\") int code, @Query(\"hash\") String hash, @Query(\"token\") String token);",
+    "evidence": "network/api/ProfilePreferenceApi.java",
+    "line": 60,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ProfilePreferenceApi",
+    "method": "POST",
+    "path": "profile/preference/login/change",
+    "signature": "Observable<ChangeLoginResponse> changeLogin(@Query(\"login\") String login, @Query(\"token\") String token);",
+    "evidence": "network/api/ProfilePreferenceApi.java",
+    "line": 63,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ProfilePreferenceApi",
+    "method": "POST",
+    "path": "profile/preference/login/info",
+    "signature": "Observable<ChangeLoginInfoResponse> changeLoginInfo(@Query(\"token\") String token);",
+    "evidence": "network/api/ProfilePreferenceApi.java",
+    "line": 66,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ProfilePreferenceApi",
+    "method": "POST",
+    "path": "profile/preference/password/change",
+    "signature": "Observable<ChangePasswordResponse> changePassword(@Field(\"current\") String currentPassword, @Field(\"new\") String newPassword, @Query(\"token\") String token);",
+    "evidence": "network/api/ProfilePreferenceApi.java",
+    "line": 70,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ProfilePreferenceApi",
+    "method": "POST",
+    "path": "profile/preference/login/history/delete",
+    "signature": "Observable<Response> deleteLoginHistory(@Query(\"token\") String token);",
+    "evidence": "network/api/ProfilePreferenceApi.java",
+    "line": 73,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ProfilePreferenceApi",
+    "method": "POST",
+    "path": "profile/preference/episode-widget/edit",
+    "signature": "Observable<Response> episodeWidgetEdit(@Query(\"hidden\") boolean hidden, @Query(\"token\") String token);",
+    "evidence": "network/api/ProfilePreferenceApi.java",
+    "line": 76,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ProfilePreferenceApi",
+    "method": "POST",
+    "path": "profile/preference/google/bind",
+    "signature": "Observable<GoogleBindResponse> googleBind(@Field(\"idToken\") String idToken, @Query(\"token\") String token);",
+    "evidence": "network/api/ProfilePreferenceApi.java",
+    "line": 80,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ProfilePreferenceApi",
+    "method": "POST",
+    "path": "profile/preference/google/unbind",
+    "signature": "Observable<GoogleUnbindResponse> googleUnbind(@Query(\"token\") String token);",
+    "evidence": "network/api/ProfilePreferenceApi.java",
+    "line": 83,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ProfilePreferenceApi",
+    "method": "GET",
+    "path": "profile/preference/my",
+    "signature": "Observable<ProfilePreferenceResponse> my(@Query(\"token\") String token);",
+    "evidence": "network/api/ProfilePreferenceApi.java",
+    "line": 86,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ProfilePreferenceApi",
+    "method": "POST",
+    "path": "profile/preference/section/edit",
+    "signature": "Observable<Response> pinSection(@Body SelectPinnedSectionRequest pinSectionRequest, @Query(\"token\") String token);",
+    "evidence": "network/api/ProfilePreferenceApi.java",
+    "line": 89,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ProfilePreferenceApi",
+    "method": "POST",
+    "path": "profile/preference/privacy/counts/edit",
+    "signature": "Observable<Response> privacyCountsEdit(@Body PrivacyEditRequest privacyEditRequest, @Query(\"token\") String token);",
+    "evidence": "network/api/ProfilePreferenceApi.java",
+    "line": 92,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ProfilePreferenceApi",
+    "method": "POST",
+    "path": "profile/preference/privacy/friendRequests/edit",
+    "signature": "Observable<Response> privacyFriendRequestsEdit(@Body PrivacyEditRequest privacyEditRequest, @Query(\"token\") String token);",
+    "evidence": "network/api/ProfilePreferenceApi.java",
+    "line": 95,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ProfilePreferenceApi",
+    "method": "GET",
+    "path": "profile/preference/privacy/incognito/edit",
+    "signature": "Observable<Response> privacyIncognitoEdit(@Query(\"token\") String token);",
+    "evidence": "network/api/ProfilePreferenceApi.java",
+    "line": 98,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ProfilePreferenceApi",
+    "method": "POST",
+    "path": "profile/preference/privacy/social/edit",
+    "signature": "Observable<Response> privacySocialEdit(@Body PrivacyEditRequest privacyEditRequest, @Query(\"token\") String token);",
+    "evidence": "network/api/ProfilePreferenceApi.java",
+    "line": 101,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ProfilePreferenceApi",
+    "method": "POST",
+    "path": "profile/preference/privacy/stats/edit",
+    "signature": "Observable<Response> privacyStatsEdit(@Body PrivacyEditRequest privacyEditRequest, @Query(\"token\") String token);",
+    "evidence": "network/api/ProfilePreferenceApi.java",
+    "line": 104,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ProfilePreferenceApi",
+    "method": "POST",
+    "path": "profile/preference/themes/edit",
+    "signature": "Observable<ProfileSelectThemeResponse> selectTheme(@Body SelectThemeRequest selectThemeRequest, @Query(\"token\") String token);",
+    "evidence": "network/api/ProfilePreferenceApi.java",
+    "line": 107,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ProfilePreferenceApi",
+    "method": "GET",
+    "path": "profile/preference/social",
+    "signature": "Observable<ProfileSocialResponse> social(@Query(\"token\") String token);",
+    "evidence": "network/api/ProfilePreferenceApi.java",
+    "line": 110,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ProfilePreferenceApi",
+    "method": "POST",
+    "path": "profile/preference/social/edit",
+    "signature": "Observable<SocialEditResponse> socialPagesEdit(@Body SocialPagesEditRequest editPreferenceSocialPagesRequest, @Query(\"token\") String token);",
+    "evidence": "network/api/ProfilePreferenceApi.java",
+    "line": 113,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ProfilePreferenceApi",
+    "method": "POST",
+    "path": "profile/preference/status/edit",
+    "signature": "Observable<ProfilePreferenceResponse> statusEdit(@Body StatusEditRequest editPreferenceStatusRequest, @Query(\"token\") String token);",
+    "evidence": "network/api/ProfilePreferenceApi.java",
+    "line": 116,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ProfilePreferenceApi",
+    "method": "POST",
+    "path": "profile/preference/telegram/bind",
+    "signature": "Observable<TelegramBindResponse> telegramBind(@Field(\"idToken\") String idToken, @Query(\"token\") String token);",
+    "evidence": "network/api/ProfilePreferenceApi.java",
+    "line": 120,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ProfilePreferenceApi",
+    "method": "POST",
+    "path": "profile/preference/telegram/unbind",
+    "signature": "Observable<TelegramUnbindResponse> telegramUnbind(@Query(\"token\") String token);",
+    "evidence": "network/api/ProfilePreferenceApi.java",
+    "line": 123,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ProfilePreferenceApi",
+    "method": "POST",
+    "path": "profile/preference/vk/bind",
+    "signature": "Observable<VkBindResponse> vkBind(@Field(\"accessToken\") String accessToken, @Query(\"token\") String token);",
+    "evidence": "network/api/ProfilePreferenceApi.java",
+    "line": 127,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ProfilePreferenceApi",
+    "method": "POST",
+    "path": "profile/preference/vk/unbind",
+    "signature": "Observable<VkUnbindResponse> vkUnbind(@Query(\"token\") String token);",
+    "evidence": "network/api/ProfilePreferenceApi.java",
+    "line": 130,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ProfilePreferenceApi",
+    "method": "POST",
+    "path": "profile/preference/yandex/bind",
+    "signature": "Observable<YandexBindResponse> yandexBind(@Field(\"accessToken\") String accessToken, @Query(\"token\") String token);",
+    "evidence": "network/api/ProfilePreferenceApi.java",
+    "line": 134,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ProfilePreferenceApi",
+    "method": "POST",
+    "path": "profile/preference/yandex/unbind",
+    "signature": "Observable<YandexUnbindResponse> yandexUnbind(@Query(\"token\") String token);",
+    "evidence": "network/api/ProfilePreferenceApi.java",
+    "line": 137,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ProfileReleaseVoteApi",
+    "method": "GET",
+    "path": "/profile/vote/release/unvoted/{page}",
+    "signature": "Observable<PageableResponse<Release>> allReleaseUnvoted(@Path(\"page\") int page, @Query(\"token\") String token);",
+    "evidence": "network/api/ProfileReleaseVoteApi.java",
+    "line": 15,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ProfileReleaseVoteApi",
+    "method": "GET",
+    "path": "/profile/vote/release/voted/{p_id}/{page}",
+    "signature": "Observable<PageableResponse<Release>> allReleaseVoted(@Path(\"p_id\") long profileId, @Path(\"page\") int page, @Query(\"sort\") Integer sort, @Query(\"token\") String token);",
+    "evidence": "network/api/ProfileReleaseVoteApi.java",
+    "line": 18,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ProfileReleaseVoteApi",
+    "method": "GET",
+    "path": "/profile/vote/release/unvoted/last",
+    "signature": "Observable<PageableResponse<Release>> lastReleaseUnvoted(@Query(\"token\") String token);",
+    "evidence": "network/api/ProfileReleaseVoteApi.java",
+    "line": 21,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ProfileRoleListApi",
+    "method": "GET",
+    "path": "role/all/{page}/{role_id}",
+    "signature": "Observable<PageableResponse<ProfileRole>> all(@Path(\"page\") int page, @Path(\"role_id\") long roleId, @Query(\"token\") String token);",
+    "evidence": "network/api/ProfileRoleListApi.java",
+    "line": 15,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "RelatedApi",
+    "method": "GET",
+    "path": "related/{relatedId}/{page}",
+    "signature": "Observable<PageableResponse<Release>> related(@Path(\"relatedId\") long relatedId, @Path(\"page\") int page, @Query(\"token\") String token, @Header(\"API-Version\") String apiVersion);",
+    "evidence": "network/api/RelatedApi.java",
+    "line": 16,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ReleaseApi",
+    "method": "GET",
+    "path": "release/{r_id}/badges/{page}",
+    "signature": "Observable<PageableResponse<Badge>> badges(@Path(\"r_id\") long id2, @Path(\"page\") int page, @Query(\"token\") String token);",
+    "evidence": "network/api/ReleaseApi.java",
+    "line": 18,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ReleaseApi",
+    "method": "GET",
+    "path": "release/vote/delete/{r_id}",
+    "signature": "Observable<DeleteVoteReleaseResponse> deleteVote(@Path(\"r_id\") long id2, @Query(\"token\") String token);",
+    "evidence": "network/api/ReleaseApi.java",
+    "line": 21,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ReleaseApi",
+    "method": "GET",
+    "path": "release/random",
+    "signature": "Observable<ReleaseResponse> random(@Query(\"extended_mode\") boolean extendedMode, @Query(\"token\") String token);",
+    "evidence": "network/api/ReleaseApi.java",
+    "line": 24,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ReleaseApi",
+    "method": "GET",
+    "path": "release/collection/{id}/random",
+    "signature": "Observable<ReleaseResponse> randomCollection(@Path(\"id\") long collectionId, @Query(\"extended_mode\") boolean extendedMode, @Query(\"token\") String token);",
+    "evidence": "network/api/ReleaseApi.java",
+    "line": 27,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ReleaseApi",
+    "method": "GET",
+    "path": "release/random/favorite",
+    "signature": "Observable<ReleaseResponse> randomFavorite(@Query(\"extended_mode\") boolean extendedMode, @Query(\"token\") String token);",
+    "evidence": "network/api/ReleaseApi.java",
+    "line": 30,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ReleaseApi",
+    "method": "GET",
+    "path": "release/random/profile/list/{p_id}/{status}",
+    "signature": "Observable<ReleaseResponse> randomProfileList(@Path(\"p_id\") long profileId, @Path(\"status\") int status, @Query(\"extended_mode\") boolean extendedMode, @Query(\"token\") String token);",
+    "evidence": "network/api/ReleaseApi.java",
+    "line": 33,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ReleaseApi",
+    "method": "GET",
+    "path": "release/{r_id}",
+    "signature": "Observable<ReleaseResponse> release(@Path(\"r_id\") long id2, @Query(\"extended_mode\") boolean extendedMode, @Query(\"token\") String token);",
+    "evidence": "network/api/ReleaseApi.java",
+    "line": 36,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ReleaseApi",
+    "method": "GET",
+    "path": "release/vote/add/{r_id}/{vote}",
+    "signature": "Observable<VoteReleaseResponse> vote(@Path(\"r_id\") long id2, @Path(\"vote\") int vote, @Query(\"token\") String token);",
+    "evidence": "network/api/ReleaseApi.java",
+    "line": 39,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ReleaseCommentApi",
+    "method": "POST",
+    "path": "release/comment/add/{releaseId}",
+    "signature": "Observable<CommentAddResponse<ReleaseComment>> add(@Path(\"releaseId\") long releaseId, @Body CommentAddRequest commentAddRequest, @Query(\"token\") String token);",
+    "evidence": "network/api/ReleaseCommentApi.java",
+    "line": 25,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ReleaseCommentApi",
+    "method": "GET",
+    "path": "release/comment/{releaseId}",
+    "signature": "Observable<ReleaseComment> comment(@Path(\"releaseId\") long releaseId, @Query(\"token\") String token);",
+    "evidence": "network/api/ReleaseCommentApi.java",
+    "line": 28,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ReleaseCommentApi",
+    "method": "GET",
+    "path": "release/comment/all/{releaseId}/{page}",
+    "signature": "Observable<PageableResponse<ReleaseComment>> comments(@Path(\"releaseId\") long releaseId, @Path(\"page\") int page, @Query(\"sort\") int sort, @Query(\"token\") String token);",
+    "evidence": "network/api/ReleaseCommentApi.java",
+    "line": 31,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ReleaseCommentApi",
+    "method": "GET",
+    "path": "release/comment/delete/{commentId}",
+    "signature": "Observable<CommentDeleteResponse> delete(@Path(\"commentId\") long commentId, @Query(\"token\") String token);",
+    "evidence": "network/api/ReleaseCommentApi.java",
+    "line": 34,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ReleaseCommentApi",
+    "method": "POST",
+    "path": "release/comment/edit/{commentId}",
+    "signature": "Observable<CommentEditResponse> edit(@Path(\"commentId\") long commentId, @Body CommentEditRequest commentEditRequest, @Query(\"token\") String token);",
+    "evidence": "network/api/ReleaseCommentApi.java",
+    "line": 37,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ReleaseCommentApi",
+    "method": "POST",
+    "path": "release/comment/process/{commentId}",
+    "signature": "Observable<Response> process(@Path(\"commentId\") long commentId, @Body CommentProcessRequest commentProcessRequest, @Query(\"token\") String token);",
+    "evidence": "network/api/ReleaseCommentApi.java",
+    "line": 40,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ReleaseCommentApi",
+    "method": "GET",
+    "path": "release/comment/all/profile/{p_id}/{page}",
+    "signature": "Observable<PageableResponse<ReleaseComment>> profileComments(@Path(\"p_id\") long profileId, @Path(\"page\") int page, @Query(\"sort\") int sort, @Query(\"token\") String token);",
+    "evidence": "network/api/ReleaseCommentApi.java",
+    "line": 43,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ReleaseCommentApi",
+    "method": "POST",
+    "path": "release/comment/replies/{commentId}/{page}",
+    "signature": "Observable<PageableResponse<ReleaseComment>> replies(@Path(\"commentId\") long commentId, @Path(\"page\") int page, @Query(\"sort\") int sort, @Query(\"token\") String token);",
+    "evidence": "network/api/ReleaseCommentApi.java",
+    "line": 46,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ReleaseCommentApi",
+    "method": "GET",
+    "path": "release/comment/vote/{commentId}/{vote}",
+    "signature": "Observable<Response> vote(@Path(\"commentId\") long commentId, @Path(\"vote\") int vote, @Query(\"token\") String token);",
+    "evidence": "network/api/ReleaseCommentApi.java",
+    "line": 49,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ReleaseCommentApi",
+    "method": "GET",
+    "path": "release/comment/votes/{commentId}/{page}",
+    "signature": "Observable<PageableResponse<Profile>> votes(@Path(\"commentId\") long commentId, @Path(\"page\") int page, @Query(\"sort\") Integer sort, @Query(\"token\") String token);",
+    "evidence": "network/api/ReleaseCommentApi.java",
+    "line": 52,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ReleaseStreamingPlatformApi",
+    "method": "GET",
+    "path": "release/streaming/platform/{releaseId}",
+    "signature": "Observable<PageableResponse<ReleaseStreamingPlatform>> releaseStreamingPlatform(@Path(\"releaseId\") long releaseId);",
+    "evidence": "network/api/ReleaseStreamingPlatformApi.java",
+    "line": 14,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ReleaseVideoApi",
+    "method": "GET",
+    "path": "/video/release/categories",
+    "signature": "Observable<ReleaseVideoCategoriesResponse> categories();",
+    "evidence": "network/api/ReleaseVideoApi.java",
+    "line": 17,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ReleaseVideoApi",
+    "method": "GET",
+    "path": "/video/release/{releaseId}/category/{categoryId}/{page}",
+    "signature": "Observable<PageableResponse<ReleaseVideo>> category(@Path(\"releaseId\") long releaseId, @Path(\"categoryId\") long categoryId, @Path(\"page\") int page);",
+    "evidence": "network/api/ReleaseVideoApi.java",
+    "line": 20,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ReleaseVideoApi",
+    "method": "GET",
+    "path": "/video/release/{releaseId}",
+    "signature": "Observable<ReleaseVideosResponse> main(@Path(\"releaseId\") long releaseId);",
+    "evidence": "network/api/ReleaseVideoApi.java",
+    "line": 23,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ReleaseVideoApi",
+    "method": "GET",
+    "path": "/video/profile/{p_id}/{page}",
+    "signature": "Observable<PageableResponse<ReleaseVideo>> profileVideo(@Path(\"p_id\") long profileId, @Path(\"page\") int page, @Query(\"token\") String token);",
+    "evidence": "network/api/ReleaseVideoApi.java",
+    "line": 26,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ReleaseVideoApi",
+    "method": "GET",
+    "path": "/video/release/{releaseId}/{page}",
+    "signature": "Observable<PageableResponse<ReleaseVideo>> video(@Path(\"releaseId\") long releaseId, @Path(\"page\") int page);",
+    "evidence": "network/api/ReleaseVideoApi.java",
+    "line": 29,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ReleaseVideoAppealApi",
+    "method": "POST",
+    "path": "/video/appeal/add",
+    "signature": "Observable<ReleaseVideoAppealResponse> add(@Body ReleaseVideoAppealRequest releaseVideoAppealRequest, @Query(\"token\") String token);",
+    "evidence": "network/api/ReleaseVideoAppealApi.java",
+    "line": 19,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ReleaseVideoAppealApi",
+    "method": "GET",
+    "path": "/video/appeal/profile/{page}",
+    "signature": "Observable<PageableResponse<ReleaseVideo>> appeals(@Path(\"page\") int page, @Query(\"token\") String token);",
+    "evidence": "network/api/ReleaseVideoAppealApi.java",
+    "line": 22,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ReleaseVideoAppealApi",
+    "method": "GET",
+    "path": "/video/appeal/profile/last",
+    "signature": "Observable<PageableResponse<ReleaseVideo>> appeals(@Query(\"token\") String token);",
+    "evidence": "network/api/ReleaseVideoAppealApi.java",
+    "line": 25,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ReleaseVideoAppealApi",
+    "method": "POST",
+    "path": "/video/appeal/delete/{appealId}",
+    "signature": "Observable<ReleaseVideoAppealResponse> delete(@Path(\"appealId\") long appealId, @Query(\"token\") String token);",
+    "evidence": "network/api/ReleaseVideoAppealApi.java",
+    "line": 28,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ReleaseVideoFavoriteApi",
+    "method": "GET",
+    "path": "releaseVideoFavorite/add/{r_id}",
+    "signature": "Observable<FavoritesResponse> add(@Path(\"r_id\") long id2, @Query(\"token\") String token);",
+    "evidence": "network/api/ReleaseVideoFavoriteApi.java",
+    "line": 16,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ReleaseVideoFavoriteApi",
+    "method": "GET",
+    "path": "releaseVideoFavorite/delete/{r_id}",
+    "signature": "Observable<FavoritesResponse> delete(@Path(\"r_id\") long id2, @Query(\"token\") String token);",
+    "evidence": "network/api/ReleaseVideoFavoriteApi.java",
+    "line": 19,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ReleaseVideoFavoriteApi",
+    "method": "GET",
+    "path": "/releaseVideoFavorite/all/{p_id}/{page}",
+    "signature": "Observable<PageableResponse<ReleaseVideo>> favorites(@Path(\"p_id\") long profileId, @Path(\"page\") int page, @Query(\"token\") String token);",
+    "evidence": "network/api/ReleaseVideoFavoriteApi.java",
+    "line": 22,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ReportApi",
+    "method": "POST",
+    "path": "report/article",
+    "signature": "Observable<ReportResponse> article(@Body ReportRequest<Long> reportRequest, @Query(\"token\") String token);",
+    "evidence": "network/api/ReportApi.java",
+    "line": 20,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ReportApi",
+    "method": "POST",
+    "path": "report/comment/article",
+    "signature": "Observable<ReportResponse> articleComment(@Body ReportRequest<Long> reportRequest, @Query(\"token\") String token);",
+    "evidence": "network/api/ReportApi.java",
+    "line": 23,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ReportApi",
+    "method": "GET",
+    "path": "report/comment/article/reasons",
+    "signature": "Observable<List<ReportReason>> articleCommentsReasons(@Query(\"token\") String token);",
+    "evidence": "network/api/ReportApi.java",
+    "line": 26,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ReportApi",
+    "method": "GET",
+    "path": "report/article/reasons",
+    "signature": "Observable<List<ReportReason>> articleReasons(@Query(\"token\") String token);",
+    "evidence": "network/api/ReportApi.java",
+    "line": 29,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ReportApi",
+    "method": "POST",
+    "path": "report/channel",
+    "signature": "Observable<ReportResponse> channel(@Body ReportRequest<Long> reportRequest, @Query(\"token\") String token);",
+    "evidence": "network/api/ReportApi.java",
+    "line": 32,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ReportApi",
+    "method": "GET",
+    "path": "report/channel/reasons",
+    "signature": "Observable<List<ReportReason>> channelReasons(@Query(\"token\") String token);",
+    "evidence": "network/api/ReportApi.java",
+    "line": 35,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ReportApi",
+    "method": "POST",
+    "path": "report/collection",
+    "signature": "Observable<ReportResponse> collection(@Body ReportRequest<Long> reportRequest, @Query(\"token\") String token);",
+    "evidence": "network/api/ReportApi.java",
+    "line": 38,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ReportApi",
+    "method": "POST",
+    "path": "report/comment/collection",
+    "signature": "Observable<ReportResponse> collectionComment(@Body ReportRequest<Long> reportRequest, @Query(\"token\") String token);",
+    "evidence": "network/api/ReportApi.java",
+    "line": 41,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ReportApi",
+    "method": "GET",
+    "path": "report/comment/collection/reasons",
+    "signature": "Observable<List<ReportReason>> collectionCommentsReasons(@Query(\"token\") String token);",
+    "evidence": "network/api/ReportApi.java",
+    "line": 44,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ReportApi",
+    "method": "GET",
+    "path": "report/collection/reasons",
+    "signature": "Observable<List<ReportReason>> collectionReasons(@Query(\"token\") String token);",
+    "evidence": "network/api/ReportApi.java",
+    "line": 47,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ReportApi",
+    "method": "POST",
+    "path": "report/episode",
+    "signature": "Observable<ReportResponse> episode(@Body ReportRequest<Episode> reportRequest, @Query(\"token\") String token);",
+    "evidence": "network/api/ReportApi.java",
+    "line": 50,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ReportApi",
+    "method": "GET",
+    "path": "report/episode/reasons",
+    "signature": "Observable<List<ReportReason>> episodeReasons(@Query(\"token\") String token);",
+    "evidence": "network/api/ReportApi.java",
+    "line": 53,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ReportApi",
+    "method": "POST",
+    "path": "report/profile",
+    "signature": "Observable<ReportResponse> profile(@Body ReportRequest<Long> reportRequest, @Query(\"token\") String token);",
+    "evidence": "network/api/ReportApi.java",
+    "line": 56,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ReportApi",
+    "method": "GET",
+    "path": "report/profile/reasons",
+    "signature": "Observable<List<ReportReason>> profileReasons(@Query(\"token\") String token);",
+    "evidence": "network/api/ReportApi.java",
+    "line": 59,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ReportApi",
+    "method": "POST",
+    "path": "report/release",
+    "signature": "Observable<ReportResponse> release(@Body ReportRequest<Long> reportRequest, @Query(\"token\") String token);",
+    "evidence": "network/api/ReportApi.java",
+    "line": 62,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ReportApi",
+    "method": "POST",
+    "path": "report/comment/release",
+    "signature": "Observable<ReportResponse> releaseComment(@Body ReportRequest<Long> reportRequest, @Query(\"token\") String token);",
+    "evidence": "network/api/ReportApi.java",
+    "line": 65,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ReportApi",
+    "method": "GET",
+    "path": "report/comment/release/reasons",
+    "signature": "Observable<List<ReportReason>> releaseCommentsReasons(@Query(\"token\") String token);",
+    "evidence": "network/api/ReportApi.java",
+    "line": 68,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ReportApi",
+    "method": "GET",
+    "path": "report/release/reasons",
+    "signature": "Observable<List<ReportReason>> releaseReasons(@Query(\"token\") String token);",
+    "evidence": "network/api/ReportApi.java",
+    "line": 71,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "ScheduleApi",
+    "method": "GET",
+    "path": "schedule",
+    "signature": "Observable<ScheduleResponse> schedule();",
+    "evidence": "network/api/ScheduleApi.java",
+    "line": 12,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "SearchApi",
+    "method": "POST",
+    "path": "search/articles/{page}",
+    "signature": "Observable<PageableResponse<Article>> articleSearch(@Path(\"page\") int page, @Body ArticlesSearchRequest articlesSearchRequest, @Query(\"token\") String token);",
+    "evidence": "network/api/SearchApi.java",
+    "line": 27,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "SearchApi",
+    "method": "POST",
+    "path": "search/channels/{page}",
+    "signature": "Observable<PageableResponse<Channel>> channelSearch(@Path(\"page\") int page, @Body ChannelsSearchRequest channelsSearchRequest, @Query(\"token\") String token);",
+    "evidence": "network/api/SearchApi.java",
+    "line": 30,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "SearchApi",
+    "method": "POST",
+    "path": "search/channel/{c_id}/subscribers/{page}",
+    "signature": "Observable<PageableResponse<ChannelProfile>> channelSubscribersSearch(@Path(\"c_id\") long channelId, @Path(\"page\") int page, @Body SearchRequest searchRequest, @Query(\"token\") String token);",
+    "evidence": "network/api/SearchApi.java",
+    "line": 33,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "SearchApi",
+    "method": "POST",
+    "path": "search/collections/{page}",
+    "signature": "Observable<PageableResponse<Collection>> collectionSearch(@Path(\"page\") int page, @Body SearchRequest searchRequest, @Query(\"token\") String token);",
+    "evidence": "network/api/SearchApi.java",
+    "line": 36,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "SearchApi",
+    "method": "POST",
+    "path": "search/favoriteCollections/{page}",
+    "signature": "Observable<PageableResponse<Collection>> favoriteCollectionsSearch(@Path(\"page\") int page, @Body SearchRequest searchRequest, @Query(\"token\") String token);",
+    "evidence": "network/api/SearchApi.java",
+    "line": 39,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "SearchApi",
+    "method": "POST",
+    "path": "search/favorites/{page}",
+    "signature": "Observable<PageableResponse<Release>> favoritesSearch(@Path(\"page\") int page, @Body SearchRequest searchRequest, @Query(\"token\") String token);",
+    "evidence": "network/api/SearchApi.java",
+    "line": 42,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "SearchApi",
+    "method": "POST",
+    "path": "search/feed/{page}",
+    "signature": "Observable<FeedSearchResponse> feedSearch(@Path(\"page\") int page, @Body SearchRequest searchRequest, @Query(\"token\") String token);",
+    "evidence": "network/api/SearchApi.java",
+    "line": 45,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "SearchApi",
+    "method": "POST",
+    "path": "search/history/{page}",
+    "signature": "Observable<PageableResponse<Release>> historySearch(@Path(\"page\") int page, @Body SearchRequest searchRequest, @Query(\"token\") String token);",
+    "evidence": "network/api/SearchApi.java",
+    "line": 48,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "SearchApi",
+    "method": "POST",
+    "path": "search/profileCollections/{p_id}/{page}",
+    "signature": "Observable<PageableResponse<Collection>> profileCollectionSearch(@Path(\"p_id\") long profileId, @Path(\"page\") int page, @Body SearchRequest searchRequest, @Query(\"release_id\") long releaseId, @Query(\"token\") String token);",
+    "evidence": "network/api/SearchApi.java",
+    "line": 51,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "SearchApi",
+    "method": "POST",
+    "path": "search/profile/list/{status}/{page}",
+    "signature": "Observable<PageableResponse<Release>> profileListSearch(@Path(\"status\") int status, @Path(\"page\") int page, @Body SearchRequest searchRequest, @Query(\"token\") String token);",
+    "evidence": "network/api/SearchApi.java",
+    "line": 54,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "SearchApi",
+    "method": "POST",
+    "path": "search/profiles/{page}",
+    "signature": "Observable<PageableResponse<Profile>> profileSearch(@Path(\"page\") int page, @Body SearchRequest searchRequest, @Query(\"token\") String token);",
+    "evidence": "network/api/SearchApi.java",
+    "line": 57,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "SearchApi",
+    "method": "POST",
+    "path": "search/releases/{page}",
+    "signature": "Observable<ReleaseSearchResponse> releaseSearch(@Path(\"page\") int page, @Body SearchRequest searchRequest, @Query(\"token\") String token, @Header(\"API-Version\") String apiVersion);",
+    "evidence": "network/api/SearchApi.java",
+    "line": 60,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "TypeApi",
+    "method": "GET",
+    "path": "type/{typeId}/channel",
+    "signature": "Observable<TypeChannelResponse> channel(@Path(\"typeId\") long typeId, @Query(\"token\") String token);",
+    "evidence": "network/api/TypeApi.java",
+    "line": 16,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "TypeApi",
+    "method": "GET",
+    "path": "type/widget/hide/{typeId}",
+    "signature": "Observable<Response> hideWidget(@Path(\"typeId\") long typeId, @Query(\"permanent\") boolean permanent, @Query(\"token\") String token);",
+    "evidence": "network/api/TypeApi.java",
+    "line": 19,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "TypeApi",
+    "method": "GET",
+    "path": "type/pin/{releaseId}/{typeId}",
+    "signature": "Observable<Response> pin(@Path(\"releaseId\") long releaseId, @Path(\"typeId\") long typeId, @Query(\"token\") String token);",
+    "evidence": "network/api/TypeApi.java",
+    "line": 22,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "TypeApi",
+    "method": "GET",
+    "path": "type/all",
+    "signature": "Observable<TypeResponse> types(@Query(\"token\") String token);",
+    "evidence": "network/api/TypeApi.java",
+    "line": 25,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "TypeApi",
+    "method": "GET",
+    "path": "type/widget/unhide/{typeId}",
+    "signature": "Observable<Response> unhideWidget(@Path(\"typeId\") long typeId, @Query(\"token\") String token);",
+    "evidence": "network/api/TypeApi.java",
+    "line": 28,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  },
+  {
+    "interface": "TypeApi",
+    "method": "GET",
+    "path": "type/unpin/{releaseId}/{typeId}",
+    "signature": "Observable<Response> unpin(@Path(\"releaseId\") long releaseId, @Path(\"typeId\") long typeId, @Query(\"token\") String token);",
+    "evidence": "network/api/TypeApi.java",
+    "line": 31,
+    "verification": "APK static only; live API blocked by HTTP 403"
+  }
+]

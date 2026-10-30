@@ -57,6 +57,15 @@ import XCTest
             guard item.waitForExistence(timeout:30) else { XCTFail("Source selection unavailable: \(id)"); return }; item.tap()
         }
         if app.webViews.firstMatch.waitForExistence(timeout:10) { app.webViews.firstMatch.tap() }
+        if source == 8 {
+            let state = app.staticTexts["playbackState"]
+            let content = XCTNSPredicateExpectation(predicate:NSPredicate(format:"label == %@", "Источник загружен"),object:state)
+            guard XCTWaiter.wait(for:[content],timeout:120) == .completed else {
+                let screenshot = XCTAttachment(screenshot:app.screenshot()); screenshot.name = "Kodik-normal-ad-flow-result"; screenshot.lifetime = .keepAlways; add(screenshot)
+                XCTFail("Kodik did not complete its normal ad flow and load the content player"); return
+            }
+            app.webViews.firstMatch.tap()
+        }
         let open = app.buttons["openVLCStream"]
         let resolved = XCTNSPredicateExpectation(predicate:NSPredicate(format:"enabled == true"),object:open)
         let result = XCTWaiter.wait(for:[resolved],timeout:120)

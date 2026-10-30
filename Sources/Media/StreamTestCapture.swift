@@ -7,8 +7,11 @@ enum StreamTestCapture {
               let directory = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first else { return }
         let record: [String: Any] = ["url": url.absoluteString, "duration": duration ?? 0, "release_id": key.releaseID,
                                    "source_id": key.sourceID, "position": key.position]
+        let captures = directory.appendingPathComponent("VLCStreamsForTest", isDirectory: true)
         if let data = try? JSONSerialization.data(withJSONObject: record) {
-            try? data.write(to: directory.appendingPathComponent("VLCStreamForTest.json"), options: .atomic)
+            try? FileManager.default.createDirectory(at: captures, withIntermediateDirectories: true)
+            let name = "\(key.releaseID)-\(key.sourceID)-\(key.position).json"
+            try? data.write(to: captures.appendingPathComponent(name), options: .atomic)
         }
         #endif
     }

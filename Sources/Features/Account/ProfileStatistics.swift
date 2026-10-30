@@ -103,7 +103,7 @@ struct ProfileWatchDynamics: View {
                                 Text(Self.dateFormatter.string(from:Date(timeIntervalSince1970:Double(timestamp))))
                                     .font(.caption2).foregroundStyle(.secondary).rotationEffect(.degrees(-60)).frame(height:35)
                             }
-                        }.frame(minWidth:30,height:165,alignment:.bottom)
+                        }.frame(minWidth:30).frame(height:165,alignment:.bottom)
                             .accessibilityElement(children:.combine)
                     }
                 }.padding(.horizontal,4)

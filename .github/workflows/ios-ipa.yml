@@ -95,9 +95,9 @@ jobs:
               xcrun xcresulttool export attachments --path "Artifacts/$suite.xcresult" --output-path "Artifacts/Screenshots/$suite"
             fi
           done
-      - name: Decode the resolved real stream in VLC
+      - name: Decode each required provider in VLC
         id: vlc
-        if: steps.resolve.outcome == 'success'
+        if: ${{ !cancelled() && steps.core.outcome == 'success' }}
         continue-on-error: true
         shell: bash
         run: |
@@ -108,9 +108,9 @@ jobs:
           fi
           xcrun simctl bootstatus "$SIMULATOR_ID" -b
           container=$(xcrun simctl get_app_container "$SIMULATOR_ID" local.anixartport.client data)
-          capture="$container/Library/Caches/VLCStreamForTest.json"
-          test -f "$capture"
-          .build/vlc-check/bin/python tools/verify_vlc_stream.py "$capture" Artifacts/vlc-stream-check.json
+          captures="$container/Library/Caches/VLCStreamsForTest"
+          .build/vlc-check/bin/python tools/verify_vlc_stream.py "$captures" Artifacts/vlc-stream-check.json \
+            --expect 841:1:1 --expect 841:8:1 --expect 20290:413:1
       - name: Build Release for iPhone
         shell: bash
         run: |
@@ -168,6 +168,8 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: AnixartPort-diagnostics
-          path: Artifacts/
+          path: |
+            Artifacts/
+            !Artifacts/*.ipa
           if-no-files-found: warn
           retention-days: 14

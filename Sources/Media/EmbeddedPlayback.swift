@@ -3,7 +3,7 @@ import Observation
 import WebKit
 
 @MainActor @Observable final class EmbeddedPlayback {
-    enum Phase: String { case loading = "Загрузка плеера…", ready = "Источник загружен", playing = "Воспроизводится", paused = "Пауза", ended = "Просмотр завершён", failed = "Источник недоступен" }
+    enum Phase: String { case loading = "Загрузка плеера…", advertisement = "Реклама источника", ready = "Источник загружен", playing = "Воспроизводится", paused = "Пауза", ended = "Просмотр завершён", failed = "Источник недоступен" }
     private(set) var phase = Phase.loading
     private(set) var seconds: Double = 0
     private(set) var duration: Double?
@@ -26,6 +26,11 @@ import WebKit
     func loaded() { if phase == .loading { phase = .ready } }
     func fail(_ message: String) { error = message; phase = .failed }
     func attach(_ webView: WKWebView) { self.webView = webView }
+    func beginAdvertisement() { phase = .advertisement }
+    func openContentPage(_ url: URL) {
+        phase = .loading; error = nil; mediaURL = nil; frame = nil; canControl = false
+        webView?.load(URLRequest(url:url))
+    }
     func receive(_ values: [String: Any], frame: WKFrameInfo) {
         self.frame = frame
         canControl = true

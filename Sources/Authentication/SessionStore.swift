@@ -55,6 +55,7 @@ struct KeychainVault: SessionVault {
     private(set) var busy = false
     var error: String?
     private let vault: any SessionVault
+    private var signInGeneration = UUID()
     var token: String? { session?.token }
     var identity: String { session.map { String($0.profile.id) } ?? "guest" }
 
@@ -66,12 +67,16 @@ struct KeychainVault: SessionVault {
     }
     func signIn(login: String, password: String, repository: AnixartRepository) async {
         guard !busy else { return }
+        let generation = UUID(); signInGeneration = generation
         busy = true; error = nil
-        defer { busy = false }
+        defer { if signInGeneration == generation { busy = false } }
         do {
             let response = try await repository.signIn(login: login, password: password)
+            try Task.checkCancellation()
+            guard signInGeneration == generation else { return }
             try accept(response)
         } catch is CancellationError { }
+        catch let error as URLError where error.code == .cancelled { }
         catch { self.error = error.localizedDescription }
     }
     func accept(_ response: LoginResponse) throws {
@@ -80,6 +85,7 @@ struct KeychainVault: SessionVault {
         }
         let next = UserSession(token: token, profile: profile)
         try vault.write(JSONEncoder().encode(next))
+        signInGeneration = UUID(); busy = false
         session = next; error = nil
     }
     func refresh(repository: AnixartRepository) async {
@@ -88,12 +94,15 @@ struct KeychainVault: SessionVault {
             let profile = try await repository.profile(current.profile.id, token: current.token)
             guard session?.token == current.token else { return }
             let next = UserSession(token: current.token, profile: profile)
-            try vault.write(JSONEncoder().encode(next)); session = next
-        } catch APIError.unauthorized { signOut() }
+            try vault.write(JSONEncoder().encode(next)); session = next; error = nil
+        } catch APIError.unauthorized { invalidate(ifMatching: current.token) }
         catch is CancellationError { }
-        catch { self.error = error.localizedDescription }
+        catch let error as URLError where error.code == .cancelled { }
+        catch { if session?.token == current.token { self.error = error.localizedDescription } }
     }
+    func invalidate(ifMatching token: String) { if session?.token == token { signOut() } }
     func signOut() {
+        signInGeneration = UUID(); busy = false
         do { try vault.delete(); session = nil; error = nil }
         catch { self.error = error.localizedDescription }
     }

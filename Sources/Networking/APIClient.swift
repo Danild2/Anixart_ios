@@ -80,7 +80,7 @@ actor APIClient {
                 let (data, response) = try await session.data(for: request)
                 guard let http = response as? HTTPURLResponse else { throw APIError.malformed }
                 if http.statusCode == 401 {
-                    if token != nil { NotificationCenter.default.post(name: .sessionUnauthorized, object: nil) }
+                    if let token { NotificationCenter.default.post(name: .sessionUnauthorized, object: token) }
                     throw APIError.unauthorized
                 }
                 if [502, 503, 504].contains(http.statusCode), attempt + 1 < attempts {
@@ -91,6 +91,10 @@ actor APIClient {
                 let acknowledgement: Acknowledgement
                 do { acknowledgement = try Self.decoder().decode(Acknowledgement.self, from: data) }
                 catch { throw Self.decodingFailure(error) }
+                if acknowledgement.code == 401 {
+                    if let token { NotificationCenter.default.post(name: .sessionUnauthorized, object: token) }
+                    throw APIError.unauthorized
+                }
                 guard endpoint.acceptedCodes.contains(acknowledgement.code) else { throw APIError.service(acknowledgement.code) }
                 do { return try Self.decoder().decode(T.self, from: data) }
                 catch { throw Self.decodingFailure(error) }

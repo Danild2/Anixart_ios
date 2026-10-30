@@ -21,6 +21,13 @@ import XCTest
         do { let _: ReleaseResponse = try await client.request(Endpoint(path: "release/1")); XCTFail("Expected schema failure") }
         catch { XCTAssertEqual(error as? APIError, .schema("release")) }
     }
+    func testApplicationUnauthorizedEnvelopeDoesNotNeedASuccessPayload() async {
+        StubURLProtocol.storage.configure([.init(status: 200, body: #"{"code":401}"#)])
+        let client = APIClient(session: StubURLProtocol.session())
+        do { let _: ProfileResponse = try await client.request(Endpoint(path: "profile/1"), token: "test-token"); XCTFail("Expected session expiry") }
+        catch { XCTAssertEqual(error as? APIError, .unauthorized) }
+        XCTAssertEqual(StubURLProtocol.storage.captured().count, 1)
+    }
     func testReadRetriesOnceAfter503() async throws {
         StubURLProtocol.storage.configure([.init(status: 503, body: ""), .init(status: 200, body: #"{"code":0}"#)])
         let client = APIClient(session: StubURLProtocol.session())

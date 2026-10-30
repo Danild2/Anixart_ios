@@ -2,7 +2,7 @@
 
 Нативный SwiftUI-клиент по исследованию предоставленного APK Anixart 10.5. Это **незавершённый перенос**. С облачного runner производственный Swift-код проверен на реальных ответах каталога, поиска, релиза и полной цепочки до iframe-видеоссылки. На исходном Windows-компьютере API блокируется HTTP 403 при включённом VPN. Реальный вход, воспроизведение и установка через SideStore пока не подтверждены.
 
-**Unsigned IPA собрана:** [успешный CI 41089213117](https://github.com/Danild2/Anixart_ios/actions/runs/41089213117), [скачать artifact ZIP с IPA](https://github.com/Danild2/Anixart_ios/actions/runs/41089213117/artifacts/12994715735). 15 unit + 3 UI теста прошли; SHA256 и ограничения — [STATUS.md](docs/STATUS.md). Исходники приложения в IPA соответствуют commit `0b337cd7d1511121917c603058c263d5a979d1fc`.
+**Тестовая unsigned IPA с VLC собрана:** [CI 41105577300](https://github.com/Danild2/Anixart_ios/actions/runs/41105577300), [artifact ZIP с IPA](https://github.com/Danild2/Anixart_ios/actions/runs/41105577300/artifacts/13001697408). 33 unit + 6 core UI + реальное получение HLS через UI прошли; экспериментальный native video test пропущен. VLC-декодирование не запускалось: симулятор был Shutdown при получении контейнера; workflow failed, это не подтверждение видео. Исправление boot/проверка VLC runtime подготовлены для следующего запуска. SHA256 и ограничения — [STATUS.md](docs/STATUS.md). Исходники этой IPA — `b771f6206f3f8c015ecf930907f12d5ecee39e2d`.
 
 - [Аудит APK](docs/APK_AUDIT.md)
 - [Матрица пользовательских сценариев](docs/FEATURE_MATRIX.md)

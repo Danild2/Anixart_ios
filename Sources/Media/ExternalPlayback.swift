@@ -23,6 +23,7 @@ struct ApplicationURLOpener: ExternalURLOpener {
     private let opener: any ExternalURLOpener
     init(opener: any ExternalURLOpener = ApplicationURLOpener()) { self.opener = opener }
     var isVLCInstalled: Bool { opener.canOpen(URL(string: "vlc-x-callback://x-callback-url/stream")!) }
+    func reset() { active = nil; message = nil; error = nil }
 
     @discardableResult func open(media: URL, key: PlaybackKey, title: String, subtitles: URL? = nil) async -> Bool {
         error = nil; message = nil

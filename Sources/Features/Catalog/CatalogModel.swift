@@ -13,7 +13,8 @@ enum ReleaseFeed: Hashable {
     var error: String?
     private var page = 0
     private var generation = UUID()
-    private let cache = CatalogCache()
+    private let cache: CatalogCache
+    init(cache: CatalogCache = CatalogCache()) { self.cache = cache }
 
     func load(repository: AnixartRepository, feed: ReleaseFeed, query: String = "", filter: CatalogFilter = CatalogFilter(),
               token: String?, reset: Bool) async {
@@ -48,14 +49,14 @@ enum ReleaseFeed: Hashable {
             releases += fresh
             page += 1
             hasMore = !fresh.isEmpty && totalPages.map { page < $0 } != false
-            if reset, feed == .catalog, query.isEmpty, filter == CatalogFilter(), token == nil { await cache.write(content) }
+            if reset, feed == .catalog, query.isEmpty, token == nil { await cache.write(content, filter: filter) }
         } catch is CancellationError { }
         catch let error as URLError where error.code == .cancelled { }
         catch {
             guard generation == self.generation else { return }
             self.error = error.localizedDescription
-            if reset, feed == .catalog, query.isEmpty, filter == CatalogFilter(), token == nil,
-               let snapshot = await cache.read(), generation == self.generation {
+            if reset, feed == .catalog, query.isEmpty, token == nil,
+               let snapshot = await cache.read(filter: filter), generation == self.generation {
                 releases = snapshot.releases; cachedAt = snapshot.savedAt; hasMore = false
             }
         }

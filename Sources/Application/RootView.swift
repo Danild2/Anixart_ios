@@ -42,6 +42,7 @@ struct RootView: View {
                 }
             }
         }
+        .id(session.identity)
         .safeAreaInset(edge: .bottom, spacing: 0) {
             if settings.theme == .original && !chrome.playbackVisible {
                 HStack(alignment: .top, spacing: 0) {

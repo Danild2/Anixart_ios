@@ -28,4 +28,14 @@ import XCTest
         await store.signIn(login: "fixture", password: "invalid", repository: AnixartRepository(client: APIClient(session: StubURLProtocol.session())))
         XCTAssertNil(store.token); XCTAssertNotNil(store.error); XCTAssertNil(vault.data)
     }
+    func testExpiredRequestCannotLogOutTheNewSession() throws {
+        let vault = MemoryVault(); let store = SessionStore(vault: vault)
+        let old = try APIClient.decoder().decode(LoginResponse.self, from: Data(#"{"code":0,"profile":{"id":1},"profileToken":{"token":"old-test-token"}}"#.utf8))
+        let next = try APIClient.decoder().decode(LoginResponse.self, from: Data(#"{"code":0,"profile":{"id":2},"profileToken":{"token":"new-test-token"}}"#.utf8))
+        try store.accept(old); try store.accept(next)
+        store.invalidate(ifMatching: "old-test-token")
+        XCTAssertEqual(store.session?.profile.id, 2); XCTAssertNotNil(vault.data)
+        store.invalidate(ifMatching: "new-test-token")
+        XCTAssertNil(store.session); XCTAssertNil(vault.data)
+    }
 }

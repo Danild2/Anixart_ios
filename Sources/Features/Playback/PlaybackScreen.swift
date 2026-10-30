@@ -124,7 +124,9 @@ struct PlaybackScreen: View {
                     ForEach(manualQualities) { quality in Button(quality.title) { selectedMedia = quality.url; selectedQuality = quality.title } }
                 }
             }
-            Button { openVLC() } label: { Label("Открыть поток в VLC", systemImage: "play.rectangle.fill") }
+            Button { openVLC() } label: {
+                Label("Открыть поток в VLC", systemImage: "play.rectangle.fill").foregroundStyle(settings.darkMode ? Color.black : Color.white)
+            }
                 .buttonStyle(.borderedProminent).disabled(resolvedMedia == nil).accessibilityIdentifier("openVLCStream")
             if !externalPlayback.isVLCInstalled {
                 Link("Установить VLC", destination: URL(string: "https://www.videolan.org/vlc/download-ios.html")!)

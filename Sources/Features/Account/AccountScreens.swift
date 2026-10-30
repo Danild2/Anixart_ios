@@ -5,6 +5,7 @@ struct SignInScreen: View {
     @Environment(\.repository) private var repository
     @State private var login = ""
     @State private var password = ""
+    @State private var request: Task<Void, Never>?
     @FocusState private var focus: Bool
     var body: some View {
         Form {
@@ -22,11 +23,11 @@ struct SignInScreen: View {
                 NavigationLink(OriginalCopy.text("auth_register_action")) { AccountAccessScreen(mode: .registration) }
                 NavigationLink(OriginalCopy.text("auth_forgot_password_question")) { AccountAccessScreen(mode: .restore) }
             }
-        }.navigationTitle("Вход").onDisappear { password = "" }
+        }.navigationTitle("Вход").onDisappear { request?.cancel(); password = "" }
     }
     private func signIn() {
         focus = false
-        Task {
+        request = Task {
             await session.signIn(login: login.trimmingCharacters(in: .whitespaces), password: password, repository: repository)
             password = ""
         }

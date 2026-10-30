@@ -1,9 +1,14 @@
 import Foundation
+import Darwin
 
 // Compiled with the exact production Domain/Networking/SourceResolver files.
 // Guest requests only; no credentials, URL dumping, fixtures, or media downloads.
 @main struct LiveContractCheck {
-    static func main() async throws {
+    static func main() async {
+        do { try await run() }
+        catch { print("contract_failure=\(error.localizedDescription)"); fflush(nil); exit(1) }
+    }
+    static func run() async throws {
         let repository = AnixartRepository()
         let catalog = try await repository.catalog(page: 0, filter: CatalogFilter(), token: nil)
         guard let sample = catalog.content.first else { throw APIError.malformed }

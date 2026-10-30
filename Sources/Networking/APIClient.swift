@@ -45,6 +45,17 @@ actor APIClient {
         return Data((components.percentEncodedQuery ?? "").replacingOccurrences(of: "+", with: "%2B").utf8)
     }
 
+    private static func decodingFailure(_ error: Error) -> APIError {
+        let path: [any CodingKey]
+        switch error {
+        case DecodingError.keyNotFound(let key, let context): path = context.codingPath + [key]
+        case DecodingError.typeMismatch(_, let context), DecodingError.valueNotFound(_, let context), DecodingError.dataCorrupted(let context): path = context.codingPath
+        default: return .malformed
+        }
+        // Only schema key names/indices; never raw response values or credentials.
+        return .schema(path.map(\.stringValue).joined(separator: "."))
+    }
+
     func request<T: ServiceResponse>(_ endpoint: Endpoint, token: String? = nil) async throws -> T {
         guard [Self.primaryURL.host, Self.regionalURL.host].contains(baseURL.host), baseURL.scheme == "https",
               !endpoint.path.contains(".."), !endpoint.path.contains(":") else { throw APIError.invalidURL }
@@ -76,10 +87,10 @@ actor APIClient {
                 // Inspect code before decoding success-only fields of an error envelope.
                 let acknowledgement: Acknowledgement
                 do { acknowledgement = try Self.decoder().decode(Acknowledgement.self, from: data) }
-                catch { throw APIError.malformed }
+                catch { throw Self.decodingFailure(error) }
                 guard acknowledgement.code == 0 else { throw APIError.service(acknowledgement.code) }
                 do { return try Self.decoder().decode(T.self, from: data) }
-                catch { throw APIError.malformed }
+                catch { throw Self.decodingFailure(error) }
             } catch let error as URLError {
                 if attempt + 1 < attempts, [.timedOut, .networkConnectionLost].contains(error.code) {
                     try await Task.sleep(for: .milliseconds(500)); continue

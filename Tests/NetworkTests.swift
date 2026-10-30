@@ -19,7 +19,7 @@ import XCTest
         StubURLProtocol.storage.configure([.init(status: 200, body: #"{"code":0,"release":"invalid"}"#)])
         let client = APIClient(session: StubURLProtocol.session())
         do { let _: ReleaseResponse = try await client.request(Endpoint(path: "release/1")); XCTFail("Expected schema failure") }
-        catch { XCTAssertEqual(error as? APIError, .malformed) }
+        catch { XCTAssertEqual(error as? APIError, .schema("release")) }
     }
     func testReadRetriesOnceAfter503() async throws {
         StubURLProtocol.storage.configure([.init(status: 503, body: ""), .init(status: 200, body: #"{"code":0}"#)])

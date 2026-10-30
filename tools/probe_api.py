@@ -27,7 +27,7 @@ def request(base, path, body=None, version=None):
             data = json.load(response)
         record['application_code'] = data.get('code')
         record['keys'] = sorted(data.keys())
-        if data.get('code') != 0: return None
+        if data.get('code', 0 if path.startswith('config/') else None) != 0: return None
         return data
     except urllib.error.HTTPError as error:
         record['http'] = error.code
@@ -115,6 +115,7 @@ def probe():
 
 
 def inspect_media_and_profile(base, catalog):
+    configuration = None
     def inspect_image(item):
         raw = item.get('image')
         record = {'release_id': item['id'], 'image_present': bool(raw), 'poster_type': type(item.get('poster')).__name__}
@@ -137,8 +138,9 @@ def inspect_media_and_profile(base, catalog):
     for path in ['config/toggles', 'config/urls']:
         response = request(base, path + '?version_code=26101718&is_beta=false&is_api_alt=false')
         if response:
+            if path == 'config/toggles': configuration = response
             public = {}
-            for key in ['iframeEmbedUrl','iframe_embed_url','staticDomain','static_domain','sibnetUserAgent','sibnet_user_agent','consentRequired','consent_required']:
+            for key in ['iframeEmbedUrl','iframe_embed_url','staticDomain','static_domain','sibnetUserAgent','sibnet_user_agent','consentRequired','consent_required','kodikVideoLinksUrl']:
                 value = response.get(key)
                 if value is not None:
                     if isinstance(value, str) and value.startswith('https://'):
@@ -146,7 +148,10 @@ def inspect_media_and_profile(base, catalog):
                         public[key] = {'host': parsed.hostname, 'path': parsed.path, 'query_names': [x[0] for x in urllib.parse.parse_qsl(parsed.query,keep_blank_values=True)]}
                     elif key.lower().replace('_','') == 'staticdomain': public[key] = value
                     elif isinstance(value,bool): public[key] = value
+                    elif key in ['sibnetUserAgent','sibnet_user_agent']: public[key] = {'present':bool(value)}
             REPORT.setdefault('public_configuration', {})[path] = public
+            if isinstance(response.get('api_urls'), list):
+                public['api_url_fields'] = [sorted(x) for x in response['api_urls'] if isinstance(x,dict)]
     profile = request(base, 'profile/1')
     if profile and isinstance(profile.get('profile'), dict):
         value = profile['profile']
@@ -171,7 +176,8 @@ def inspect_media_and_profile(base, catalog):
             result = {'type_id':translation['id'],'source_id':source['id'],'name':name,'iframe':episode.get('iframe'),'host':parsed.hostname}
             if parsed.scheme == 'https' and parsed.hostname in ['video.sibnet.ru','kodikplayer.com','kodik.cc','kodik.info','aniqit.com']:
                 try:
-                    with urllib.request.urlopen(raw,timeout=15) as response:
+                    headers = {'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Safari/537.36', 'Accept':'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'}
+                    with urllib.request.urlopen(urllib.request.Request(raw,headers=headers),timeout=15) as response:
                         page = response.read(2_000_000).decode('utf-8',errors='replace')
                         result.update(http=response.status,bytes=len(page),has_media_source=bool(re.search(r'src\s*:\s*[\"\x27]',page)))
                 except urllib.error.HTTPError as error:

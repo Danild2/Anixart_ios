@@ -14,7 +14,7 @@ enum AppTheme: String, CaseIterable, Identifiable {
     private let defaults: UserDefaults
     init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
-        theme = AppTheme(rawValue: defaults.string(forKey: "theme") ?? "original") ?? .original
+        theme = AppTheme(rawValue: defaults.string(forKey: "theme") ?? "liquidGlass") ?? .liquidGlass
         darkMode = defaults.object(forKey: "darkMode") as? Bool ?? true
         useRegionalAPI = defaults.bool(forKey: "regionalAPI")
     }

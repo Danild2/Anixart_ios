@@ -18,7 +18,8 @@ struct RootView: View {
     var body: some View {
         TabView(selection: $tab) {
             ForEach(MainTab.allCases) { item in
-                NavigationStack {
+                Tab(item.title, systemImage: item.icon, value: item) {
+                  NavigationStack {
                     Group {
                         switch item {
                         case .home: CatalogScreen(title: "Anixart", feed: .catalog, searchable: true)
@@ -30,9 +31,9 @@ struct RootView: View {
                     }
                     .navigationDestination(for: Release.self) { ReleaseScreen(initial: $0) }
                     .navigationBarTitleDisplayMode(.inline)
+                  }
+                  .toolbar(settings.theme == .original ? .hidden : .visible, for: .tabBar)
                 }
-                .tabItem { Label(item.title, systemImage: item.icon) }.tag(item)
-                .toolbar(settings.theme == .original ? .hidden : .visible, for: .tabBar)
             }
         }
         .safeAreaInset(edge: .bottom, spacing: 0) {

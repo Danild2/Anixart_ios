@@ -1,6 +1,21 @@
 import XCTest
 
 @MainActor final class NavigationTests: XCTestCase {
+    func testNativeLiquidGlassTabsAndScreenshot() {
+        let app = XCUIApplication()
+        app.launchArguments = ["-theme", "liquidGlass", "-regionalAPI", "NO"]
+        app.launch()
+        let bar = app.tabBars.firstMatch
+        XCTAssertTrue(bar.waitForExistence(timeout: 10))
+        for title in ["Главная", "Обзор", "Закладки", "Лента", "Профиль"] { XCTAssertTrue(bar.buttons[title].exists) }
+        let release = app.descendants(matching: .any).matching(NSPredicate(format: "identifier BEGINSWITH %@", "release.")).firstMatch
+        XCTAssertTrue(release.waitForExistence(timeout: 45))
+        let screenshot = XCTAttachment(screenshot: app.screenshot()); screenshot.name = "iPhone17-native-liquid-glass-tabs"; screenshot.lifetime = .keepAlways; add(screenshot)
+        bar.buttons["Профиль"].tap()
+        XCTAssertTrue(app.navigationBars["Профиль"].waitForExistence(timeout: 5))
+        bar.buttons["Главная"].tap()
+        XCTAssertTrue(app.navigationBars["Anixart"].exists)
+    }
     func testGuestCatalogOpensRealRelease() {
         let app = XCUIApplication()
         app.launchArguments = ["-theme", "original", "-regionalAPI", "NO"]

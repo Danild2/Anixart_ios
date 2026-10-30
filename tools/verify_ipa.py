@@ -28,11 +28,26 @@ def verify(path):
         # Release device builds are expected to be a thin, little-endian ARM64 Mach-O.
         if len(binary) < 32 or struct.unpack_from('<II', binary) != (0xfeedfacf, 0x0100000c):
             raise ValueError('Executable is not a thin ARM64 Mach-O')
+        header = struct.unpack_from('<8I', binary)
+        if header[3] != 2 or 32 + header[5] > len(binary):
+            raise ValueError('Invalid Mach-O executable header')
+        offset = 32
+        platform = None
+        for _ in range(header[4]):
+            if offset + 8 > 32 + header[5]: raise ValueError('Truncated load command')
+            command, size = struct.unpack_from('<II', binary, offset)
+            if size < 8 or offset + size > 32 + header[5]: raise ValueError('Invalid load command size')
+            if command == 0x32:  # LC_BUILD_VERSION
+                if size < 24: raise ValueError('Truncated build version')
+                platform = struct.unpack_from('<I', binary, offset + 8)[0]
+            offset += size
+        if platform != 2:  # PLATFORM_IOS; ARM64 simulator uses PLATFORM_IOSSIMULATOR=7.
+            raise ValueError('Mach-O was not built for a physical iOS device')
         if not archive.getinfo(prefix + executable).external_attr >> 16 & 0o111:
             raise ValueError('Executable permission bit missing')
         if any(n.endswith(('.apk', '.p12', '.mobileprovision')) for n in names):
             raise ValueError('Unexpected proprietary or signing material in unsigned IPA')
-        print(f'IPA structure and ARM64 executable verified; minimum iOS {info.get("MinimumOSVersion")}. Device installation not tested.')
+        print(f'IPA structure, physical iOS platform and ARM64 executable verified; minimum iOS {info.get("MinimumOSVersion")}. Device installation not tested.')
 
 
 if __name__ == '__main__':

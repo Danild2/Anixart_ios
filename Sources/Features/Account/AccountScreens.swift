@@ -18,7 +18,10 @@ struct SignInScreen: View {
             Button(action: signIn) {
                 HStack { Text("Войти"); Spacer(); if session.busy { ProgressView() } }
             }.disabled(login.trimmingCharacters(in: .whitespaces).isEmpty || password.isEmpty || session.busy)
-            Section { Text("Регистрация, восстановление пароля и вход через социальные сети пока не перенесены.").foregroundStyle(.secondary) }
+            Section {
+                NavigationLink(OriginalCopy.text("auth_register_action")) { AccountAccessScreen(mode: .registration) }
+                NavigationLink(OriginalCopy.text("auth_forgot_password_question")) { AccountAccessScreen(mode: .restore) }
+            }
         }.navigationTitle("Вход").onDisappear { password = "" }
     }
     private func signIn() {

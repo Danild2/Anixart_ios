@@ -48,8 +48,8 @@ struct PlaybackScreen: View {
                 if settings.playbackMode == .inApp { HStack {
                     if !qualities.isEmpty {
                         Menu("Качество: \(selectedQuality)") {
-                            Button("Авто") { selectedMedia = nil; if settings.playbackMode == .inApp, case .native(let url) = target { native.quality(url) }; selectedQuality = "Авто" }
-                            ForEach(qualities) { quality in Button(quality.title) { selectedMedia = quality.url; if settings.playbackMode == .inApp { native.quality(quality.url) }; selectedQuality = quality.title } }
+                            Button(defaultQualityTitle) { selectedMedia = nil; if settings.playbackMode == .inApp, case .native(let url) = target { native.quality(url) }; selectedQuality = defaultQualityTitle }
+                            ForEach(manualQualities) { quality in Button(quality.title) { selectedMedia = quality.url; if settings.playbackMode == .inApp { native.quality(quality.url) }; selectedQuality = quality.title } }
                         }
                     }
                     Spacer()
@@ -94,10 +94,11 @@ struct PlaybackScreen: View {
             }
             .task(id: "\(currentEpisode.position)-\(attempt)") { await load() }
             .task(id: resolvedMedia) {
-                qualities = providerVariants; selectedQuality = "Авто"; qualityError = nil
+                qualities = providerVariants; selectedQuality = defaultQualityTitle; qualityError = nil
                 if let url = resolvedMedia, url.pathExtension.lowercased() == "m3u8" {
-                    do { let manifestQualities = try await HLSQualities.load(url); if !manifestQualities.isEmpty { qualities = manifestQualities } }
+                    do { let manifestQualities = try await HLSQualities.load(url); try Task.checkCancellation(); if !manifestQualities.isEmpty { qualities = manifestQualities } }
                     catch is CancellationError { }
+                    catch let error as URLError where error.code == .cancelled { }
                     catch { qualityError = "Список качеств недоступен. Работает автоматический выбор: \(error.localizedDescription)" }
                 }
             }
@@ -106,6 +107,8 @@ struct PlaybackScreen: View {
             .onChange(of: scenePhase) { _, phase in if phase != .active { native.save(); embedded.save() } }
     }
     private var currentIndex: Int? { episodes.firstIndex { $0.position == currentEpisode.position } }
+    private var defaultQualityTitle: String { providerVariants.first?.title ?? "Авто" }
+    private var manualQualities: [HLSQuality] { qualities.filter { $0.url != resolvedMedia } }
     private var resolvedMedia: URL? {
         if case .native(let url) = target { return url }
         return embedded.mediaURL
@@ -117,8 +120,8 @@ struct PlaybackScreen: View {
             }
             if !qualities.isEmpty {
                 Menu("Качество: \(selectedQuality)") {
-                    Button("Авто") { selectedMedia = nil; selectedQuality = "Авто" }
-                    ForEach(qualities) { quality in Button(quality.title) { selectedMedia = quality.url; selectedQuality = quality.title } }
+                    Button(defaultQualityTitle) { selectedMedia = nil; selectedQuality = defaultQualityTitle }
+                    ForEach(manualQualities) { quality in Button(quality.title) { selectedMedia = quality.url; selectedQuality = quality.title } }
                 }
             }
             Button { openVLC() } label: { Label("Открыть поток в VLC", systemImage: "play.rectangle.fill") }
@@ -160,6 +163,7 @@ struct PlaybackScreen: View {
             if episodes.isEmpty { episodes = try await repository.episodes(release.id, type: translation.id, source: source.id, token: session.token) }
             if settings.playbackMode == .inApp { await recordHistory(position: currentEpisode.position) }
         } catch is CancellationError { }
+        catch let error as URLError where error.code == .cancelled { }
         catch { self.error = error.localizedDescription }
     }
     private func recordHistory(position: Int) async {

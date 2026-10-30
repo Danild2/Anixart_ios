@@ -118,4 +118,20 @@ import XCTest
         XCTAssertTrue(app.secureTextFields["Пароль"].waitForExistence(timeout: 5))
         XCTAssertFalse(app.buttons["Войти"].isEnabled)
     }
+    func testAccountRegistrationAndRestoreNavigationWithoutSendingEmail() {
+        let app = XCUIApplication(); app.launchArguments = ["-theme", "original"]; app.launch()
+        let bookmarks = app.buttons["tab.2"]
+        guard bookmarks.waitForExistence(timeout: 10) else { XCTFail("Bookmarks unavailable"); return }
+        bookmarks.tap(); app.buttons["Регистрация"].tap()
+        XCTAssertTrue(app.secureTextFields["Повторите пароль"].waitForExistence(timeout: 5))
+        XCTAssertFalse(app.buttons["beginAccountAccess"].isEnabled)
+        XCTAssertEqual(app.switches["termsConsent"].value as? String, "0")
+        XCTAssertEqual(app.switches["disseminationConsent"].value as? String, "0")
+        app.navigationBars.buttons.element(boundBy: 0).tap()
+        app.buttons["Забыли пароль?"].tap()
+        XCTAssertTrue(app.secureTextFields["Новый пароль"].waitForExistence(timeout: 5))
+        XCTAssertFalse(app.buttons["beginAccountAccess"].isEnabled)
+        app.navigationBars.buttons.element(boundBy: 0).tap()
+        XCTAssertTrue(app.secureTextFields["Пароль"].exists)
+    }
 }

@@ -22,7 +22,7 @@ struct ScheduleScreen: View {
                                 ScrollView(.horizontal) {
                                     LazyHStack(alignment: .top, spacing: 12) {
                                         ForEach(day.releases) { release in
-                                            NavigationLink(value: release) {
+                                            NavigationLink { ReleaseScreen(initial: release) } label: {
                                                 VStack(alignment: .leading, spacing: 8) {
                                                     Poster(url: release.poster, width: 104, height: 156)
                                                     Text(release.title).font(.caption).lineLimit(2).foregroundStyle(.primary)

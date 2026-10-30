@@ -70,14 +70,17 @@ struct KeychainVault: SessionVault {
         defer { busy = false }
         do {
             let response = try await repository.signIn(login: login, password: password)
-            guard let token = response.profileToken?.token, !token.isEmpty, let profile = response.profile else {
-                throw APIError.malformed
-            }
-            let next = UserSession(token: token, profile: profile)
-            try vault.write(JSONEncoder().encode(next))
-            session = next
+            try accept(response)
         } catch is CancellationError { }
         catch { self.error = error.localizedDescription }
+    }
+    func accept(_ response: LoginResponse) throws {
+        guard response.code == 0, let token = response.profileToken?.token, !token.isEmpty, let profile = response.profile else {
+            throw APIError.malformed
+        }
+        let next = UserSession(token: token, profile: profile)
+        try vault.write(JSONEncoder().encode(next))
+        session = next; error = nil
     }
     func refresh(repository: AnixartRepository) async {
         guard let current = session else { return }

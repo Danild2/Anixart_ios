@@ -9,6 +9,8 @@ struct Endpoint: Sendable {
     var apiVersion: String?
     // Some APK mutations use GET. HTTP verb is not a sufficient retry policy.
     var isReadOnly = true
+    var headers: [String: String] = [:]
+    var acceptedCodes: Set<Int> = [0]
 }
 
 extension Notification.Name {
@@ -70,6 +72,7 @@ actor APIClient {
         request.setValue("application/json", forHTTPHeaderField: "Accept")
         if endpoint.body != nil { request.setValue(endpoint.contentType, forHTTPHeaderField: "Content-Type") }
         if let version = endpoint.apiVersion { request.setValue(version, forHTTPHeaderField: "API-Version") }
+        for (name, value) in endpoint.headers { request.setValue(value, forHTTPHeaderField: name) }
         let attempts = endpoint.isReadOnly ? 2 : 1
         for attempt in 0..<attempts {
             try Task.checkCancellation()
@@ -88,7 +91,7 @@ actor APIClient {
                 let acknowledgement: Acknowledgement
                 do { acknowledgement = try Self.decoder().decode(Acknowledgement.self, from: data) }
                 catch { throw Self.decodingFailure(error) }
-                guard acknowledgement.code == 0 else { throw APIError.service(acknowledgement.code) }
+                guard endpoint.acceptedCodes.contains(acknowledgement.code) else { throw APIError.service(acknowledgement.code) }
                 do { return try Self.decoder().decode(T.self, from: data) }
                 catch { throw Self.decodingFailure(error) }
             } catch let error as URLError {

@@ -21,7 +21,7 @@ struct SibnetResolver: Sendable {
         throw APIError.unsupportedMedia
     }
     private static func validated(_ url: URL) throws -> URL {
-        guard url.scheme == "https", let host = url.host?.lowercased(), host == "video.sibnet.ru" || host.hasSuffix(".sibnet.ru"),
+        guard url.scheme == "https", let host = url.host, !host.isEmpty,
               url.user == nil, url.password == nil else { throw APIError.invalidURL }
         var components = URLComponents(url:url,resolvingAgainstBaseURL:false)!
         if components.port == 443 { components.port = nil }

@@ -9,11 +9,15 @@ import XCTest
         XCTAssertTrue(metric.waitForExistence(timeout:15))
         let first = XCTNSPredicateExpectation(predicate:NSPredicate(format:"value MATCHES %@","decoded=([3-9]|[1-9][0-9]+);.*"),object:metric)
         XCTAssertEqual(XCTWaiter.wait(for:[first],timeout:30),.completed)
-        app.swipeUp(); app.swipeUp(); app.swipeUp()
-        let scrolled = XCTNSPredicateExpectation(predicate:NSPredicate(format:"value MATCHES %@","decoded=([6-9]|[1-9][0-9]+);.*"),object:metric)
+        for _ in 0..<12 { app.swipeUp() }
+        let scrolled = XCTNSPredicateExpectation(predicate:NSPredicate(format:"value MATCHES %@","decoded=([2-9][0-9]|[1-9][0-9]{2,});.*"),object:metric)
         XCTAssertEqual(XCTWaiter.wait(for:[scrolled],timeout:30),.completed)
         XCTAssertTrue((metric.value as? String ?? "").hasSuffix("failed=0"))
         let screenshot = XCTAttachment(screenshot:app.screenshot()); screenshot.name = "real-posters-decoded-after-scrolling"; screenshot.lifetime = .keepAlways; add(screenshot)
+        app.terminate(); app.launch()
+        let restarted = app.staticTexts["imageMetrics"]
+        let disk = XCTNSPredicateExpectation(predicate:NSPredicate(format:"value MATCHES %@",".*;disk=[1-9][0-9]*;.*"),object:restarted)
+        XCTAssertEqual(XCTWaiter.wait(for:[disk],timeout:30),.completed,"Real posters should survive process restart in the disk cache")
     }
     func testRealPublicProfileStatisticsFromCommentAuthor() {
         let app = XCUIApplication(); app.launchArguments = ["-theme","liquidGlass","-regionalAPI","NO"]; app.launch()
@@ -31,6 +35,7 @@ import XCTest
             authors.element(boundBy:index).tap()
             let count = app.staticTexts["profile.listCount.0"]
             if count.waitForExistence(timeout:20) {
+                XCTAssertTrue(app.descendants(matching:.any).matching(identifier:"profileWatchDynamics").firstMatch.exists,"A profile with recent views must include its day-by-day graph")
                 let screenshot = XCTAttachment(screenshot:app.screenshot()); screenshot.name = "real-public-profile-statistics"; screenshot.lifetime = .keepAlways; add(screenshot)
                 XCTAssertTrue(app.staticTexts["profile.listCount.4"].exists)
                 return

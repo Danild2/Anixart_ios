@@ -34,7 +34,7 @@ struct ProfileStatistics: View {
                 }
                 Button(OriginalCopy.text("statistics_help_title")) { showHelp = true }.font(.footnote)
             } else { ProgressView() }
-        }.padding(.vertical, 8).accessibilityIdentifier("profileStatistics")
+        }.padding(.vertical, 8)
             .sheet(isPresented: $showHelp) {
                 NavigationStack {
                     ScrollView { Text(OriginalCopy.text("statistics_help_message")).padding() }

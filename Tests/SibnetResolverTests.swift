@@ -5,12 +5,12 @@ import XCTest
     func testPageRedirectsProduceTheFinalSignedMediaURL() async throws {
         StubURLProtocol.storage.configure([
             .init(status:200,body:#"player.src([{src: "/v/fixture.mp4",type:"video/mp4"}]);"#),
-            .init(status:302,body:"",headers:["Location":"//cdn.sibnet.ru:443/fixture.mp4?signature=test%2Bvalue"]),
+            .init(status:302,body:"",headers:["Location":"//provider-cdn.example.test:443/fixture.mp4?signature=test%2Bvalue"]),
             .init(status:206,body:"",headers:["Content-Type":"video/mp4"])
         ])
         let page = URL(string:"https://video.sibnet.ru/shell.php?videoid=123")!
         let media = try await SibnetResolver(session:StubURLProtocol.session()).resolve(page)
-        XCTAssertEqual(media.absoluteString,"https://cdn.sibnet.ru/fixture.mp4?signature=test%2Bvalue")
+        XCTAssertEqual(media.absoluteString,"https://provider-cdn.example.test/fixture.mp4?signature=test%2Bvalue")
         let requests = StubURLProtocol.storage.captured()
         XCTAssertEqual(requests[1].value(forHTTPHeaderField:"Referer"),page.absoluteString)
         XCTAssertNil(requests[2].value(forHTTPHeaderField:"Referer"))

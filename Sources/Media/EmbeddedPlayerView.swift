@@ -37,6 +37,7 @@ struct EmbeddedPlayerView: UIViewRepresentable {
                       ProviderPage.permitsAdCallback(origin:origin,expected:parent.url),
                       let content = ProviderPage.canonicalKodik(parent.url) else { return }
                 advertPending = false
+                parent.error = nil
                 parent.playback.openContentPage(content)
                 return
             }
@@ -57,7 +58,11 @@ struct EmbeddedPlayerView: UIViewRepresentable {
         func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) { parent.error = error.localizedDescription; parent.playback.fail(error.localizedDescription) }
         func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) { parent.error = error.localizedDescription; parent.playback.fail(error.localizedDescription) }
         func webView(_ webView: WKWebView, decidePolicyFor response: WKNavigationResponse) async -> WKNavigationResponsePolicy {
-            if let http = response.response as? HTTPURLResponse, http.statusCode >= 400 { let message = "Веб-источник вернул HTTP \(http.statusCode)."; parent.error = message; parent.playback.fail(message) }
+            let host = response.response.url?.host?.lowercased() ?? ""
+            let sourceFrame = host == parent.url.host?.lowercased() || ProviderPage.kodikHosts.contains(host)
+            if let http = response.response as? HTTPURLResponse, http.statusCode >= 400, response.isForMainFrame || sourceFrame {
+                let message = "Веб-источник вернул HTTP \(http.statusCode)."; parent.error = message; parent.playback.fail(message)
+            }
             return response.canShowMIMEType ? .allow : .cancel
         }
         func webViewWebContentProcessDidTerminate(_ webView: WKWebView) { parent.error = "Веб-плеер остановлен системой. Повторите загрузку." }

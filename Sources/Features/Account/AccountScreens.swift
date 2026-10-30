@@ -78,6 +78,7 @@ struct SettingsScreen: View {
                 Text("В первой версии медиапоток открывается в VLC. Историю серий ведёт Anixart; точная позиция внешнего воспроизведения управляется VLC.").font(.caption).foregroundStyle(.secondary)
             }
             Section("О переносе") {
+                LabeledContent("Версия", value: "\(Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "—") (\(Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "—"))")
                 Text("Неофициальный нативный клиент на основе исследования Anixart 10.5.")
                 Text("Функции и источники ещё требуют проверки с доступным сервером и на iPhone. Лента, каналы, друзья, уведомления и часть настроек оригинала пока не перенесены.").foregroundStyle(.secondary)
                 Text("Bundle ID: local.anixartport.client").font(.caption)

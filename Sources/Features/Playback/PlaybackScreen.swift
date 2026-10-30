@@ -27,6 +27,7 @@ struct PlaybackScreen: View {
     @State private var syncError: String?
     @State private var loading = false
     @State private var attempt = 0
+    @State private var providerConfiguration: PublicConfiguration?
     init(release: Release, translation: Translation, source: VideoSource, episode: Episode, account: String) {
         self.release = release; self.translation = translation; self.source = source; self.episode = episode; self.account = account
         let key = PlaybackKey(account: account, releaseID: release.id, typeID: translation.id, sourceID: source.id, position: episode.position)
@@ -59,9 +60,12 @@ struct PlaybackScreen: View {
                 }.font(.caption).padding(.horizontal) }
                 if let qualityError { Text(qualityError).font(.caption).foregroundStyle(.secondary) }
             case .embedded(let url):
-                EmbeddedPlayerView(url: url, playback: embedded, error: $error).id("\(currentEpisode.position)-\(attempt)")
+                EmbeddedPlayerView(url: url, playback: embedded, configuration: providerConfiguration, error: $error).id("\(currentEpisode.position)-\(attempt)")
                     .accessibilityIdentifier("embeddedPlayer")
                 if settings.playbackMode == .vlc { vlcControls }
+                if embedded.advertisementControlReady, embedded.phase == .advertisement {
+                    Text("Нажмите Play в окне рекламы").font(.caption).foregroundStyle(.secondary).accessibilityIdentifier("providerPlayReady")
+                }
                 HStack {
                     Button { embedded.seek(by: -10) } label: { Image(systemName: "gobackward.10") }.accessibilityLabel("Назад на 10 секунд")
                     Button { embedded.play() } label: { Image(systemName: "play.fill") }.accessibilityLabel("Воспроизвести")
@@ -73,7 +77,7 @@ struct PlaybackScreen: View {
                 }.padding(.horizontal).disabled(!embedded.canControl)
             case nil: Spacer()
             }
-            if let message = error ?? native.error ?? embedded.error { FailureNotice(message: message) { attempt += 1 } }
+            if let message = error ?? native.error ?? embedded.error { FailureNotice(message: message) { attempt += 1 }.accessibilityIdentifier("playbackFailure") }
             if let syncError { Text(syncError).font(.caption).foregroundStyle(.secondary).padding(.horizontal) }
             Text("\(translation.name) · \(source.name)").font(.caption).foregroundStyle(.secondary)
             HStack {
@@ -155,7 +159,9 @@ struct PlaybackScreen: View {
         do {
             let resolved = try await repository.target(release.id, source: source.id, position: currentEpisode.position)
             try Task.checkCancellation()
-            let resolution = try await SourceResolver().resolveForPlayback(resolved, externalVLC: settings.playbackMode == .vlc)
+            providerConfiguration = try? await repository.client.publicConfiguration()
+            try Task.checkCancellation()
+            let resolution = try await SourceResolver().resolveForPlayback(resolved, externalVLC: settings.playbackMode == .vlc,configuration:providerConfiguration)
             try Task.checkCancellation()
             let next = resolution.target
             providerVariants = resolution.variants.map { HLSQuality(url: $0.url, height: $0.height, bandwidth: nil) }

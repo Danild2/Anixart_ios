@@ -8,9 +8,10 @@ struct SourceVariant: Sendable { let url: URL; let height: Int }
 struct PlaybackResolution: Sendable { let target: PlaybackTarget; let variants: [SourceVariant] }
 
 struct SourceResolver {
-    func resolveForPlayback(_ episode: Episode, externalVLC: Bool = false) async throws -> PlaybackResolution {
+    func resolveForPlayback(_ episode: Episode, externalVLC: Bool = false, configuration: PublicConfiguration? = nil) async throws -> PlaybackResolution {
         if let raw = episode.url, let url = URL(string:raw), url.host?.lowercased() == "video.sibnet.ru" {
-            return PlaybackResolution(target:.native(try await SibnetResolver().resolve(url)),variants:[])
+            let userAgent = configuration?.sibnetRandUserAgent == true ? configuration?.sibnetUserAgent : nil
+            return PlaybackResolution(target:.native(try await SibnetResolver(userAgent:userAgent).resolve(url)),variants:[])
         }
         if episode.iframe != true, let raw = episode.url, let url = URL(string: raw),
            AniLibriaResolver.hosts.contains(url.host?.lowercased() ?? "") {

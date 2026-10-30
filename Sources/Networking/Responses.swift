@@ -2,6 +2,17 @@ import Foundation
 
 protocol ServiceResponse: Decodable, Sendable { var code: Int { get } }
 struct Acknowledgement: ServiceResponse { let code: Int }
+struct PublicConfiguration: ServiceResponse {
+    private var rawCode: Int?
+    var code: Int { rawCode ?? 0 }
+    var kodikIframeAd: Bool?
+    var sibnetRandUserAgent: Bool?
+    var sibnetUserAgent: String?
+    var consentRequired: Bool?
+    enum CodingKeys: String, CodingKey {
+        case rawCode = "code", kodikIframeAd, sibnetRandUserAgent, sibnetUserAgent, consentRequired
+    }
+}
 struct Page<T: Decodable & Sendable>: ServiceResponse {
     let code: Int
     let content: [T]

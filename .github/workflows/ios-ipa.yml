@@ -74,7 +74,6 @@ jobs:
             CODE_SIGNING_ALLOWED=NO test 2>&1 | tee Artifacts/tests.log
       - name: Resolve a real stream through the iOS interface
         id: resolve
-        continue-on-error: true
         shell: bash
         run: |
           set -euo pipefail
@@ -98,7 +97,6 @@ jobs:
       - name: Decode each required provider in VLC
         id: vlc
         if: ${{ !cancelled() && steps.core.outcome == 'success' }}
-        continue-on-error: true
         shell: bash
         run: |
           set -euo pipefail
@@ -112,14 +110,18 @@ jobs:
           .build/vlc-check/bin/python tools/verify_vlc_stream.py "$captures" Artifacts/vlc-stream-check.json \
             --expect 841:1:1 --expect 841:8:1 --expect 20290:413:1
       - name: Build Release for iPhone
+        id: release
+        if: ${{ !cancelled() && steps.core.outcome == 'success' }}
         shell: bash
         run: |
           set -euo pipefail
           xcodebuild -project AnixartPort.xcodeproj -scheme AnixartPort \
             -configuration Release -sdk iphoneos -destination 'generic/platform=iOS' \
             -derivedDataPath .build/release CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO \
-            CODE_SIGN_IDENTITY='' build 2>&1 | tee Artifacts/build.log
+            CODE_SIGN_IDENTITY='' CURRENT_PROJECT_VERSION="$GITHUB_RUN_NUMBER" build 2>&1 | tee Artifacts/build.log
       - name: Package and verify IPA
+        id: package
+        if: ${{ !cancelled() && steps.release.outcome == 'success' }}
         shell: bash
         run: |
           set -euo pipefail
@@ -133,6 +135,7 @@ jobs:
           python3 tools/verify_ipa.py Artifacts/AnixartPort-unsigned.ipa
           shasum -a 256 Artifacts/AnixartPort-unsigned.ipa > Artifacts/SHA256SUMS
       - name: Record test build validation
+        if: ${{ !cancelled() && steps.core.outcome == 'success' }}
         env:
           CORE_RESULT: ${{ steps.core.outcome }}
           STREAM_RESULT: ${{ steps.resolve.outcome }}
@@ -142,12 +145,15 @@ jobs:
           import json, os, pathlib
           result = {'commit': os.environ['GITHUB_SHA'], 'core_tests': os.environ['CORE_RESULT'],
                     'real_stream_resolution': os.environ['STREAM_RESULT'], 'vlc_decoding': os.environ['VLC_RESULT'],
-                    'physical_iphone_handoff': 'not tested', 'full_port_complete': False}
+                    'physical_iphone_handoff': 'not tested', 'full_port_complete': False,
+                    'version': '0.2.0', 'build': os.environ['GITHUB_RUN_NUMBER']}
+          media_report = pathlib.Path('Artifacts/vlc-stream-check.json')
+          result['providers'] = json.loads(media_report.read_text())['providers'] if media_report.exists() else []
           pathlib.Path('Artifacts/VALIDATION.json').write_text(json.dumps(result, indent=2) + '\n')
           print(json.dumps(result))
           PY
       - name: Upload unsigned IPA
-        if: steps.resolve.outcome == 'success' && steps.vlc.outcome == 'success'
+        if: steps.core.outcome == 'success' && steps.resolve.outcome == 'success' && steps.vlc.outcome == 'success' && steps.package.outcome == 'success'
         uses: actions/upload-artifact@v4
         with:
           name: AnixartPort-unsigned-IPA
@@ -158,6 +164,7 @@ jobs:
           if-no-files-found: error
           retention-days: 14
       - name: Require real streaming success
+        if: ${{ !cancelled() && steps.core.outcome == 'success' }}
         env:
           STREAM_RESULT: ${{ steps.resolve.outcome }}
           VLC_RESULT: ${{ steps.vlc.outcome }}

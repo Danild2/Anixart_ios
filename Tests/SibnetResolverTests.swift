@@ -9,9 +9,10 @@ import XCTest
             .init(status:206,body:"",headers:["Content-Type":"video/mp4"])
         ])
         let page = URL(string:"https://video.sibnet.ru/shell.php?videoid=123")!
-        let media = try await SibnetResolver(session:StubURLProtocol.session()).resolve(page)
+        let media = try await SibnetResolver(userAgent:"Original-App-Configured-Agent/1",session:StubURLProtocol.session()).resolve(page)
         XCTAssertEqual(media.absoluteString,"https://provider-cdn.example.test/fixture.mp4?signature=test%2Bvalue")
         let requests = StubURLProtocol.storage.captured()
+        XCTAssertTrue(requests.allSatisfy { $0.value(forHTTPHeaderField:"User-Agent") == "Original-App-Configured-Agent/1" })
         XCTAssertEqual(requests[1].value(forHTTPHeaderField:"Referer"),page.absoluteString)
         XCTAssertNil(requests[2].value(forHTTPHeaderField:"Referer"))
         XCTAssertEqual(requests[2].value(forHTTPHeaderField:"Range"),"bytes=0-1")

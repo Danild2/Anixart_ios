@@ -36,6 +36,12 @@ import XCTest
             let count = app.staticTexts["profile.listCount.0"]
             if count.waitForExistence(timeout:20) {
                 XCTAssertTrue(app.descendants(matching:.any).matching(identifier:"profileWatchDynamics").firstMatch.exists,"A profile with recent views must include its day-by-day graph")
+                let dynamics = XCTAttachment(screenshot:app.screenshot()); dynamics.name = "real-public-profile-viewing-dynamics"; dynamics.lifetime = .keepAlways; add(dynamics)
+                let details = app.buttons["profileDynamicsDetails"]
+                XCTAssertTrue(details.isHittable); details.tap()
+                XCTAssertTrue(app.alerts["Информация"].waitForExistence(timeout:5))
+                app.alerts.buttons["Понятно"].tap()
+                app.swipeUp()
                 let screenshot = XCTAttachment(screenshot:app.screenshot()); screenshot.name = "real-public-profile-statistics"; screenshot.lifetime = .keepAlways; add(screenshot)
                 XCTAssertTrue(app.staticTexts["profile.listCount.4"].exists)
                 return
@@ -61,17 +67,30 @@ import XCTest
             let item = app.descendants(matching:.any).matching(identifier:id).firstMatch
             guard item.waitForExistence(timeout:30) else { XCTFail("Source selection unavailable: \(id)"); return }; item.tap()
         }
-        if app.webViews.firstMatch.waitForExistence(timeout:10) { app.webViews.firstMatch.tap() }
         if source == 8 {
+            let web = app.webViews.firstMatch
+            guard web.waitForExistence(timeout:45) else { XCTFail("Kodik page unavailable"); return }
             let state = app.staticTexts["playbackState"]
-            let content = XCTNSPredicateExpectation(predicate:NSPredicate(format:"label == %@", "Источник загружен"),object:state)
+            if state.label == "Реклама источника" {
+                let ready = app.staticTexts["providerPlayReady"]
+                guard ready.waitForExistence(timeout:60) else {
+                    let screenshot = XCTAttachment(screenshot:app.screenshot()); screenshot.name = "Kodik-play-control-not-ready"; screenshot.lifetime = .keepAlways; add(screenshot)
+                    XCTFail("The provider did not display its actual play control"); return
+                }
+                web.tap() // A real user gesture after the provider's own Play element becomes visible.
+            }
+            let content = XCTNSPredicateExpectation(predicate:NSPredicate(format:"label == %@ OR label == %@ OR label == %@", "Источник загружен", "Воспроизводится", "Пауза"),object:state)
             guard XCTWaiter.wait(for:[content],timeout:120) == .completed else {
                 let screenshot = XCTAttachment(screenshot:app.screenshot()); screenshot.name = "Kodik-normal-ad-flow-result"; screenshot.lifetime = .keepAlways; add(screenshot)
                 XCTFail("Kodik did not complete its normal ad flow and load the content player"); return
             }
-            app.webViews.firstMatch.tap()
+            if !app.buttons["openVLCStream"].isEnabled { app.webViews.firstMatch.tap() }
         }
         let open = app.buttons["openVLCStream"]
+        if !open.waitForExistence(timeout:5), app.descendants(matching:.any).matching(identifier:"playbackFailure").firstMatch.exists {
+            let screenshot = XCTAttachment(screenshot:app.screenshot()); screenshot.name = "Initial-D-source-\(source)-provider-error"; screenshot.lifetime = .keepAlways; add(screenshot)
+            XCTFail("Provider returned an explicit error before a media URL was available"); return
+        }
         let resolved = XCTNSPredicateExpectation(predicate:NSPredicate(format:"enabled == true"),object:open)
         let result = XCTWaiter.wait(for:[resolved],timeout:120)
         let screenshot = XCTAttachment(screenshot:app.screenshot()); screenshot.name = "Initial-D-source-\(source)-stream-result"; screenshot.lifetime = .keepAlways; add(screenshot)

@@ -190,6 +190,13 @@ def inspect_media_and_profile(base, catalog):
                 values = urllib.parse.parse_qs(parsed.query)
                 if (values.get('videoid') or [''])[0].isdigit(): result['public_video_id'] = int(values['videoid'][0])
             if parsed.scheme == 'https' and parsed.hostname in ['video.sibnet.ru','kodikplayer.com','kodik.cc','kodik.info','aniqit.com']:
+                if parsed.hostname == 'video.sibnet.ru' and (configuration or {}).get('sibnetRandUserAgent') and (configuration or {}).get('sibnetUserAgent'):
+                    try:
+                        with urllib.request.urlopen(urllib.request.Request(raw,headers={'User-Agent':configuration['sibnetUserAgent'],'Accept':'text/html'}),timeout=15) as response:
+                            page = response.read(2_000_000).decode('utf-8',errors='replace')
+                            result.update(configured_http=response.status,configured_has_media_source=bool(re.search(r'src\s*:\s*[\"\x27]',page)))
+                    except urllib.error.HTTPError as error: result['configured_http'] = error.code
+                    except Exception as error: result['configured_error_type'] = type(error).__name__
                 try:
                     headers = {'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Safari/537.36', 'Accept':'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'}
                     with urllib.request.urlopen(urllib.request.Request(raw,headers=headers),timeout=15) as response:

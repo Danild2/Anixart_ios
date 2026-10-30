@@ -22,6 +22,7 @@ actor APIClient {
     static let regionalURL = URL(string: "https://api.anixsekai.com/")!
     private let session: URLSession
     private let baseURL: URL
+    private var publicConfigurationCache: (value: PublicConfiguration, expires: Date)?
 
     init(baseURL: URL = primaryURL, session: URLSession? = nil) {
         self.baseURL = baseURL
@@ -38,6 +39,15 @@ actor APIClient {
         let decoder = JSONDecoder()
         decoder.keyDecodingStrategy = .convertFromSnakeCase
         return decoder
+    }
+
+    func publicConfiguration() async throws -> PublicConfiguration {
+        if let cached = publicConfigurationCache, cached.expires > Date() { return cached.value }
+        let value: PublicConfiguration = try await request(Endpoint(path:"config/toggles", query:[
+            "version_code":"26101718", "is_beta":"false", "is_api_alt":baseURL == Self.regionalURL ? "true" : "false"
+        ]))
+        publicConfigurationCache = (value,Date().addingTimeInterval(300))
+        return value
     }
 
     static func form(_ fields: [String: String]) -> Data {
@@ -89,7 +99,13 @@ actor APIClient {
                 guard (200..<300).contains(http.statusCode) else { throw APIError.http(http.statusCode) }
                 // Inspect code before decoding success-only fields of an error envelope.
                 let acknowledgement: Acknowledgement
-                do { acknowledgement = try Self.decoder().decode(Acknowledgement.self, from: data) }
+                do {
+                    if endpoint.path == "config/toggles", endpoint.method == "GET", token == nil {
+                        // The official public configuration omits code on success.
+                        let configuration = try Self.decoder().decode(PublicConfiguration.self,from:data)
+                        acknowledgement = Acknowledgement(code:configuration.code)
+                    } else { acknowledgement = try Self.decoder().decode(Acknowledgement.self, from: data) }
+                }
                 catch { throw Self.decodingFailure(error) }
                 if acknowledgement.code == 401 {
                     if let token { NotificationCenter.default.post(name: .sessionUnauthorized, object: token) }

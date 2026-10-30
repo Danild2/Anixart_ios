@@ -4,6 +4,7 @@ import WebKit
 struct EmbeddedPlayerView: UIViewRepresentable {
     let url: URL
     let playback: EmbeddedPlayback
+    var configuration: PublicConfiguration? = nil
     @Binding var error: String?
     func makeCoordinator() -> Coordinator { Coordinator(self) }
     func makeUIView(context: Context) -> WKWebView {
@@ -19,33 +20,40 @@ struct EmbeddedPlayerView: UIViewRepresentable {
         view.navigationDelegate = context.coordinator
         view.uiDelegate = context.coordinator
         playback.attach(view)
-        if ProviderPage.isKodik(url) { playback.beginAdvertisement() }
-        if let initial = ProviderPage.initial(url) { view.load(URLRequest(url:initial)) }
+        if ProviderPage.requiresAdvertisement(url,configuration:configuration) { playback.beginAdvertisement() }
+        if let initial = ProviderPage.initial(url,configuration:configuration) { view.load(URLRequest(url:initial)) }
         return view
     }
     func updateUIView(_ view: WKWebView, context: Context) { context.coordinator.parent = self }
     static func dismantleUIView(_ view: WKWebView, coordinator: Coordinator) { coordinator.parent.playback.pause(); view.configuration.userContentController.removeScriptMessageHandler(forName: "anixartPlayback"); view.configuration.userContentController.removeScriptMessageHandler(forName:"anixartKodikAd"); view.stopLoading(); view.loadHTMLString("", baseURL: nil); view.navigationDelegate = nil; view.uiDelegate = nil }
 
-    final class Coordinator: NSObject, WKNavigationDelegate, WKUIDelegate, WKScriptMessageHandler {
+    @MainActor final class Coordinator: NSObject, WKNavigationDelegate, WKUIDelegate, WKScriptMessageHandler {
         var parent: EmbeddedPlayerView
         private var advertPending: Bool
-        init(_ parent: EmbeddedPlayerView) { self.parent = parent; advertPending = ProviderPage.isKodik(parent.url) }
+        init(_ parent: EmbeddedPlayerView) { self.parent = parent; advertPending = ProviderPage.requiresAdvertisement(parent.url,configuration:parent.configuration) }
         func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
             let origin = message.frameInfo.securityOrigin.host.lowercased().replacingOccurrences(of: "www.", with: "")
             if message.name == "anixartKodikAd" {
-                guard advertPending, message.body as? String == "advertEnded",
-                      ProviderPage.permitsAdCallback(origin:origin,expected:parent.url),
-                      let content = ProviderPage.canonicalKodik(parent.url) else { return }
-                advertPending = false
-                parent.error = nil
-                parent.playback.openContentPage(content)
+                guard advertPending, let event = message.body as? String,
+                      ProviderPage.permitsAdCallback(origin:origin,expected:parent.url) else { return }
+                switch event {
+                case "playControlReady": parent.playback.advertisementControl(true)
+                case "playControlHidden": parent.playback.advertisementControl(false)
+                case "advertEnded": completeAdvertisement()
+                default: break
+                }
                 return
             }
-            guard !advertPending else { return }
             let expected = (parent.url.host ?? "").lowercased().replacingOccurrences(of: "www.", with: "")
             let kodikOrigins = ProviderPage.kodikHosts
             let permitted = origin == expected || origin == "anixmirai.com" || (kodikOrigins.contains(origin) && kodikOrigins.contains(expected))
             guard !expected.isEmpty, permitted, let values = message.body as? [String: Any] else { return }
+            if advertPending {
+                if values["event"] as? String == "playing" || ((values["seconds"] as? Double ?? 0) > 0.2 && values["paused"] as? Bool == false) {
+                    parent.playback.advertisementControl(false)
+                }
+                return
+            }
             parent.playback.receive(values, frame: message.frameInfo)
         }
         func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) { parent.playback.loaded() }
@@ -55,9 +63,22 @@ struct EmbeddedPlayerView: UIViewRepresentable {
             }
             return .allow
         }
-        func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) { parent.error = error.localizedDescription; parent.playback.fail(error.localizedDescription) }
-        func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) { parent.error = error.localizedDescription; parent.playback.fail(error.localizedDescription) }
+        private func completeAdvertisement() {
+            guard advertPending, let content = ProviderPage.canonicalKodik(parent.url) else { return }
+            advertPending = false; parent.error = nil; parent.playback.openContentPage(content)
+        }
+        private func navigationFailed(_ error: Error) {
+            let failure = error as NSError
+            guard failure.domain != NSURLErrorDomain || failure.code != NSURLErrorCancelled else { return }
+            parent.error = error.localizedDescription; parent.playback.fail(error.localizedDescription)
+        }
+        func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) { navigationFailed(error) }
+        func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) { navigationFailed(error) }
         func webView(_ webView: WKWebView, decidePolicyFor response: WKNavigationResponse) async -> WKNavigationResponsePolicy {
+            if advertPending, let http = response.response as? HTTPURLResponse,
+               ProviderPage.isOriginalAdServerFailure(http.url,status:http.statusCode) {
+                completeAdvertisement(); return .cancel
+            }
             let host = response.response.url?.host?.lowercased() ?? ""
             let sourceFrame = host == parent.url.host?.lowercased() || ProviderPage.kodikHosts.contains(host)
             if let http = response.response as? HTTPURLResponse, http.statusCode >= 400, response.isForMainFrame || sourceFrame {

@@ -1,20 +1,54 @@
 {
-  "source_commit": "0b337cd7d1511121917c603058c263d5a979d1fc",
-  "workflow_run_id": 41089213117,
-  "workflow_conclusion": "success",
-  "ipa_artifact_id": 12994715735,
-  "diagnostics_artifact_id": 12994061481,
+  "ready_for_installation": false,
+  "port_feature_complete": false,
   "bundle_id": "local.anixartport.client",
   "sdk": "iphoneos27.1",
   "minimum_ios": "27.0",
   "simulator": "iPhone 17 / iOS 27.0",
-  "swift_unit_tests_passed": 15,
-  "ui_tests_passed": 3,
-  "python_tests_passed": 7,
-  "ipa_bytes": 522460,
-  "ipa_sha256": "c9dae950c4db38382712bab94cbff0b39305658b14fc5920eda500094f3edb2e",
-  "signing": "unsigned; re-sign with SideStore",
-  "physical_device_tested": false,
-  "actual_anixart_video_playback_tested": false,
-  "port_feature_complete": false
+  "candidate": {
+    "version": "0.2.0",
+    "source_commit": null,
+    "workflow_run_id": null,
+    "result": "awaiting build"
+  },
+  "last_completed_candidate": {
+    "source_commit": "265154f806672ce30050506e4410f49423625add",
+    "workflow_run_id": 41138147811,
+    "result": "failure",
+    "swift_unit_tests_passed": 47,
+    "core_ui_passed": 8,
+    "core_ui_failed": 0,
+    "core_ui_skipped": 1,
+    "poster_scroll_and_restart_passed": true,
+    "profile_statistics_ui": "passed",
+    "media_resolution": {
+      "kodik": false,
+      "sibnet": false,
+      "libria": true
+    },
+    "ipa_published": false
+  },
+  "last_liberty_vlc_proof": {
+    "source_commit": "265154f806672ce30050506e4410f49423625add",
+    "workflow_run_id": 41138147811,
+    "video_frames": 317,
+    "decoded_audio_blocks": 630,
+    "playback_ms": 5549,
+    "duration_ms": 2924213
+  },
+  "device_user_report": {
+    "date": "2026-10-31",
+    "libria_vlc": true,
+    "kodik_vlc": false,
+    "sibnet_vlc": false,
+    "other_scenarios": "not verified"
+  },
+  "last_delivered_test_ipa": {
+    "source_commit": "b771f6206f3f8c015ecf930907f12d5ecee39e2d",
+    "workflow_run_id": 41105577300,
+    "bytes": 839794,
+    "sha256": "9773e535dc0c0e0891461bdab567c4c2f77041eb8766bd4a414033d5dd8bd051",
+    "signing": "unsigned; SideStore",
+    "superseded_for_testing": true
+  }
 }

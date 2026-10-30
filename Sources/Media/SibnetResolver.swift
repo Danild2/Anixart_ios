@@ -2,8 +2,13 @@ import Foundation
 
 struct SibnetResolver: Sendable {
     static let userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Safari/537.36"
+    private static let accept = "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9"
     private let session: URLSession
-    init(session: URLSession? = nil) {
+    private let requestUserAgent: String
+    init(userAgent: String? = nil, session: URLSession? = nil) {
+        if let userAgent, !userAgent.isEmpty, userAgent.count <= 1024, !userAgent.contains("\r"), !userAgent.contains("\n") {
+            requestUserAgent = userAgent
+        } else { requestUserAgent = Self.userAgent }
         let configuration = URLSessionConfiguration.ephemeral
         configuration.urlCache = nil; configuration.httpShouldSetCookies = false
         configuration.timeoutIntervalForRequest = 20; configuration.timeoutIntervalForResource = 30
@@ -32,8 +37,8 @@ struct SibnetResolver: Sendable {
         _ = try Self.validated(page)
         defer { session.invalidateAndCancel() }
         var request = URLRequest(url:page)
-        request.setValue(Self.userAgent,forHTTPHeaderField:"User-Agent")
-        request.setValue("text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",forHTTPHeaderField:"Accept")
+        request.setValue(requestUserAgent,forHTTPHeaderField:"User-Agent")
+        request.setValue(Self.accept,forHTTPHeaderField:"Accept")
         let (bytes, response) = try await session.bytes(for:request)
         guard let response = response as? HTTPURLResponse else { throw APIError.malformed }
         guard response.statusCode == 200 else { throw APIError.http(response.statusCode) }
@@ -47,7 +52,8 @@ struct SibnetResolver: Sendable {
         // then follows the provider's media redirects without forwarding page credentials.
         for hop in 0..<5 {
             var media = URLRequest(url:current)
-            media.setValue(Self.userAgent,forHTTPHeaderField:"User-Agent")
+            media.setValue(requestUserAgent,forHTTPHeaderField:"User-Agent")
+            media.setValue(Self.accept,forHTTPHeaderField:"Accept")
             media.setValue("bytes=0-1",forHTTPHeaderField:"Range")
             if hop == 0 { media.setValue(page.absoluteString,forHTTPHeaderField:"Referer") }
             let (_, response) = try await session.bytes(for:media)

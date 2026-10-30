@@ -11,6 +11,7 @@ import WebKit
     private(set) var canControl = false
     private(set) var error: String?
     private(set) var mediaURL: URL?
+    private(set) var advertisementControlReady = false
     private weak var webView: WKWebView?
     private var frame: WKFrameInfo?
     private let key: PlaybackKey
@@ -27,8 +28,9 @@ import WebKit
     func fail(_ message: String) { error = message; phase = .failed }
     func attach(_ webView: WKWebView) { self.webView = webView }
     func beginAdvertisement() { phase = .advertisement }
+    func advertisementControl(_ ready: Bool) { advertisementControlReady = ready }
     func openContentPage(_ url: URL) {
-        phase = .loading; error = nil; mediaURL = nil; frame = nil; canControl = false
+        phase = .loading; error = nil; mediaURL = nil; frame = nil; canControl = false; advertisementControlReady = false
         webView?.load(URLRequest(url:url))
     }
     func receive(_ values: [String: Any], frame: WKFrameInfo) {

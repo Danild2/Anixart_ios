@@ -32,7 +32,7 @@ struct ProfileStatistics: View {
                 if let minutes = profile.watchedTime, minutes > 0 {
                     stat(OriginalCopy.text("watched_time"), value: ProfileTimeText.format(minutes: minutes))
                 }
-                Button(OriginalCopy.text("statistics_help_title")) { showHelp = true }.font(.footnote)
+                Button(OriginalCopy.text("statistics_help_title")) { showHelp = true }.font(.footnote).buttonStyle(.borderless)
             } else { ProgressView() }
         }.padding(.vertical, 8)
             .sheet(isPresented: $showHelp) {
@@ -85,6 +85,7 @@ enum ProfileTimeText {
 
 struct ProfileWatchDynamics: View {
     let days: [ProfileWatchDay]
+    @State private var showDetails = false
     private static let dateFormatter: DateFormatter = {
         let formatter = DateFormatter(); formatter.locale = Locale(identifier:"ru_RU"); formatter.dateFormat = "dd.MM"; return formatter
     }()
@@ -107,8 +108,13 @@ struct ProfileWatchDynamics: View {
                             .accessibilityElement(children:.combine)
                     }
                 }.padding(.horizontal,4)
-            }.scrollIndicators(.hidden)
-            Text(OriginalCopy.text("profile_watch_dynamics_hint")).font(.caption).foregroundStyle(.secondary)
-        }.padding(.vertical,8).accessibilityIdentifier("profileWatchDynamics")
+            }.scrollIndicators(.hidden).defaultScrollAnchor(.trailing,for:.initialOffset)
+                .accessibilityIdentifier("profileWatchDynamics")
+            Button(OriginalCopy.text("more_details")) { showDetails = true }
+                .font(.footnote).buttonStyle(.borderless).frame(maxWidth:.infinity,minHeight:44).accessibilityIdentifier("profileDynamicsDetails")
+        }.padding(.vertical,8)
+            .alert(OriginalCopy.text("information"),isPresented:$showDetails) {
+                Button(OriginalCopy.text("understand"),role:.cancel) { }
+            } message: { Text(OriginalCopy.text("profile_watch_dynamics_hint")) }
     }
 }

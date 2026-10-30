@@ -10,6 +10,8 @@ import Darwin
     }
     static func run() async throws {
         let repository = AnixartRepository()
+        let configuration = try await repository.client.publicConfiguration()
+        print("public_configuration_decoded kodik_ad=\(configuration.kodikIframeAd == true) sibnet_configured_agent=\(configuration.sibnetRandUserAgent == true && configuration.sibnetUserAgent?.isEmpty == false)")
         let catalog = try await repository.catalog(page: 0, filter: CatalogFilter(), token: nil)
         guard let sample = catalog.content.first else { throw APIError.malformed }
         print("catalog_decoded count=\(catalog.content.count) sample_id=\(sample.id)")

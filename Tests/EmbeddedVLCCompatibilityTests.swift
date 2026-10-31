@@ -18,6 +18,8 @@ import XCTest
     func testHTMLAndBlobURLsCannotTurnAnErrorIntoAVLCStream() {
         for raw in ["https://example.test/error.html","blob:https://example.test/fixture","file:///tmp/series.mp4"] {
             let state = EmbeddedPlayback(key:key,prefersExternalMedia:true)
+            state.receive(["event":"discovered","seconds":0.0,"media":raw])
+            XCTAssertNil(state.mediaURL)
             state.receive(["event":"error","code":4,"media":raw])
             XCTAssertNotNil(state.error); XCTAssertNil(state.mediaURL)
         }

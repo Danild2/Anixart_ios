@@ -60,7 +60,8 @@ import WebKit
         seconds = position
         if let value = values["duration"] as? Double, value.isFinite, value > 0 { duration = value }
         if let raw = values["media"] as? String, let url = URL(string: raw),
-           ["https", "http"].contains(url.scheme ?? ""), url.host != nil, url.user == nil, url.password == nil {
+           ["https", "http"].contains(url.scheme ?? ""), url.host != nil, url.user == nil, url.password == nil,
+           !prefersExternalMedia || ["m3u8","mp4"].contains(url.pathExtension.lowercased()) {
             mediaURL = url
             StreamTestCapture.write(url, key: key, duration: duration)
         }

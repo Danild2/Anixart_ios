@@ -32,20 +32,6 @@ jobs:
           brew install xcodegen
           xcodegen --version | tee -a Artifacts/toolchain.log
           xcodegen generate
-      - name: Prepare VLC verification runtime
-        shell: bash
-        run: |
-          set -euo pipefail
-          brew install --cask vlc
-          python3 -m venv .build/vlc-check
-          .build/vlc-check/bin/pip --quiet install python-vlc==3.0.21203
-          .build/vlc-check/bin/python - <<'PY'
-          import vlc
-          instance = vlc.Instance('--intf=dummy', '--vout=dummy', '--aout=dummy', '--quiet')
-          assert instance is not None, 'VLC runtime did not initialize'
-          print('VLC verification runtime:', vlc.libvlc_get_version().decode())
-          instance.release()
-          PY
       - name: Static analysis
         shell: bash
         run: |
@@ -72,6 +58,20 @@ jobs:
             -skip-testing:AnixartPortUITests/NavigationTests/testKodikResolvesRealMediaStream \
             -skip-testing:AnixartPortUITests/NavigationTests/testSibnetResolvesRealMediaStream \
             CODE_SIGNING_ALLOWED=NO test 2>&1 | tee Artifacts/tests.log
+      - name: Prepare VLC verification runtime
+        shell: bash
+        run: |
+          set -euo pipefail
+          brew install --cask vlc
+          python3 -m venv .build/vlc-check
+          .build/vlc-check/bin/pip --quiet install python-vlc==3.0.21203
+          .build/vlc-check/bin/python - <<'PY'
+          import vlc
+          instance = vlc.Instance('--intf=dummy', '--vout=dummy', '--aout=dummy', '--quiet')
+          assert instance is not None, 'VLC runtime did not initialize'
+          print('VLC verification runtime:', vlc.libvlc_get_version().decode())
+          instance.release()
+          PY
       - name: Resolve a real stream through the iOS interface
         id: resolve
         shell: bash

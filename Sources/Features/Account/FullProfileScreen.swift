@@ -159,7 +159,7 @@ struct FullProfileScreen: View {
         }
         if p.isIncognito == true { Label(OriginalCopy.text("profile_incognito_hint"),systemImage:"eye.slash").font(.footnote) }
         if p.isBlocked == true || p.isMeBlocked == true { Text(OriginalCopy.text("profile_block_hint")).font(.footnote).foregroundStyle(.secondary) }
-        if p.isDeletionRequested == true { Text(OriginalCopy.text("deletion_requested_banner")).font(.footnote).foregroundStyle(.orange) }
+        if p.isDeletionRequested == true { Text(OriginalCopy.text("account_deletion_requested_success")).font(.footnote).foregroundStyle(.orange) }
     }
     private func showcase(_ p: Profile) -> some View {
         VStack(alignment:.leading,spacing:20) {
@@ -181,7 +181,7 @@ struct FullProfileScreen: View {
                 case .votes:
                     if (p.votes ?? []).isEmpty { empty() }
                     ForEach(p.votes ?? []) { release in
-                        NavigationLink { ReleaseScreen(id:release.id) } label: { ProfileVoteRow(release:release) }.buttonStyle(.plain)
+                        NavigationLink { ReleaseScreen(initial:release) } label: { ProfileVoteRow(release:release) }.buttonStyle(.plain)
                     }
                 case .collections:
                     if (p.collectionsPreview ?? []).isEmpty { empty() }
@@ -212,7 +212,7 @@ struct FullProfileScreen: View {
             ScrollView(.horizontal) {
                 HStack(alignment:.top,spacing:16) {
                     ForEach(releases) { release in
-                        NavigationLink { ReleaseScreen(id:release.id) } label: {
+                        NavigationLink { ReleaseScreen(initial:release) } label: {
                             VStack(alignment:.leading,spacing:6) {
                                 Poster(url:release.poster)
                                 Text(release.title).font(.caption.weight(.medium)).lineLimit(2)

@@ -51,7 +51,7 @@ struct ProfileSectionScreen: View {
                 ScrollView { ProfileStatistics(profile:profile).padding(20) }
             case .votes:
                 RemoteProfileList(title:section.title,path:"profile/vote/release/voted/\(profile.id)",query:["sort":String(sort)]) { (release: Release) in
-                    NavigationLink { ReleaseScreen(id:release.id) } label: { ProfileVoteRow(release:release) }
+                    NavigationLink { ReleaseScreen(initial:release) } label: { ProfileVoteRow(release:release) }
                 }.toolbar { Menu("Сортировка") { Button("Сначала новые") { sort = 0 }; Button("Сначала старые") { sort = 1 } } }
             case .collections:
                 RemoteProfileList(title:section.title,path:"collection/all/profile/\(profile.id)") { (collection: CollectionSummary) in ProfileCollectionRow(collection:collection) }
@@ -106,7 +106,7 @@ struct ProfileCommentCard: View {
     @State private var reveal = false
     var body: some View {
         VStack(alignment:.leading,spacing:10) {
-            if let release = comment.release { NavigationLink { ReleaseScreen(id:release.id) } label: { Text(release.title).font(.subheadline.bold()) } }
+            if let release = comment.release { NavigationLink { ReleaseScreen(initial:release) } label: { Text(release.title).font(.subheadline.bold()) } }
             if let collection = comment.collection { ProfileCollectionRow(collection:collection) }
             if let article = comment.article { NavigationLink("Запись в блоге") { ProfileArticleScreen(id:article.id) } }
             if comment.isDeleted == true { Text("Комментарий удалён").foregroundStyle(.secondary) }

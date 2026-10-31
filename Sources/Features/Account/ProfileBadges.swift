@@ -51,7 +51,7 @@ struct ProfileBadgesScreen: View {
                             }
                         }
                     }
-                    if (result.sections ?? []).isEmpty && (result.showcased ?? []).isEmpty { Text(OriginalCopy.text("profile_badges_empty_title")).foregroundStyle(.secondary) }
+                    if (result.sections ?? []).isEmpty && (result.showcased ?? []).isEmpty { Text(OriginalCopy.text("profile_badge_empty_title")).foregroundStyle(.secondary) }
                 } else if error == nil { ProgressView() }
             }.padding(20)
         }.navigationTitle(OriginalCopy.text("profile_badges")).task(id:session.identity) { await load() }.refreshable { await load() }

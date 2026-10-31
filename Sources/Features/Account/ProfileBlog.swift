@@ -5,38 +5,26 @@ struct ProfileBlogSection: View {
     let own: Bool
     @Environment(\.repository) private var repository
     @Environment(SessionStore.self) private var session
-    @State private var articles: [ProfileArticle] = []
-    @State private var page = 0
-    @State private var more = true
-    @State private var loading = false
-    @State private var error: String?
+    @State private var model = ProfilePageState<ProfileArticle>()
     @State private var composer = false
     var body: some View {
         VStack(alignment:.leading,spacing:20) {
             Divider()
             HStack { Text("Блог").font(.headline); Spacer(); if own { Button { composer = true } label: { Label("Новая запись",systemImage:"square.and.pencil") } } }
-            if let error { FailureNotice(message:error) { Task { await load(reset:false) } } }
-            ForEach(articles) { article in
+            if let error = model.error { FailureNotice(message:error) { Task { await load(reset:false) } } }
+            ForEach(model.items) { article in
                 NavigationLink { ProfileArticleScreen(id:article.id) } label: { ProfileArticleCard(article:article,preview:true) }.buttonStyle(.plain)
                 Divider()
             }
-            if loading { ProgressView().frame(maxWidth:.infinity) }
-            if articles.isEmpty, !loading, error == nil { Text("Записей пока нет").foregroundStyle(.secondary).frame(maxWidth:.infinity,minHeight:80) }
-            if !articles.isEmpty, more, error == nil { Color.clear.frame(height:1).onAppear { Task { await load(reset:false) } } }
+            if model.loading { ProgressView().frame(maxWidth:.infinity) }
+            if model.items.isEmpty, !model.loading, model.error == nil { Text("Записей пока нет").foregroundStyle(.secondary).frame(maxWidth:.infinity,minHeight:80) }
+            if !model.items.isEmpty, model.more, model.error == nil { Color.clear.frame(height:1).onAppear { Task { await load(reset:false) } } }
         }.padding(.horizontal,20).padding(.bottom,24).task(id:"\(channel.id)|\(session.identity)") { await load(reset:true) }
             .sheet(isPresented:$composer,onDismiss: { Task { await load(reset:true) } }) { NavigationStack { ProfileArticleComposer(channel:channel) } }
     }
     private func load(reset: Bool) async {
-        guard !loading else { return }
-        if reset { page = 0; articles = []; more = true }; guard more else { return }
-        loading = true; error = nil; defer { loading = false }
-        do {
-            let result = try await repository.blogArticles(channel.id,page:page,token:session.token); try Task.checkCancellation()
-            let existing = Set(articles.map(\.id)); articles += result.content.filter { !existing.contains($0.id) }
-            page += 1; more = !result.content.isEmpty && result.totalPageCount.map { page < $0 } != false
-        } catch is CancellationError { }
-        catch let e as URLError where e.code == .cancelled { }
-        catch { self.error = error.localizedDescription }
+        let repository = repository, id = channel.id, token = session.token
+        await model.load(reset:reset) { page in try await repository.blogArticles(id,page:page,token:token) }
     }
 }
 struct ProfileArticleCard: View {

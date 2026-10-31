@@ -8,34 +8,21 @@ struct RemoteProfileList<Item: Decodable & Identifiable & Sendable, Row: View>: 
     @ViewBuilder let row: (Item) -> Row
     @Environment(\.repository) private var repository
     @Environment(SessionStore.self) private var session
-    @State private var items: [Item] = []
-    @State private var page = 0
-    @State private var more = true
-    @State private var loading = false
-    @State private var error: String?
+    @State private var model = ProfilePageState<Item>()
     var body: some View {
         List {
-            ForEach(items) { row($0) }
-            if let error { FailureNotice(message:error) { Task { await load(reset:false) } } }
-            if loading { ProgressView().frame(maxWidth:.infinity) }
-            if !loading, error == nil, items.isEmpty { Text("Здесь пока ничего нет").foregroundStyle(.secondary) }
-            if !items.isEmpty, more, error == nil { Color.clear.frame(height:1).onAppear { Task { await load(reset:false) } } }
+            ForEach(model.items) { row($0) }
+            if let error = model.error { FailureNotice(message:error) { Task { await load(reset:false) } } }
+            if model.loading { ProgressView().frame(maxWidth:.infinity) }
+            if !model.loading, model.error == nil, model.items.isEmpty { Text("Здесь пока ничего нет").foregroundStyle(.secondary) }
+            if !model.items.isEmpty, model.more, model.error == nil { Color.clear.frame(height:1).onAppear { Task { await load(reset:false) } } }
         }.listStyle(.plain).navigationTitle(title)
             .task(id:"\(path)|\(query.sorted { $0.key < $1.key })|\(session.identity)") { await load(reset:true) }
             .refreshable { await load(reset:true) }
     }
     private func load(reset: Bool) async {
-        guard !loading else { return }
-        if reset { page = 0; items = []; more = true }
-        guard more else { return }; loading = true; error = nil; defer { loading = false }
-        do {
-            let result: Page<Item> = try await repository.profilePage(path,page:page,query:query,token:session.token)
-            try Task.checkCancellation()
-            let existing = Set(items.map(\.id)); items += result.content.filter { !existing.contains($0.id) }
-            page += 1; more = !result.content.isEmpty && result.totalPageCount.map { page < $0 } != false
-        } catch is CancellationError { }
-        catch let e as URLError where e.code == .cancelled { }
-        catch { self.error = error.localizedDescription }
+        let repository = repository, path = path, query = query, token = session.token
+        await model.load(reset:reset) { page in try await repository.profilePage(path,page:page,query:query,token:token) }
     }
 }
 
@@ -86,7 +73,7 @@ struct ProfileVoteRow: View {
                 }
                 if let date = release.votedAt, date > 0 { Text(ProfileDate.text(date)).font(.caption).foregroundStyle(.secondary) }
             }.frame(maxWidth:.infinity,alignment:.leading)
-        }.padding(.vertical,4)
+        }.padding(.vertical,4).contentShape(Rectangle())
     }
 }
 struct ProfileCollectionRow: View {
@@ -103,7 +90,7 @@ struct ProfileCollectionRow: View {
                         if let count = collection.commentCount { Label(count.formatted(),systemImage:"bubble.right") }
                     }.font(.caption).foregroundStyle(.secondary)
                 }.frame(maxWidth:.infinity,alignment:.leading)
-            }
+            }.contentShape(Rectangle())
         }.buttonStyle(.plain)
     }
 }

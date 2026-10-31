@@ -104,7 +104,12 @@ struct ProfileEditScreen: View {
                 if let old = p.privacyCounts, privacyCounts != old { try await repository.editProfilePrivacy("counts",permission:privacyCounts,token:token) }
                 if let old = p.privacySocial, privacySocial != old { try await repository.editProfilePrivacy("social",permission:privacySocial,token:token) }
                 if let old = p.privacyFriendRequests, privacyFriends != old { try await repository.editProfilePrivacy("friendRequests",permission:privacyFriends,token:token) }
-                if incognito != (p.isIncognito == true) { try await repository.toggleProfileIncognito(token:token) }
+                if incognito != (p.isIncognito == true) {
+                    try await repository.toggleProfileIncognito(token:token)
+                    // The endpoint toggles state. A later failed save operation
+                    // must not cause a manual retry to toggle it back.
+                    preferences?.isIncognito = incognito
+                }
                 if let old = p.selectedThemeId, theme != old { try await repository.selectProfileTheme(theme,token:token) }
             }
             if removeAvatar || avatar != nil { try await repository.editProfileAvatar(avatar,token:token) }

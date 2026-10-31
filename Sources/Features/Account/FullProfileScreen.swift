@@ -35,6 +35,8 @@ struct FullProfileScreen: View {
     @State private var error: String?
     @State private var blogError: String?
     @State private var loading = false
+    @State private var generation = UUID()
+    @State private var loadedContext: String?
     @State private var section = ProfileSection.statistics
     @State private var editing = false
     @State private var showSocial = false
@@ -42,6 +44,7 @@ struct FullProfileScreen: View {
     @State private var message: String?
     private var own: Bool { session.session?.profile.id == id }
     private var background: Color { Color(uiColor:.systemBackground) }
+    private var context: String { "\(id)|\(session.identity)" }
     var body: some View {
         ScrollView {
             LazyVStack(spacing:0) {
@@ -73,7 +76,10 @@ struct FullProfileScreen: View {
                     }
                 }
             }
-            .task(id:"\(id)|\(session.identity)") { await load() }
+            .task(id:context) {
+                if loadedContext != context { profile = nil; blog = nil; blogError = nil; loadedContext = context }
+                await load()
+            }
             .refreshable { await load() }
             .sheet(isPresented:$editing,onDismiss: { Task { await load() } }) {
                 if let profile { NavigationStack { ProfileEditScreen(profile:profile) } }
@@ -145,7 +151,7 @@ struct FullProfileScreen: View {
                         }
                         Text(friendCount > 0 ? "Друзья · \(friendCount)" : OriginalCopy.text("friends_zero"))
                         Spacer(); Image(systemName:"chevron.right").font(.caption)
-                    }.font(.subheadline).foregroundStyle(.secondary).padding(.vertical,10)
+                    }.font(.subheadline).foregroundStyle(.secondary).padding(.vertical,10).contentShape(Rectangle())
                 }.buttonStyle(.plain).accessibilityIdentifier("profileFriends")
                 }
             }.padding(.horizontal,20).padding(.bottom,12)
@@ -202,7 +208,7 @@ struct FullProfileScreen: View {
                 }
                 if section != .statistics {
                     NavigationLink { ProfileSectionScreen(profile:p,section:section) } label: {
-                        Text(OriginalCopy.text("show_more")).font(.footnote).frame(maxWidth:.infinity,minHeight:44)
+                        Text(OriginalCopy.text("show_more")).font(.footnote).frame(maxWidth:.infinity,minHeight:44).contentShape(Rectangle())
                     }.accessibilityIdentifier("profile.section.more")
                 }
             }.padding(.horizontal,20)
@@ -238,24 +244,27 @@ struct FullProfileScreen: View {
         catch { message = error.localizedDescription }
     }
     private func load() async {
-        guard !loading else { return }; loading = true; error = nil
-        defer { loading = false }
+        let requestGeneration = UUID(); generation = requestGeneration
+        loading = true; error = nil
+        defer { if generation == requestGeneration { loading = false } }
         do {
             let next = try await repository.profile(id,token:session.token); try Task.checkCancellation()
+            guard generation == requestGeneration else { return }
             let chooseInitial = profile == nil || profile?.pinnedSectionId != next.pinnedSectionId || !ProfileSection.visible(in:next).contains(section)
             profile = next
             if chooseInitial, let initial = ProfileSection.visible(in:next).first { section = initial }
             await loadBlog()
         } catch is CancellationError { }
         catch let e as URLError where e.code == .cancelled { }
-        catch { self.error = error.localizedDescription }
+        catch { if generation == requestGeneration { self.error = error.localizedDescription } }
     }
     private func loadBlog() async {
+        let identity = session.identity, profileID = id, requestGeneration = generation
         blogError = nil
-        do { let next = try await repository.profileBlog(id,token:session.token); try Task.checkCancellation(); blog = next }
+        do { let next = try await repository.profileBlog(profileID,token:session.token); try Task.checkCancellation(); guard identity == session.identity, profile?.id == profileID, generation == requestGeneration else { return }; blog = next }
         catch is CancellationError { }
         catch let e as URLError where e.code == .cancelled { }
-        catch { blogError = error.localizedDescription }
+        catch { if identity == session.identity, profile?.id == profileID, generation == requestGeneration { blogError = error.localizedDescription } }
     }
 }
 

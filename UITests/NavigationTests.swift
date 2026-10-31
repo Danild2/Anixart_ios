@@ -38,6 +38,7 @@ import XCTest
             let count = app.staticTexts["profile.listCount.0"]
             for _ in 0..<3 { if count.isHittable { break }; app.swipeUp() }
             if count.exists {
+                for _ in 0..<3 { if app.staticTexts["profile.listCount.4"].frame.maxY < app.frame.maxY - 140 { break }; app.swipeUp() }
                 let stats = XCTAttachment(screenshot:app.screenshot()); stats.name = "full-profile-original-statistics"; stats.lifetime = .keepAlways; add(stats)
                 XCTAssertTrue(app.staticTexts["profile.listCount.4"].exists)
                 let details = app.buttons["profileDynamicsDetails"]
@@ -49,14 +50,18 @@ import XCTest
                 app.alerts.buttons["Понятно"].tap()
                 app.swipeUp()
                 let screenshot = XCTAttachment(screenshot:app.screenshot()); screenshot.name = "real-public-profile-statistics"; screenshot.lifetime = .keepAlways; add(screenshot)
-                for _ in 0..<7 { app.swipeDown() }
                 let friends = app.buttons["profileFriends"]
-                for _ in 0..<3 { if friends.isHittable { break }; app.swipeUp() }
+                for _ in 0..<6 {
+                    let header = app.descendants(matching:.any).matching(identifier:"profileHeaderName").firstMatch
+                    if header.exists, header.frame.minY >= 120, friends.frame.maxY < app.frame.maxY - 140 { break }
+                    app.swipeDown()
+                }
                 XCTAssertTrue(friends.isHittable); friends.tap()
-                XCTAssertTrue(app.navigationBars["Список друзей"].waitForExistence(timeout:10))
+                guard app.navigationBars["Список друзей"].waitForExistence(timeout:10) else { XCTFail("Friends row did not open the real friends page"); return }
                 let friendsShot = XCTAttachment(screenshot:app.screenshot()); friendsShot.name = "full-profile-friends"; friendsShot.lifetime = .keepAlways; add(friendsShot)
                 app.navigationBars.buttons.element(boundBy:0).tap()
                 let chips = app.scrollViews["profileSections"]
+                XCTAssertTrue(chips.waitForExistence(timeout:15))
                 for section in 1...5 {
                     let chip = app.buttons["profile.section.\(section)"]
                     for _ in 0..<5 { if chip.isHittable { break }; chips.swipeLeft() }

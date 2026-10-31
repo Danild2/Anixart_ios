@@ -41,6 +41,32 @@ def request(base, path, body=None, version=None):
     return None
 
 
+def inspect_kodik_pages(base):
+    target = request(base, 'episode/target/841/8/1') or {}
+    raw = (target.get('episode') or {}).get('url')
+    if not raw: return
+    parsed = urllib.parse.urlsplit(raw)
+    canonical = urllib.parse.urlunsplit(parsed._replace(query=''))
+    record = {'release_id':841,'source_id':8,'position':1,'query_names':sorted(urllib.parse.parse_qs(parsed.query)), 'pages':[]}
+    REPORT['kodik_content_pages'] = record
+    wrapper = lambda url: 'https://anixmirai.com/iframe?' + urllib.parse.urlencode({'url':url})
+    cases = [('original',raw,None),('canonical',canonical,None),('original_with_referrer',raw,'https://anixmirai.com/'),('wrapper_original',wrapper(raw),None),('wrapper_canonical',wrapper(canonical),None)]
+    for name,url,referrer in cases:
+        result = {'case':name};record['pages'].append(result)
+        headers = {'User-Agent':'Mozilla/5.0 (iPhone; CPU iPhone OS 27_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/27.1 Mobile/15E148 Safari/604.1'}
+        if referrer: headers['Referer'] = referrer
+        try:
+            with urllib.request.urlopen(urllib.request.Request(url,headers=headers),timeout=15) as response:
+                page = response.read(2_000_000).decode('utf-8',errors='replace')
+                result.update(http=response.status,bytes=len(page),not_found='данной страницы не существует' in page.lower(),has_video='<video' in page.lower(),has_player='player' in page.lower(),iframe_count=len(re.findall(r'<iframe\b',page,re.I)))
+                result['frames'] = []
+                for src in re.findall(r'<iframe[^>]+src=[\"\x27]([^\"\x27]+)',page,re.I)[:3]:
+                    src = urllib.parse.urlsplit(urllib.parse.urljoin(url,src.replace('&amp;','&')))
+                    result['frames'].append({'host':src.hostname,'path_kind':src.path.split('/')[1] if '/' in src.path else '', 'query_names':sorted(urllib.parse.parse_qs(src.query))})
+        except urllib.error.HTTPError as error: result['http']=error.code
+        except Exception as error: result['error_type']=type(error).__name__
+
+
 def probe():
     catalog = None
     base = None
@@ -52,6 +78,7 @@ def probe():
     if not base:
         REPORT['result'] = 'blocked: no guest catalog returned; not an app integration pass'
         return
+    inspect_kodik_pages(base)
     inspect_media_and_profile(base, catalog)
     release = next((item for item in catalog['content'] if (item.get('episodes_released') or 0) > 0
                     and not item.get('is_play_disabled') and not item.get('is_view_blocked')), catalog['content'][0])

@@ -67,6 +67,13 @@ struct ProfileArticle: Codable, Hashable, Identifiable, Sendable {
     var repostCount: Int?
     var isPinned: Bool?
     var isDeleted: Bool?
+    var repostArticle: ArticleRepost?
+}
+indirect enum ArticleRepost: Codable, Hashable, Sendable {
+    case article(ProfileArticle)
+    init(from decoder: Decoder) throws { self = .article(try ProfileArticle(from:decoder)) }
+    func encode(to encoder: Encoder) throws { if case .article(let article) = self { try article.encode(to:encoder) } }
+    var article: ProfileArticle { switch self { case .article(let value): value } }
 }
 // Block data is heterogeneous in the original Editor.js payload. Preserve it to
 // render each block without discarding text or failing an entire profile page.

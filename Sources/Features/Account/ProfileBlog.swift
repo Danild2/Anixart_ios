@@ -42,6 +42,7 @@ struct ProfileBlogSection: View {
 struct ProfileArticleCard: View {
     let article: ProfileArticle
     var preview = false
+    var depth = 0
     var body: some View {
         VStack(alignment:.leading,spacing:16) {
             HStack(spacing:10) {
@@ -57,6 +58,9 @@ struct ProfileArticleCard: View {
             else {
                 ForEach(Array((preview ? Array((article.payload?.blocks ?? []).prefix(3)) : article.payload?.blocks ?? []).enumerated()),id:\.offset) { _, block in ProfileArticleBlockView(block:block) }
                 if preview, (article.payload?.blocks?.count ?? 0) > 3 { Text("Читать далее").font(.subheadline).foregroundStyle(Color.accentColor) }
+                if let repost = article.repostArticle, depth < 2 {
+                    AnyView(ProfileArticleCard(article:repost.article,preview:preview,depth:depth + 1)).padding(12).background(.quaternary,in:RoundedRectangle(cornerRadius:16))
+                }
             }
             HStack(spacing:24) {
                 Label((article.voteCount ?? 0).formatted(),systemImage:"heart")

@@ -52,7 +52,13 @@ struct ProfileSectionScreen: View {
             case .votes:
                 RemoteProfileList(title:section.title,path:"profile/vote/release/voted/\(profile.id)",query:["sort":String(sort)]) { (release: Release) in
                     NavigationLink { ReleaseScreen(initial:release) } label: { ProfileVoteRow(release:release) }
-                }.toolbar { Menu("Сортировка") { Button("Сначала новые") { sort = 1 }; Button("Сначала старые") { sort = 2 } } }
+                }.toolbar {
+                    Menu("Сортировка") {
+                        ForEach(Array(["sort_vote_desc","sort_vote_asc","sort_vote_five_star","sort_vote_four_star","sort_vote_three_star","sort_vote_two_star","sort_vote_one_star"].enumerated()),id:\.offset) { index,key in
+                            Button(OriginalCopy.text(key)) { sort = index + 1 }
+                        }
+                    }
+                }
             case .collections:
                 RemoteProfileList(title:section.title,path:"collection/all/profile/\(profile.id)") { (collection: CollectionSummary) in ProfileCollectionRow(collection:collection) }
             case .comments:
@@ -168,7 +174,7 @@ struct ProfileLoginHistoryScreen: View {
     let id: Int64
     var body: some View {
         RemoteProfileList(title:"История логина",path:"profile/login/history/all/\(id)") { (item: ProfileLoginChange) in
-            VStack(alignment:.leading,spacing:6) { Text("\(item.oldLogin ?? "") → \(item.newLogin ?? "")"); if let time = item.timestamp { Text(ProfileDate.day(time)).font(.caption).foregroundStyle(.secondary) } }
+            VStack(alignment:.leading,spacing:6) { Text(item.newLogin ?? ""); if let time = item.timestamp { Text(ProfileDate.day(time)).font(.caption).foregroundStyle(.secondary) } }
         }
     }
 }

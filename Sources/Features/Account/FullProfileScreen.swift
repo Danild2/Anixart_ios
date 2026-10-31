@@ -103,7 +103,7 @@ struct FullProfileScreen: View {
                 }.accessibilityIdentifier("profileHeaderName")
                 if let status = p.status, !status.isEmpty { Text(status).font(.system(size:15)).multilineTextAlignment(.center).lineLimit(4).textSelection(.enabled) }
                 if let score = p.ratingScore {
-                    Button { message = OriginalCopy.text("profile_reputation_level_hint") } label: {
+                    Button { message = OriginalCopy.text("tooltip_profile_rating_score") } label: {
                         Label(score.formatted(),systemImage:"star.fill").font(.subheadline).foregroundStyle(.secondary)
                     }.buttonStyle(.plain).accessibilityLabel("Репутация: \(score)")
                 }

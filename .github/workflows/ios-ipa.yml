@@ -58,56 +58,16 @@ jobs:
             -skip-testing:AnixartPortUITests/NavigationTests/testKodikResolvesRealMediaStream \
             -skip-testing:AnixartPortUITests/NavigationTests/testSibnetResolvesRealMediaStream \
             CODE_SIGNING_ALLOWED=NO test 2>&1 | tee Artifacts/tests.log
-      - name: Prepare VLC verification runtime
-        shell: bash
-        run: |
-          set -euo pipefail
-          brew install --cask vlc
-          python3 -m venv .build/vlc-check
-          .build/vlc-check/bin/pip --quiet install python-vlc==3.0.21203
-          .build/vlc-check/bin/python - <<'PY'
-          import vlc
-          instance = vlc.Instance('--intf=dummy', '--vout=dummy', '--aout=dummy', '--quiet')
-          assert instance is not None, 'VLC runtime did not initialize'
-          print('VLC verification runtime:', vlc.libvlc_get_version().decode())
-          instance.release()
-          PY
-      - name: Resolve a real stream through the iOS interface
-        id: resolve
-        shell: bash
-        run: |
-          set -euo pipefail
-          xcodebuild -project AnixartPort.xcodeproj -scheme AnixartPort \
-            -configuration Debug -destination "platform=iOS Simulator,id=$SIMULATOR_ID" \
-            -derivedDataPath .build/tests -resultBundlePath Artifacts/Streaming.xcresult \
-            -only-testing:AnixartPortUITests/NavigationTests/testVLCResolvesRealMediaStream \
-            -only-testing:AnixartPortUITests/NavigationTests/testKodikResolvesRealMediaStream \
-            CODE_SIGNING_ALLOWED=NO test-without-building 2>&1 | tee Artifacts/streaming.log
       - name: Export simulator screenshots
         if: ${{ !cancelled() }}
         continue-on-error: true
         shell: bash
         run: |
-          for suite in Tests Streaming; do
+          for suite in Tests; do
             if test -d "Artifacts/$suite.xcresult"; then
               xcrun xcresulttool export attachments --path "Artifacts/$suite.xcresult" --output-path "Artifacts/Screenshots/$suite"
             fi
           done
-      - name: Decode each required provider in VLC
-        id: vlc
-        if: ${{ !cancelled() && steps.core.outcome == 'success' }}
-        shell: bash
-        run: |
-          set -euo pipefail
-          simulator_state=$(xcrun simctl list devices -j | python3 -c 'import json,os,sys; devices=json.load(sys.stdin)["devices"]; print(next(d["state"] for values in devices.values() for d in values if d["udid"] == os.environ["SIMULATOR_ID"]))')
-          if test "$simulator_state" != Booted; then
-            xcrun simctl boot "$SIMULATOR_ID"
-          fi
-          xcrun simctl bootstatus "$SIMULATOR_ID" -b
-          container=$(xcrun simctl get_app_container "$SIMULATOR_ID" local.anixartport.client data)
-          captures="$container/Library/Caches/VLCStreamsForTest"
-          .build/vlc-check/bin/python tools/verify_vlc_stream.py "$captures" Artifacts/vlc-stream-check.json \
-            --expect 841:8:1 --expect 20290:413:1
       - name: Build Release for iPhone
         id: release
         if: ${{ !cancelled() && steps.core.outcome == 'success' }}
@@ -137,22 +97,20 @@ jobs:
         if: ${{ !cancelled() && steps.core.outcome == 'success' }}
         env:
           CORE_RESULT: ${{ steps.core.outcome }}
-          STREAM_RESULT: ${{ steps.resolve.outcome }}
-          VLC_RESULT: ${{ steps.vlc.outcome }}
         run: |
           python3 - <<'PY'
           import json, os, pathlib
           result = {'commit': os.environ['GITHUB_SHA'], 'core_tests': os.environ['CORE_RESULT'],
-                    'real_stream_resolution': os.environ['STREAM_RESULT'], 'vlc_decoding': os.environ['VLC_RESULT'],
+                    'real_stream_resolution': 'skipped_by_user', 'vlc_decoding': 'skipped_by_user',
+                    'validation_scope': 'interface_and_ipa_package', 'community_features': 'excluded_by_user',
                     'physical_iphone_handoff': 'not tested', 'full_port_complete': False,
                     'version': '0.2.0', 'build': os.environ['GITHUB_RUN_NUMBER']}
-          media_report = pathlib.Path('Artifacts/vlc-stream-check.json')
-          result['providers'] = json.loads(media_report.read_text())['providers'] if media_report.exists() else []
+          result['providers'] = []
           pathlib.Path('Artifacts/VALIDATION.json').write_text(json.dumps(result, indent=2) + '\n')
           print(json.dumps(result))
           PY
       - name: Upload unsigned IPA
-        if: steps.core.outcome == 'success' && steps.resolve.outcome == 'success' && steps.vlc.outcome == 'success' && steps.package.outcome == 'success'
+        if: steps.core.outcome == 'success' && steps.package.outcome == 'success'
         uses: actions/upload-artifact@v4
         with:
           name: AnixartPort-unsigned-IPA
@@ -162,12 +120,6 @@ jobs:
             Artifacts/VALIDATION.json
           if-no-files-found: error
           retention-days: 14
-      - name: Require real streaming success
-        if: ${{ !cancelled() && steps.core.outcome == 'success' }}
-        env:
-          STREAM_RESULT: ${{ steps.resolve.outcome }}
-          VLC_RESULT: ${{ steps.vlc.outcome }}
-        run: test "$STREAM_RESULT" = success && test "$VLC_RESULT" = success
       - name: Upload diagnostics
         if: ${{ !cancelled() }}
         timeout-minutes: 3

@@ -19,6 +19,7 @@ import WebKit
     private let resumeSeconds: Double
     private var restored = false
     private var lastSaved: Double = -10
+    private var awaitingExternalMediaAfterFormatError = false
     let prefersExternalMedia: Bool
 
     init(key: PlaybackKey, progress: ProgressStore = ProgressStore(), prefersExternalMedia: Bool = false) {
@@ -33,6 +34,7 @@ import WebKit
     func advertisementControl(_ ready: Bool) { advertisementControlReady = ready }
     func openContentPage(_ url: URL) {
         phase = .loading; error = nil; mediaURL = nil; frame = nil; canControl = false; advertisementControlReady = false
+        awaitingExternalMediaAfterFormatError = false
         webView?.load(URLRequest(url:url))
     }
     func receive(_ values: [String: Any], frame: WKFrameInfo) {
@@ -46,13 +48,21 @@ import WebKit
            ["https","http"].contains(url.scheme ?? ""), url.host != nil, url.user == nil, url.password == nil,
            prefersExternalMedia && ["m3u8","mp4"].contains(url.pathExtension.lowercased()) {
             mediaURL = url; StreamTestCapture.write(url,key:key,duration:duration)
+            if awaitingExternalMediaAfterFormatError {
+                awaitingExternalMediaAfterFormatError = false
+                error = nil
+                if phase == .failed { phase = .ready }
+            }
         }
         if event == "error" {
             if prefersExternalMedia, values["code"] as? Int == 4, mediaURL != nil {
                 // VLC compatibility does not depend on WebKit decoding the same
                 // format. Keep the discovered URL, without claiming playback.
                 error = nil; phase = .ready; canControl = false
-            } else { fail("Видеоисточник сообщил об ошибке воспроизведения (\(values["code"] as? Int ?? 0)).") }
+            } else {
+                awaitingExternalMediaAfterFormatError = prefersExternalMedia && values["code"] as? Int == 4
+                fail("Видеоисточник сообщил об ошибке воспроизведения (\(values["code"] as? Int ?? 0)).")
+            }
             return
         }
         guard let position = values["seconds"] as? Double, position.isFinite, position >= 0 else { return }

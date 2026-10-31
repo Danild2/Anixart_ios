@@ -15,6 +15,19 @@ import XCTest
         state.receive(["event":"error","code":4,"media":"https://example.test/series/1.mp4"])
         XCTAssertNotNil(state.error); XCTAssertEqual(state.phase,.failed); XCTAssertNil(state.mediaURL)
     }
+    func testLaterMediaDiscoveryClearsOnlyTheEarlierExternalFormatFailure() {
+        let state = EmbeddedPlayback(key:key,prefersExternalMedia:true)
+        state.receive(["event":"error","code":4])
+        XCTAssertNotNil(state.error); XCTAssertEqual(state.phase,.failed)
+        state.receive(["event":"discovered","seconds":0.0,"paused":true,"media":"https://example.test/series/1.mp4"])
+        XCTAssertNil(state.error); XCTAssertEqual(state.phase,.paused)
+        XCTAssertNotNil(state.mediaURL); XCTAssertFalse(state.renderedVideo); XCTAssertNil(state.duration)
+
+        let networkFailure = EmbeddedPlayback(key:key,prefersExternalMedia:true)
+        networkFailure.receive(["event":"error","code":2])
+        networkFailure.receive(["event":"discovered","media":"https://example.test/series/1.mp4"])
+        XCTAssertNotNil(networkFailure.error); XCTAssertEqual(networkFailure.phase,.failed)
+    }
     func testHTMLAndBlobURLsCannotTurnAnErrorIntoAVLCStream() {
         for raw in ["https://example.test/error.html","blob:https://example.test/fixture","file:///tmp/series.mp4"] {
             let state = EmbeddedPlayback(key:key,prefersExternalMedia:true)

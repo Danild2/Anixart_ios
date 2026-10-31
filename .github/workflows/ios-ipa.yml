@@ -1,6 +1,11 @@
 name: Build and verify iPhone IPA
 on:
   workflow_dispatch:
+    inputs:
+      skip_tests:
+        description: Build an IPA for manual testing without automated tests
+        type: boolean
+        default: false
   push:
     branches: [main]
     paths-ignore: ['docs/**', README.md, tools/probe_api.py, tools/LiveContractCheck.swift, .github/workflows/api-contracts.yml]
@@ -16,6 +21,7 @@ jobs:
     timeout-minutes: 55
     env:
       DEVELOPER_DIR: /Applications/Xcode_27.1.app/Contents/Developer
+      SKIP_TESTS: ${{ inputs.skip_tests == true || contains(github.event.head_commit.message, '[skip tests]') }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -28,11 +34,12 @@ jobs:
           xcodebuild -version | tee Artifacts/toolchain.log
           xcodebuild -showsdks | tee -a Artifacts/toolchain.log
           python3 tools/check_source.py
-          python3 -m unittest discover -s tools -p 'test_*.py' -v
+          if [ "$SKIP_TESTS" != 'true' ]; then python3 -m unittest discover -s tools -p 'test_*.py' -v; fi
           brew install xcodegen
           xcodegen --version | tee -a Artifacts/toolchain.log
           xcodegen generate
       - name: Static analysis
+        if: env.SKIP_TESTS != 'true'
         shell: bash
         run: |
           set -euo pipefail
@@ -41,6 +48,7 @@ jobs:
             -derivedDataPath .build/analyze CODE_SIGNING_ALLOWED=NO analyze \
             2>&1 | tee Artifacts/analyze.log
       - name: Select iPhone 17 simulator
+        if: env.SKIP_TESTS != 'true'
         shell: bash
         run: |
           set -euo pipefail
@@ -48,6 +56,7 @@ jobs:
           python3 tools/select_simulator.py
       - name: Unit and UI tests
         id: core
+        if: env.SKIP_TESTS != 'true'
         shell: bash
         run: |
           set -euo pipefail
@@ -69,7 +78,7 @@ jobs:
           done
       - name: Build Release for iPhone
         id: release
-        if: ${{ !cancelled() && steps.core.outcome == 'success' }}
+        if: ${{ !cancelled() && (steps.core.outcome == 'success' || env.SKIP_TESTS == 'true') }}
         shell: bash
         run: |
           set -euo pipefail
@@ -93,15 +102,16 @@ jobs:
           python3 tools/verify_ipa.py Artifacts/AnixartPort-unsigned.ipa
           shasum -a 256 Artifacts/AnixartPort-unsigned.ipa > Artifacts/SHA256SUMS
       - name: Record test build validation
-        if: ${{ !cancelled() && steps.core.outcome == 'success' }}
+        if: ${{ !cancelled() && steps.package.outcome == 'success' }}
         env:
           CORE_RESULT: ${{ steps.core.outcome }}
         run: |
           python3 - <<'PY'
           import json, os, pathlib
+          skipped = os.environ['SKIP_TESTS'] == 'true'
           result = {'commit': os.environ['GITHUB_SHA'], 'core_tests': os.environ['CORE_RESULT'],
-                    'real_stream_resolution': 'kodik_ui_url_discovery', 'vlc_decoding': 'skipped_by_user',
-                    'validation_scope': 'unit_tests_kodik_transition_and_ipa_package', 'community_features': 'excluded_by_user',
+                    'real_stream_resolution': 'skipped_by_user' if skipped else 'kodik_ui_url_discovery', 'vlc_decoding': 'skipped_by_user',
+                    'validation_scope': 'build_and_ipa_package_only' if skipped else 'unit_tests_kodik_transition_and_ipa_package', 'community_features': 'excluded_by_user',
                     'physical_iphone_handoff': 'not tested', 'full_port_complete': False,
                     'version': '0.2.1', 'build': os.environ['GITHUB_RUN_NUMBER']}
           result['providers'] = []
@@ -109,7 +119,7 @@ jobs:
           print(json.dumps(result))
           PY
       - name: Upload unsigned IPA
-        if: steps.core.outcome == 'success' && steps.package.outcome == 'success'
+        if: steps.package.outcome == 'success'
         uses: actions/upload-artifact@v4
         with:
           name: AnixartPort-unsigned-IPA

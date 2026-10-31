@@ -51,6 +51,17 @@ def inspect_kodik_pages(base):
     REPORT['kodik_content_pages'] = record
     wrapper = lambda url: 'https://anixmirai.com/iframe?' + urllib.parse.urlencode({'url':url})
     cases = [('original',raw,None),('canonical',canonical,None),('original_with_referrer',raw,'https://anixmirai.com/'),('wrapper_original',wrapper(raw),None),('wrapper_canonical',wrapper(canonical),None)]
+    try:
+        ad_url = 'https://anixmirai.com/iframe/ad?' + urllib.parse.urlencode({'url':canonical,'v':'26101718'})
+        with urllib.request.urlopen(ad_url,timeout=15) as ad_response:
+            ad_page = ad_response.read(100_000).decode('utf-8')
+        ad_parameters = re.search(r'var AD_PARAMS="([^"\r\n]+)"',ad_page)
+        if ad_parameters:
+            context = [(key,value) for key,value in urllib.parse.parse_qsl(ad_parameters[1]) if key not in ['only_a','advert_debug']]
+            record['public_context_keys'] = [key for key,_ in context]
+            normal = canonical + '?' + urllib.parse.urlencode(context)
+            cases += [('public_context',normal,None),('public_context_with_referrer',normal,'https://anixmirai.com/')]
+    except Exception as error: record['ad_metadata_error'] = type(error).__name__
     for name,url,referrer in cases:
         result = {'case':name};record['pages'].append(result)
         headers = {'User-Agent':'Mozilla/5.0 (iPhone; CPU iPhone OS 27_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/27.1 Mobile/15E148 Safari/604.1'}
@@ -59,6 +70,10 @@ def inspect_kodik_pages(base):
             with urllib.request.urlopen(urllib.request.Request(url,headers=headers),timeout=15) as response:
                 page = response.read(2_000_000).decode('utf-8',errors='replace')
                 result.update(http=response.status,bytes=len(page),not_found='данной страницы не существует' in page.lower(),has_video='<video' in page.lower(),has_player='player' in page.lower(),iframe_count=len(re.findall(r'<iframe\b',page,re.I)))
+                missing = re.search(r'.{0,120}данной страницы не существует.{0,120}',page,re.I)
+                if missing: result['error_context'] = missing[0]
+                title = re.search(r'<title>([^<]*)',page,re.I)
+                result['title'] = title[1] if title else None
                 result['frames'] = []
                 for src in re.findall(r'<iframe[^>]+src=[\"\x27]([^\"\x27]+)',page,re.I)[:3]:
                     src = urllib.parse.urlsplit(urllib.parse.urljoin(url,src.replace('&amp;','&')))

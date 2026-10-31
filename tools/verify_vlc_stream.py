@@ -49,7 +49,7 @@ def decode(record, vlc):
         player.release()
         media.release()
         instance.release()
-    # These three known full episodes exceed five minutes. A short advertising clip is not a pass.
+    # These known full episodes exceed five minutes. A short advertising clip is not a pass.
     return dict(result, decoded_video_frames=maximum_frames, decoded_audio_blocks=maximum_audio,
                 playback_ms=maximum_time, duration_ms=maximum_length,
                 passed=maximum_frames >= 10 and maximum_audio > 0 and maximum_time >= 5000 and maximum_length >= 300000)

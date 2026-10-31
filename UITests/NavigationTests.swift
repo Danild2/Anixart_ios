@@ -33,17 +33,41 @@ import XCTest
         guard authors.firstMatch.waitForExistence(timeout:30) else { XCTFail("Real comment authors unavailable"); return }
         for index in 0..<min(3,authors.count) {
             authors.element(boundBy:index).tap()
+            XCTAssertTrue(app.descendants(matching:.any).matching(identifier:"profileHeaderName").firstMatch.waitForExistence(timeout:30))
+            let header = XCTAttachment(screenshot:app.screenshot()); header.name = "full-profile-original-header"; header.lifetime = .keepAlways; add(header)
             let count = app.staticTexts["profile.listCount.0"]
-            if count.waitForExistence(timeout:20) {
+            for _ in 0..<3 { if count.isHittable { break }; app.swipeUp() }
+            if count.exists {
+                let stats = XCTAttachment(screenshot:app.screenshot()); stats.name = "full-profile-original-statistics"; stats.lifetime = .keepAlways; add(stats)
+                XCTAssertTrue(app.staticTexts["profile.listCount.4"].exists)
+                let details = app.buttons["profileDynamicsDetails"]
+                for _ in 0..<6 { if details.isHittable { break }; app.swipeUp() }
                 XCTAssertTrue(app.descendants(matching:.any).matching(identifier:"profileWatchDynamics").firstMatch.exists,"A profile with recent views must include its day-by-day graph")
                 let dynamics = XCTAttachment(screenshot:app.screenshot()); dynamics.name = "real-public-profile-viewing-dynamics"; dynamics.lifetime = .keepAlways; add(dynamics)
-                let details = app.buttons["profileDynamicsDetails"]
                 XCTAssertTrue(details.isHittable); details.tap()
                 XCTAssertTrue(app.alerts["Информация"].waitForExistence(timeout:5))
                 app.alerts.buttons["Понятно"].tap()
                 app.swipeUp()
                 let screenshot = XCTAttachment(screenshot:app.screenshot()); screenshot.name = "real-public-profile-statistics"; screenshot.lifetime = .keepAlways; add(screenshot)
-                XCTAssertTrue(app.staticTexts["profile.listCount.4"].exists)
+                for _ in 0..<7 { app.swipeDown() }
+                let friends = app.buttons["profileFriends"]
+                for _ in 0..<3 { if friends.isHittable { break }; app.swipeUp() }
+                XCTAssertTrue(friends.isHittable); friends.tap()
+                XCTAssertTrue(app.navigationBars["Список друзей"].waitForExistence(timeout:10))
+                let friendsShot = XCTAttachment(screenshot:app.screenshot()); friendsShot.name = "full-profile-friends"; friendsShot.lifetime = .keepAlways; add(friendsShot)
+                app.navigationBars.buttons.element(boundBy:0).tap()
+                let chips = app.scrollViews["profileSections"]
+                for section in 1...5 {
+                    let chip = app.buttons["profile.section.\(section)"]
+                    for _ in 0..<5 { if chip.isHittable { break }; chips.swipeLeft() }
+                    XCTAssertTrue(chip.isHittable); chip.tap()
+                    let shot = XCTAttachment(screenshot:app.screenshot()); shot.name = "full-profile-section-\(section)"; shot.lifetime = .keepAlways; add(shot)
+                }
+                let more = app.buttons["profile.section.more"]
+                for _ in 0..<3 { if more.isHittable { break }; app.swipeUp() }
+                XCTAssertTrue(more.isHittable); more.tap()
+                XCTAssertTrue(app.navigationBars["Значки"].waitForExistence(timeout:10))
+                let badgesShot = XCTAttachment(screenshot:app.screenshot()); badgesShot.name = "full-profile-badges"; badgesShot.lifetime = .keepAlways; add(badgesShot)
                 return
             }
             app.navigationBars.buttons.element(boundBy:0).tap()

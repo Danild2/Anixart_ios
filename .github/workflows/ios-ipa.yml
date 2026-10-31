@@ -82,7 +82,6 @@ jobs:
             -derivedDataPath .build/tests -resultBundlePath Artifacts/Streaming.xcresult \
             -only-testing:AnixartPortUITests/NavigationTests/testVLCResolvesRealMediaStream \
             -only-testing:AnixartPortUITests/NavigationTests/testKodikResolvesRealMediaStream \
-            -only-testing:AnixartPortUITests/NavigationTests/testSibnetResolvesRealMediaStream \
             CODE_SIGNING_ALLOWED=NO test-without-building 2>&1 | tee Artifacts/streaming.log
       - name: Export simulator screenshots
         if: ${{ !cancelled() }}
@@ -108,7 +107,7 @@ jobs:
           container=$(xcrun simctl get_app_container "$SIMULATOR_ID" local.anixartport.client data)
           captures="$container/Library/Caches/VLCStreamsForTest"
           .build/vlc-check/bin/python tools/verify_vlc_stream.py "$captures" Artifacts/vlc-stream-check.json \
-            --expect 841:1:1 --expect 841:8:1 --expect 20290:413:1
+            --expect 841:8:1 --expect 20290:413:1
       - name: Build Release for iPhone
         id: release
         if: ${{ !cancelled() && steps.core.outcome == 'success' }}

@@ -38,24 +38,12 @@ struct ProfileScreen: View {
     @Environment(SessionStore.self) private var session
     @Environment(\.repository) private var repository
     var body: some View {
-        List {
-            if let profile = session.session?.profile {
-                Section {
-                    HStack {
-                        Poster(url: profile.avatar.flatMap(URL.init(string:)), width: 64, height: 64)
-                        VStack(alignment: .leading) { Text(profile.login ?? "Профиль").font(.title2); if let status = profile.status { Text(status).foregroundStyle(.secondary) } }
-                    }
-                }
-                if profile.isStatsHidden != true, let days = profile.watchDynamics, !days.isEmpty { Section { ProfileWatchDynamics(days: days) } }
-                Section("Статистика") { ProfileStatistics(profile: profile) }
-                NavigationLink("История просмотра") { CatalogScreen(title: "История", feed: .library("history")) }
-                if let error = session.error { Text(error).foregroundStyle(.red) }
-                Button("Обновить профиль") { Task { await session.refresh(repository: repository) } }
-                Button("Выйти", role: .destructive) { session.signOut() }
-            } else {
+        Group {
+            if let profile = session.session?.profile { FullProfileScreen(id:profile.id) }
+            else { List {
                 NavigationLink("Войти в аккаунт") { SignInScreen() }
-            }
-            NavigationLink("Настройки", destination: SettingsScreen())
+                NavigationLink("Настройки", destination: SettingsScreen())
+            } }
         }.navigationTitle("Профиль")
     }
 }

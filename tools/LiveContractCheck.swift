@@ -27,6 +27,13 @@ import Darwin
             let profile = try await repository.profile(author.id, token: nil)
             guard profile.isStatsHidden != true, profile.hasStatistics, let days = profile.watchDynamics, !days.isEmpty else { continue }
             print("profile_statistics_decoded days=\(days.count) genres=\(profile.preferredGenres?.count ?? 0) audiences=\(profile.preferredAudiences?.count ?? 0) themes=\(profile.preferredThemes?.count ?? 0)")
+            let friends: Page<Profile> = try await repository.profilePage("profile/friend/all/\(profile.id)",page:0,token:nil)
+            let votes: Page<Release> = try await repository.profilePage("profile/vote/release/voted/\(profile.id)",page:0,query:["sort":"0"],token:nil)
+            let comments: Page<ProfileComment> = try await repository.profilePage("release/comment/all/profile/\(profile.id)",page:0,query:["sort":"0"],token:nil)
+            let videos: Page<ProfileVideo> = try await repository.profilePage("video/profile/\(profile.id)",page:0,token:nil)
+            let badges = try await repository.profileBadges(profile.id,token:nil)
+            let blog = try await repository.profileBlog(profile.id,token:nil)
+            print("full_profile_decoded friends=\(friends.content.count) votes=\(votes.content.count) comments=\(comments.content.count) videos=\(videos.content.count) badge_sections=\(badges.sections?.count ?? 0) blog=\(blog != nil)")
             decodedActiveProfile = true; break
         }
         guard decodedActiveProfile else { throw APIError.schema("public_profile_statistics") }

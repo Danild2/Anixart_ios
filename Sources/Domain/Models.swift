@@ -19,6 +19,10 @@ struct Release: Codable, Identifiable, Hashable, Sendable {
     var isViewBlocked: Bool?
     var relatedReleases: [Release]?
     var recommendedReleases: [Release]?
+    var myVote: Int?
+    var votedAt: Int64?
+    var lastViewTimestamp: Int64?
+    var lastViewEpisode: HistoryEpisode?
     var title: String { titleRu ?? titleOriginal ?? "Релиз №\(id)" }
     var poster: URL? { image.flatMap(URL.init(string:)) }
 }
@@ -41,6 +45,61 @@ struct Profile: Codable, Identifiable, Hashable, Sendable {
     var preferredThemes: [ProfileGenre]?
     var isStatsHidden: Bool?
     var isCountsHidden: Bool?
+    var ratingScore: Int?
+    var registerDate: Int64?
+    var lastActivityTime: Int64?
+    var isOnline: Bool?
+    var isVerified: Bool?
+    var isSponsor: Bool?
+    var isBanned: Bool?
+    var isPermBanned: Bool?
+    var banExpires: Int64?
+    var banReason: String?
+    var isDeleted: Bool?
+    var isDeletionRequested: Bool?
+    var isIncognito: Bool?
+    var isBlocked: Bool?
+    var isMeBlocked: Bool?
+    var isFriendRequestsDisallowed: Bool?
+    var isSocialHidden: Bool?
+    var friendStatus: Int?
+    var friendCount: Int?
+    var friendsPreview: [Profile]?
+    var roles: [ProfileRole]?
+    var badge: ProfileBadge?
+    var badgeId: Int64?
+    var badgeName: String?
+    var badgeType: Int?
+    var badgeUrl: String?
+    var badgeCount: Int?
+    var badgesPreview: [ProfileBadge]?
+    var collectionCount: Int?
+    var commentCount: Int?
+    var videoCount: Int?
+    var votes: [Release]?
+    var collectionsPreview: [CollectionSummary]?
+    var commentsPreview: [ProfileComment]?
+    var releaseVideosPreview: [ProfileVideo]?
+    var history: [Release]?
+    var pinnedSectionId: Int?
+    var vkPage: String?
+    var tgPage: String?
+    var discordPage: String?
+    var ttPage: String?
+    var instPage: String?
+    var themeEnabled: Bool?
+    var themeGradientStartColor: String?
+    var themeGradientEndColor: String?
+    var themeGradientAngle: String?
+    var themeIconResName: String?
+    var themeIconUrl: String?
+    var themeIconAlpha: Double?
+    var themeIconColor: String?
+    var themeIconSize: String?
+    var themeIconDensity: String?
+    var themeBackgroundUrl: String?
+    var themeBackgroundAlpha: Double?
+    var themeBackgroundMode: String?
     var hasStatistics: Bool { watchingCount != nil || completedCount != nil || watchedEpisodeCount != nil }
 }
 
@@ -99,11 +158,14 @@ struct ReleaseComment: Codable, Identifiable, Sendable {
     var voteCount: Int?
 }
 
-struct CollectionSummary: Codable, Identifiable, Sendable {
+struct CollectionSummary: Codable, Identifiable, Hashable, Sendable {
     let id: Int64
     var title: String?
     var description: String?
     var image: String?
+    var favoriteCount: Int?
+    var commentCount: Int?
+    var isPrivate: Bool?
 }
 
 enum WatchStatus: Int, CaseIterable, Identifiable, Sendable {

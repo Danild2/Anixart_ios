@@ -15,7 +15,7 @@ struct EmbeddedPlayerView: UIViewRepresentable {
         config.userContentController.add(context.coordinator, name: "anixartPlayback")
         config.userContentController.add(context.coordinator, name: "anixartKodikAd")
         config.userContentController.addUserScript(WKUserScript(source: ProviderPage.adBridge, injectionTime: .atDocumentStart, forMainFrameOnly: false))
-        config.userContentController.addUserScript(WKUserScript(source: EmbeddedPlayback.observerScript, injectionTime: .atDocumentEnd, forMainFrameOnly: false))
+        config.userContentController.addUserScript(WKUserScript(source: EmbeddedPlayback.observerScript(externalMedia:playback.prefersExternalMedia), injectionTime: .atDocumentEnd, forMainFrameOnly: false))
         let view = WKWebView(frame: .zero, configuration: config)
         view.navigationDelegate = context.coordinator
         view.uiDelegate = context.coordinator
@@ -30,6 +30,8 @@ struct EmbeddedPlayerView: UIViewRepresentable {
     @MainActor final class Coordinator: NSObject, WKNavigationDelegate, WKUIDelegate, WKScriptMessageHandler {
         var parent: EmbeddedPlayerView
         private var advertPending: Bool
+        private var advertisementPlayerURL: URL?
+        private var contentTransitionPending = false
         init(_ parent: EmbeddedPlayerView) { self.parent = parent; advertPending = ProviderPage.requiresAdvertisement(parent.url,configuration:parent.configuration) }
         func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
             let origin = message.frameInfo.securityOrigin.host.lowercased().replacingOccurrences(of: "www.", with: "")
@@ -54,18 +56,29 @@ struct EmbeddedPlayerView: UIViewRepresentable {
                 }
                 return
             }
+            guard !contentTransitionPending, !ProviderPage.isAdvertisementDocument(message.frameInfo.request.url) else { return }
             parent.playback.receive(values, frame: message.frameInfo)
         }
+        func webView(_ webView: WKWebView, didCommit navigation: WKNavigation!) { contentTransitionPending = false }
         func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) { parent.playback.loaded() }
         func webView(_ webView: WKWebView, decidePolicyFor action: WKNavigationAction) async -> WKNavigationActionPolicy {
             guard let url = action.request.url, ["https", "about"].contains(url.scheme ?? ""), action.targetFrame != nil else {
                 return .cancel
             }
+            if advertPending, ProviderPage.contentAfterAdvertisement(parent.url,advertisement:url) != nil {
+                advertisementPlayerURL = url
+            }
             return .allow
         }
         private func completeAdvertisement() {
-            guard advertPending, let content = ProviderPage.canonicalKodik(parent.url) else { return }
-            advertPending = false; parent.error = nil; parent.playback.openContentPage(content)
+            guard advertPending else { return }
+            guard let content = ProviderPage.contentAfterAdvertisement(parent.url,advertisement:advertisementPlayerURL),
+                  let page = ProviderPage.iframe(content) else {
+                let message = "Источник не передал адрес плеера после рекламы. Повторите загрузку."
+                parent.error = message; parent.playback.fail(message); return
+            }
+            advertPending = false; contentTransitionPending = true
+            parent.error = nil; parent.playback.openContentPage(page)
         }
         private func navigationFailed(_ error: Error) {
             let failure = error as NSError

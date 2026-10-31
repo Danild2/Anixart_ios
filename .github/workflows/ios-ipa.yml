@@ -54,9 +54,8 @@ jobs:
           xcodebuild -project AnixartPort.xcodeproj -scheme AnixartPort \
             -configuration Debug -destination "platform=iOS Simulator,id=$SIMULATOR_ID" \
             -derivedDataPath .build/tests -resultBundlePath Artifacts/Tests.xcresult \
-            -skip-testing:AnixartPortUITests/NavigationTests/testVLCResolvesRealMediaStream \
-            -skip-testing:AnixartPortUITests/NavigationTests/testKodikResolvesRealMediaStream \
-            -skip-testing:AnixartPortUITests/NavigationTests/testSibnetResolvesRealMediaStream \
+            -only-testing:AnixartPortTests \
+            -only-testing:AnixartPortUITests/NavigationTests/testKodikResolvesRealMediaStream \
             CODE_SIGNING_ALLOWED=NO test 2>&1 | tee Artifacts/tests.log
       - name: Export simulator screenshots
         if: ${{ !cancelled() }}
@@ -101,10 +100,10 @@ jobs:
           python3 - <<'PY'
           import json, os, pathlib
           result = {'commit': os.environ['GITHUB_SHA'], 'core_tests': os.environ['CORE_RESULT'],
-                    'real_stream_resolution': 'skipped_by_user', 'vlc_decoding': 'skipped_by_user',
-                    'validation_scope': 'interface_and_ipa_package', 'community_features': 'excluded_by_user',
+                    'real_stream_resolution': 'kodik_ui_url_discovery', 'vlc_decoding': 'skipped_by_user',
+                    'validation_scope': 'unit_tests_kodik_transition_and_ipa_package', 'community_features': 'excluded_by_user',
                     'physical_iphone_handoff': 'not tested', 'full_port_complete': False,
-                    'version': '0.2.0', 'build': os.environ['GITHUB_RUN_NUMBER']}
+                    'version': '0.2.1', 'build': os.environ['GITHUB_RUN_NUMBER']}
           result['providers'] = []
           pathlib.Path('Artifacts/VALIDATION.json').write_text(json.dumps(result, indent=2) + '\n')
           print(json.dumps(result))

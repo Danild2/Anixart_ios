@@ -2,6 +2,25 @@ import XCTest
 @testable import AnixartPort
 
 final class ProviderPageTests: XCTestCase {
+    func testContentKeepsActualPublicEmbedContextAndSignedEncodingAfterAdvertisement() throws {
+        let source = URL(string:"https://kodikplayer.com/seria/123/example/720p?d=example.test&s=native-fixture&ip=192.0.2.1")!
+        let ad = URL(string:"https://kodikplayer.com/seria/123/example/720p?uid=public-fixture&only_a=true&advert_debug=true&signed=a%2Bb%26c%3D")!
+        let content = try XCTUnwrap(ProviderPage.contentAfterAdvertisement(source,advertisement:ad))
+        XCTAssertEqual(content.absoluteString,"https://kodikplayer.com/seria/123/example/720p?uid=public-fixture&signed=a%2Bb%26c%3D")
+        XCTAssertFalse(ProviderPage.isAdvertisementDocument(content))
+        let wrapper = try XCTUnwrap(ProviderPage.iframe(content))
+        XCTAssertEqual(wrapper.path,"/iframe")
+        XCTAssertEqual(URLComponents(url:wrapper,resolvingAgainstBaseURL:false)?.queryItems?.first?.value,content.absoluteString)
+        XCTAssertTrue(ProviderPage.isAdvertisementDocument(ad))
+        XCTAssertTrue(ProviderPage.isAdvertisementDocument(URL(string:"https://anixmirai.com/iframe/ad?url=fixture")))
+    }
+    func testContentCannotBeInventedFromMissingOrUnrelatedAdvertisementContext() {
+        let source = URL(string:"https://kodikplayer.com/seria/123/example/720p")!
+        XCTAssertNil(ProviderPage.contentAfterAdvertisement(source,advertisement:nil))
+        XCTAssertNil(ProviderPage.contentAfterAdvertisement(source,advertisement:URL(string:"https://kodikplayer.com/seria/123/example/720p?only_a=true")))
+        XCTAssertNil(ProviderPage.contentAfterAdvertisement(source,advertisement:URL(string:"https://kodikplayer.com.evil.test/seria/123/example/720p?uid=fixture")))
+        XCTAssertNil(ProviderPage.contentAfterAdvertisement(source,advertisement:URL(string:"https://kodikplayer.com/seria/999/other/720p?uid=fixture")))
+    }
     func testKodikUsesOriginalAdPageBeforeCanonicalPlayer() throws {
         let source = URL(string:"https://kodikplayer.com/seria/123/example/720p?d=example.test&s=fixture")!
         let initial = try XCTUnwrap(ProviderPage.initial(source))

@@ -164,6 +164,9 @@ struct PlaybackScreen: View {
             let resolution = try await SourceResolver().resolveForPlayback(resolved, externalVLC: settings.playbackMode == .vlc,configuration:providerConfiguration)
             try Task.checkCancellation()
             let next = resolution.target
+            if case .embedded(let url) = next, ProviderPage.isKodik(url), settings.playbackMode == .vlc {
+                embedded = EmbeddedPlayback(key:key,prefersExternalMedia:true)
+            }
             providerVariants = resolution.variants.map { HLSQuality(url: $0.url, height: $0.height, bandwidth: nil) }
             target = next
             if case .native(let url) = next { StreamTestCapture.write(url, key: key) }

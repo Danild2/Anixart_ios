@@ -19,9 +19,11 @@ import WebKit
     private let resumeSeconds: Double
     private var restored = false
     private var lastSaved: Double = -10
+    let prefersExternalMedia: Bool
 
-    init(key: PlaybackKey, progress: ProgressStore = ProgressStore()) {
+    init(key: PlaybackKey, progress: ProgressStore = ProgressStore(), prefersExternalMedia: Bool = false) {
         self.key = key; self.progress = progress
+        self.prefersExternalMedia = prefersExternalMedia
         resumeSeconds = progress.progress(for: key)?.resumeSeconds ?? 0
     }
     func loaded() { if phase == .loading { phase = .ready } }
@@ -36,8 +38,23 @@ import WebKit
     func receive(_ values: [String: Any], frame: WKFrameInfo) {
         self.frame = frame
         canControl = true
+        receive(values)
+    }
+    func receive(_ values: [String: Any]) {
         let event = values["event"] as? String ?? ""
-        if event == "error" { fail("Видеоисточник сообщил об ошибке воспроизведения (\(values["code"] as? Int ?? 0))."); return }
+        if let raw = values["media"] as? String, let url = URL(string:raw),
+           ["https","http"].contains(url.scheme ?? ""), url.host != nil, url.user == nil, url.password == nil,
+           prefersExternalMedia && ["m3u8","mp4"].contains(url.pathExtension.lowercased()) {
+            mediaURL = url; StreamTestCapture.write(url,key:key,duration:duration)
+        }
+        if event == "error" {
+            if prefersExternalMedia, values["code"] as? Int == 4, mediaURL != nil {
+                // VLC compatibility does not depend on WebKit decoding the same
+                // format. Keep the discovered URL, without claiming playback.
+                error = nil; phase = .ready; canControl = false
+            } else { fail("Видеоисточник сообщил об ошибке воспроизведения (\(values["code"] as? Int ?? 0)).") }
+            return
+        }
         guard let position = values["seconds"] as? Double, position.isFinite, position >= 0 else { return }
         let previous = seconds
         seconds = position
@@ -71,8 +88,9 @@ import WebKit
         webView.evaluateJavaScript("window.__anixartPlayback?.\(name)(\(value))", in: frame, in: .page, completionHandler: nil)
     }
     // Observe the provider's normally served HTML5 media; never extract keys or cookies.
-    static let observerScript = #"""
+    static func observerScript(externalMedia: Bool = false) -> String { #"""
     (() => {
+      const externalMedia = \#(externalMedia ? "true" : "false");
       const seen = new WeakSet(); let active = null; let last = 0;
       const mediaURL = video => {
         if (/^https?:/i.test(video.currentSrc || '')) return video.currentSrc;
@@ -89,7 +107,7 @@ import WebKit
           duration: Number.isFinite(video.duration) ? video.duration : null,
           paused: video.paused, width: video.videoWidth, height: video.videoHeight,
           ready: video.readyState, code: video.error?.code || 0,
-          media: Number.isFinite(video.duration) && video.duration > 0 ? mediaURL(video) : null});
+          media: externalMedia || (Number.isFinite(video.duration) && video.duration > 0) ? mediaURL(video) : null});
       };
       const scan = () => document.querySelectorAll('video').forEach(video => {
         if (seen.has(video)) return; seen.add(video); active = video;
@@ -103,5 +121,5 @@ import WebKit
       };
       new MutationObserver(scan).observe(document.documentElement, {childList:true,subtree:true}); scan();
     })();
-    """#
+    """# }
 }

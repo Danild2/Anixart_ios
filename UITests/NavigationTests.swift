@@ -104,6 +104,10 @@ import XCTest
         let result = XCTWaiter.wait(for:[resolved],timeout:120)
         let screenshot = XCTAttachment(screenshot:app.screenshot()); screenshot.name = "Initial-D-source-\(source)-stream-result"; screenshot.lifetime = .keepAlways; add(screenshot)
         XCTAssertEqual(result,.completed,"Every required provider must produce an actual media URL")
+        if source == 8 {
+            XCTAssertFalse(app.webViews.staticTexts.matching(NSPredicate(format:"label CONTAINS[cd] %@","данной страницы не существует")).firstMatch.exists,"The real Kodik content page must not display a missing-page error")
+            XCTAssertFalse(app.descendants(matching:.any).matching(identifier:"playbackFailure").firstMatch.exists)
+        }
     }
     func testScheduleUsesRealServerDataAndOpensRelease() {
         let app = XCUIApplication()

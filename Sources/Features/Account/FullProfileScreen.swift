@@ -256,7 +256,7 @@ struct FullProfileScreen: View {
 
 enum ProfileDate {
     static func day(_ timestamp: Int64) -> String { Date(timeIntervalSince1970:Double(timestamp)).formatted(.dateTime.locale(Locale(identifier:"ru_RU")).day().month(.wide).year()) }
-    static func text(_ timestamp: Int64) -> String { Date(timeIntervalSince1970:Double(timestamp)).formatted(.relative(presentation:.named,unitsStyle:.wide,locale:Locale(identifier:"ru_RU"))) }
+    static func text(_ timestamp: Int64) -> String { Date(timeIntervalSince1970:Double(timestamp)).formatted(.relative(presentation:.named,unitsStyle:.wide).locale(Locale(identifier:"ru_RU"))) }
 }
 extension Color {
     init?(profileHex value: String?) {

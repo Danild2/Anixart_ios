@@ -43,7 +43,7 @@ struct ProfileSectionScreen: View {
     let profile: Profile
     let section: ProfileSection
     @State private var commentKind = 0
-    @State private var sort = 0
+    @State private var sort = 1
     var body: some View {
         Group {
             switch section {
@@ -52,7 +52,7 @@ struct ProfileSectionScreen: View {
             case .votes:
                 RemoteProfileList(title:section.title,path:"profile/vote/release/voted/\(profile.id)",query:["sort":String(sort)]) { (release: Release) in
                     NavigationLink { ReleaseScreen(initial:release) } label: { ProfileVoteRow(release:release) }
-                }.toolbar { Menu("Сортировка") { Button("Сначала новые") { sort = 0 }; Button("Сначала старые") { sort = 1 } } }
+                }.toolbar { Menu("Сортировка") { Button("Сначала новые") { sort = 1 }; Button("Сначала старые") { sort = 2 } } }
             case .collections:
                 RemoteProfileList(title:section.title,path:"collection/all/profile/\(profile.id)") { (collection: CollectionSummary) in ProfileCollectionRow(collection:collection) }
             case .comments:

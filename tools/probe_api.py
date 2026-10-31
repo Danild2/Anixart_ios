@@ -178,7 +178,7 @@ def inspect_media_and_profile(base, catalog):
             REPORT['profile_page_schema'] = {key:{'type':type(public_profile.get(key)).__name__,'count':len(public_profile[key]) if isinstance(public_profile.get(key),list) else None,
                 'sample_keys':sorted(public_profile[key][0]) if isinstance(public_profile.get(key),list) and public_profile[key] and isinstance(public_profile[key][0],dict) else sorted(public_profile[key]) if isinstance(public_profile.get(key),dict) else None}
                 for key in keys}
-            for route in [f'channel/blog/{int(public_id)}',f'profile/friend/all/{int(public_id)}/0',f'profile/vote/release/voted/{int(public_id)}/0?sort=0',f'profile/vote/release/voted/{int(public_id)}/0?sort=0&token=',f'profile/social/{int(public_id)}',f'collection/all/profile/{int(public_id)}/0',f'video/profile/{int(public_id)}/0',f'profile/{int(public_id)}/badge/list']:
+            for route in [f'channel/blog/{int(public_id)}',f'profile/friend/all/{int(public_id)}/0',f'profile/vote/release/voted/{int(public_id)}/0?sort=1',f'profile/vote/release/voted/{int(public_id)}/0?sort=2',f'profile/social/{int(public_id)}',f'release/comment/all/profile/{int(public_id)}/0?sort=0',f'collection/comment/all/profile/{int(public_id)}/0?sort=0',f'article/comment/all/profile/{int(public_id)}/0?sort=0',f'collection/all/profile/{int(public_id)}/0',f'video/profile/{int(public_id)}/0',f'profile/{int(public_id)}/badge/list']:
                 value = request(base,route)
                 if value:
                     content = value.get('content') or value.get('sections') or []

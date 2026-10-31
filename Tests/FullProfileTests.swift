@@ -24,4 +24,11 @@ final class FullProfileTests: XCTestCase {
         XCTAssertEqual(article.payload?.blocks?.first?.data["text"].string,"<b>Текст</b>")
         XCTAssertEqual(try JSONDecoder().decode(ProfileArticle.self,from:JSONEncoder().encode(article)),article)
     }
+    func testRepeatedJacksonReleaseReferencesKeepCommentTargetsAndNumericFields() throws {
+        let data = Data(#"{"code":0,"content":[{"id":10,"release":{"@id":1,"id":841,"title_ru":"Инициал Ди"},"vote_count":1},{"id":11,"release":1,"vote_count":1}]}"#.utf8)
+        let page = try APIClient.decoder().decode(Page<ProfileComment>.self,from:IdentityJSON.expand(data))
+        XCTAssertEqual(page.content.map { $0.release?.id },[841,841])
+        XCTAssertEqual(page.content[1].release?.title,"Инициал Ди")
+        XCTAssertEqual(page.content[1].voteCount,1)
+    }
 }

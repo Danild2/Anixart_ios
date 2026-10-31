@@ -38,6 +38,7 @@ struct FullProfileScreen: View {
     @State private var section = ProfileSection.statistics
     @State private var editing = false
     @State private var showSocial = false
+    @State private var newPost = false
     @State private var message: String?
     private var own: Bool { session.session?.profile.id == id }
     private var background: Color { Color(uiColor:.systemBackground) }
@@ -58,6 +59,9 @@ struct FullProfileScreen: View {
                         } else { Text(OriginalCopy.text("profile_is_hidden")).font(.footnote).foregroundStyle(.secondary).padding(20) }
                         if let blog { ProfileBlogSection(channel:blog,own:own) }
                         else if let blogError { FailureNotice(message:blogError) { Task { await loadBlog() } } }
+                        else if own {
+                            Button { newPost = true } label: { Label("Новая запись",systemImage:"square.and.pencil").frame(maxWidth:.infinity,minHeight:60) }.buttonStyle(.bordered).padding(20)
+                        }
                     }
                 } else if loading { ProgressView().padding(60) }
             }
@@ -75,6 +79,7 @@ struct FullProfileScreen: View {
                 if let profile { NavigationStack { ProfileEditScreen(profile:profile) } }
             }
             .sheet(isPresented:$showSocial) { NavigationStack { ProfileSocialScreen(id:id) } }
+            .sheet(isPresented:$newPost,onDismiss: { Task { await loadBlog() } }) { NavigationStack { ProfileArticleComposer() } }
             .alert(OriginalCopy.text("information"),isPresented:Binding(get:{ message != nil },set:{ if !$0 { message = nil } })) {
                 Button(OriginalCopy.text("understand"),role:.cancel) { message = nil }
             } message: { Text(message ?? "") }
@@ -128,11 +133,9 @@ struct FullProfileScreen: View {
                     } label: { Image(systemName:"ellipsis").frame(width:40,height:40) }.accessibilityLabel("Ещё")
                 }
                 if p.isSocialHidden != true {
-                    Button { showSocial = true } label: {
-                        HStack(spacing:22) { Text("VK").bold(); Image(systemName:"paperplane.fill"); Text("Discord").font(.caption.bold()); Text("TikTok").font(.caption.bold()) }
-                            .foregroundStyle(.secondary).frame(maxWidth:.infinity,minHeight:44)
-                    }.buttonStyle(.plain).accessibilityLabel("Социальные сети").accessibilityIdentifier("profileSocial")
+                    ProfileSocialLinks(profile:p,own:own) { editing = true }
                 }
+                if p.isCountsHidden != true, let friendCount = p.friendCount {
                 NavigationLink { ProfilePeopleScreen(id:id,own:own) } label: {
                     HStack(spacing:12) {
                         HStack(spacing:-12) {
@@ -140,10 +143,11 @@ struct FullProfileScreen: View {
                                 Poster(url:friend.avatar.flatMap(URL.init(string:)),width:32,height:32).clipShape(Circle()).overlay(Circle().stroke(background,lineWidth:2))
                             }
                         }
-                        Text((p.friendCount ?? 0) > 0 ? "Друзья · \(p.friendCount ?? 0)" : OriginalCopy.text("friends_zero"))
+                        Text(friendCount > 0 ? "Друзья · \(friendCount)" : OriginalCopy.text("friends_zero"))
                         Spacer(); Image(systemName:"chevron.right").font(.caption)
                     }.font(.subheadline).foregroundStyle(.secondary).padding(.vertical,10)
                 }.buttonStyle(.plain).accessibilityIdentifier("profileFriends")
+                }
             }.padding(.horizontal,20).padding(.bottom,12)
                 .background(background,in:UnevenRoundedRectangle(topLeadingRadius:32,topTrailingRadius:32)).padding(.top,-16)
         }
@@ -238,8 +242,9 @@ struct FullProfileScreen: View {
         defer { loading = false }
         do {
             let next = try await repository.profile(id,token:session.token); try Task.checkCancellation()
+            let chooseInitial = profile == nil || profile?.pinnedSectionId != next.pinnedSectionId || !ProfileSection.visible(in:next).contains(section)
             profile = next
-            if let initial = ProfileSection.visible(in:next).first { section = initial }
+            if chooseInitial, let initial = ProfileSection.visible(in:next).first { section = initial }
             await loadBlog()
         } catch is CancellationError { }
         catch let e as URLError where e.code == .cancelled { }
@@ -268,9 +273,23 @@ extension Color {
 }
 struct ProfileShowcaseBackground: View {
     let profile: Profile
+    private var colors: [Color] { [Color(profileHex:profile.themeGradientStartColor) ?? .clear,Color(profileHex:profile.themeGradientEndColor) ?? .clear] }
+    private var points: (UnitPoint,UnitPoint) {
+        switch profile.themeGradientAngle?.lowercased() {
+        case "left_to_right": (.leading,.trailing)
+        case "bottom_to_top": (.bottom,.top)
+        case "diagonal_tl_br": (.topLeading,.bottomTrailing)
+        case "diagonal_tr_bl": (.topTrailing,.bottomLeading)
+        default: (.top,.bottom)
+        }
+    }
     var body: some View {
         if profile.themeEnabled == true {
-            LinearGradient(colors:[Color(profileHex:profile.themeGradientStartColor) ?? .clear,Color(profileHex:profile.themeGradientEndColor) ?? .clear],startPoint:.topLeading,endPoint:.bottomTrailing)
+            Group {
+                if profile.themeGradientAngle?.lowercased() == "radial_from_center" {
+                    GeometryReader { g in RadialGradient(colors:colors,center:.center,startRadius:0,endRadius:hypot(g.size.width / 2,g.size.height / 2) * 0.8) }
+                } else { LinearGradient(colors:colors,startPoint:points.0,endPoint:points.1) }
+            }
                 .overlay {
                     if let url = profile.themeBackgroundUrl.flatMap(URL.init(string:)) {
                         GeometryReader { g in Poster(url:url,width:g.size.width,height:g.size.height).opacity(profile.themeBackgroundAlpha ?? 0.2) }.clipped()

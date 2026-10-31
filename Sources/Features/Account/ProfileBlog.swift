@@ -138,13 +138,14 @@ struct ProfileArticleScreen: View {
     }
 }
 struct ProfileArticleComposer: View {
-    let channel: ProfileChannel
+    var channel: ProfileChannel?
     @Environment(\.repository) private var repository
     @Environment(SessionStore.self) private var session
     @Environment(\.dismiss) private var dismiss
     @State private var text = ""
     @State private var busy = false
     @State private var error: String?
+    @State private var createdChannel: ProfileChannel?
     var body: some View {
         Form {
             Section("Новая запись") { TextEditor(text:$text).frame(minHeight:220) }
@@ -163,7 +164,12 @@ struct ProfileArticleComposer: View {
         do {
             let encoded = try JSONEncoder().encode(payload)
             guard let json = String(data:encoded,encoding:.utf8) else { throw APIError.malformed }
-            let _: Acknowledgement = try await repository.client.request(Endpoint(path:"article/create/\(channel.id)",method:"POST",body:JSONEncoder().encode(Body(payload:json)),isReadOnly:false),token:token)
+            if channel == nil && createdChannel == nil {
+                let result: ProfileChannelResponse = try await repository.client.request(Endpoint(path:"channel/blog/create",method:"POST",isReadOnly:false),token:token)
+                guard let created = result.channel else { throw APIError.malformed }; createdChannel = created
+            }
+            guard let target = channel ?? createdChannel else { throw APIError.malformed }
+            let _: Acknowledgement = try await repository.client.request(Endpoint(path:"article/create/\(target.id)",method:"POST",body:JSONEncoder().encode(Body(payload:json)),isReadOnly:false),token:token)
             dismiss()
         } catch { self.error = error.localizedDescription }
     }

@@ -34,7 +34,10 @@ struct ProfileBadgesScreen: View {
             VStack(alignment:.leading,spacing:24) {
                 if let error { FailureNotice(message:error) { Task { await load() } } }
                 if let result {
-                    if let showcased = result.showcased, !showcased.isEmpty { Text("Витрина значков").font(.headline); ProfileBadgeGrid(badges:showcased,own:own) }
+                    if let showcased = result.showcased, !showcased.isEmpty {
+                        HStack { Text("Витрина значков").font(.headline); Spacer(); if own { NavigationLink("Порядок") { ProfileBadgeOrderScreen(badges:showcased) } } }
+                        ProfileBadgeGrid(badges:showcased,own:own)
+                    }
                     if let recent = result.recent, !recent.isEmpty { Text("Недавно получены").font(.headline); ProfileBadgeGrid(badges:recent,own:own) }
                     ForEach(result.sections ?? []) { section in
                         HStack {
@@ -61,6 +64,31 @@ struct ProfileBadgesScreen: View {
         do { let next = try await repository.profileBadges(id,token:session.token); try Task.checkCancellation(); result = next }
         catch is CancellationError { }
         catch { self.error = error.localizedDescription }
+    }
+}
+
+struct ProfileBadgeOrderScreen: View {
+    @State var badges: [ProfileBadge]
+    @Environment(\.repository) private var repository
+    @Environment(SessionStore.self) private var session
+    @Environment(\.dismiss) private var dismiss
+    @State private var busy = false
+    @State private var error: String?
+    var body: some View {
+        List {
+            ForEach(badges) { badge in HStack(spacing:16) { ProfileBadgeImage(badge:badge,size:48); Text(badge.name ?? "Значок") } }
+                .onMove { source,destination in badges.move(fromOffsets:source,toOffset:destination) }
+            if let error { Text(error).foregroundStyle(.red) }
+        }.environment(\.editMode,.constant(.active)).navigationTitle("Витрина значков")
+            .toolbar { Button("Сохранить") { Task { await save() } }.disabled(busy) }
+    }
+    private func save() async {
+        guard let token = session.token else { return }; busy = true; error = nil; defer { busy = false }
+        struct Body: Encodable { let ids: [Int64] }
+        do {
+            let _: Acknowledgement = try await repository.client.request(Endpoint(path:"profile/preference/badge/showcase/reorder",method:"POST",body:JSONEncoder().encode(Body(ids:badges.map(\.id))),isReadOnly:false),token:token)
+            dismiss()
+        } catch { self.error = error.localizedDescription }
     }
 }
 struct ProfileBadgeDetail: View {

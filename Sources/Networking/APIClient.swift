@@ -112,7 +112,7 @@ actor APIClient {
                     throw APIError.unauthorized
                 }
                 guard endpoint.acceptedCodes.contains(acknowledgement.code) else { throw APIError.service(acknowledgement.code) }
-                do { return try Self.decoder().decode(T.self, from: data) }
+                do { return try Self.decoder().decode(T.self, from: IdentityJSON.expand(data)) }
                 catch { throw Self.decodingFailure(error) }
             } catch let error as URLError {
                 if attempt + 1 < attempts, [.timedOut, .networkConnectionLost].contains(error.code) {
@@ -122,6 +122,46 @@ actor APIClient {
             }
         }
         throw APIError.malformed
+    }
+}
+
+// Jackson's @JsonIdentityInfo serializes repeated entities as an integer @id
+// reference. A comments page can contain the same release dozens of times.
+// Expand only entity relationships; ordinary numeric IDs/counts stay numeric.
+enum IdentityJSON {
+    private static let relationships: Set<String> = ["release","profile","author","collection","article","channel","repost_article","last_view_episode","content","history","votes","friends_preview","comments_preview","collections_preview","release_videos_preview","related_releases","recommended_releases"]
+    static func expand(_ data: Data) throws -> Data {
+        guard data.range(of:Data("\"@id\"".utf8)) != nil else { return data }
+        let root = try JSONSerialization.jsonObject(with:data)
+        var identities: [Int: [String:Any]] = [:]
+        func collect(_ value: Any, depth: Int) {
+            guard depth < 40 else { return }
+            if let object = value as? [String:Any] {
+                if let id = object["@id"] as? Int { identities[id] = object }
+                for child in object.values { collect(child,depth:depth + 1) }
+            } else if let list = value as? [Any] { for child in list { collect(child,depth:depth + 1) } }
+        }
+        collect(root,depth:0)
+        func compact(_ object: [String:Any]) -> [String:Any] {
+            object.filter { !($0.value is [String:Any]) && !($0.value is [Any]) }
+        }
+        func resolve(_ value: Any, key: String?, seen: Set<Int>, depth: Int) -> Any {
+            if let number = value as? Int, let key, relationships.contains(key), let target = identities[number] {
+                if seen.contains(number) || depth >= 24 { return compact(target) }
+                return resolve(target,key:nil,seen:seen,depth:depth + 1)
+            }
+            if let object = value as? [String:Any] {
+                if depth >= 24 { return compact(object) }
+                var visited = seen
+                if let id = object["@id"] as? Int { visited.insert(id) }
+                return object.reduce(into:[String:Any]()) { result, entry in
+                    result[entry.key] = resolve(entry.value,key:entry.key,seen:visited,depth:depth + 1)
+                }
+            }
+            if let list = value as? [Any] { return list.map { resolve($0,key:key,seen:seen,depth:depth + 1) } }
+            return value
+        }
+        return try JSONSerialization.data(withJSONObject:resolve(root,key:nil,seen:[],depth:0))
     }
 }
 

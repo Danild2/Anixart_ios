@@ -19,6 +19,8 @@ targets:
       path: Config/Info.plist
       properties:
         CFBundleDisplayName: Anixart
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         LSApplicationQueriesSchemes: [vlc-x-callback, vlc]
         CFBundleURLTypes:
           - CFBundleURLName: local.anixartport.client.vlc-return

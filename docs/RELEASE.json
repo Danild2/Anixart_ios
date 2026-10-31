@@ -1,5 +1,5 @@
 {
-  "ready_for_installation": false,
+  "ready_for_installation": true,
   "port_feature_complete": false,
   "bundle_id": "local.anixartport.client",
   "sdk": "iphoneos27.1",
@@ -7,24 +7,24 @@
   "simulator": "iPhone 17 / iOS 27.0",
   "candidate": {
     "version": "0.2.0",
-    "source_commit": null,
-    "workflow_run_id": null,
-    "result": "awaiting build"
+    "source_commit": "b890743ae00e0d973255a53a518050beb0a7be80",
+    "workflow_run_id": 41187836384,
+    "result": "success",
+    "build": "27"
   },
   "last_completed_candidate": {
-    "source_commit": "265154f806672ce30050506e4410f49423625add",
-    "workflow_run_id": 41138147811,
-    "result": "failure",
-    "swift_unit_tests_passed": 47,
+    "source_commit": "66485c0b0939410d71cc46c4bda2561c2b8e29f4",
+    "workflow_run_id": 41142797179,
+    "result": "failure: Sibnet HTTP403 under previous three-provider gate",
+    "swift_unit_tests_passed": 52,
     "core_ui_passed": 8,
-    "core_ui_failed": 0,
     "core_ui_skipped": 1,
     "poster_scroll_and_restart_passed": true,
     "profile_statistics_ui": "passed",
     "media_resolution": {
-      "kodik": false,
-      "sibnet": false,
-      "libria": true
+      "kodik": true,
+      "libria": true,
+      "sibnet": false
     },
     "ipa_published": false
   },
@@ -50,5 +50,91 @@
     "sha256": "9773e535dc0c0e0891461bdab567c4c2f77041eb8766bd4a414033d5dd8bd051",
     "signing": "unsigned; SideStore",
     "superseded_for_testing": true
-  }
+  },
+  "sibnet_configured_mac_probe": {
+    "workflow_run_id": 41143502372,
+    "http": 403,
+    "playback_verified": false
+  },
+  "required_providers": [],
+  "sibnet_scope": "Optional, explicitly deferred by user on 2026-10-31",
+  "last_verified_vlc": {
+    "workflow_run_id": 41142797179,
+    "kodik": {
+      "video_frames": 266,
+      "decoded_audio_blocks": 606,
+      "playback_ms": 5172,
+      "duration_ms": 1496085
+    },
+    "libria": {
+      "video_frames": 87,
+      "decoded_audio_blocks": 610,
+      "playback_ms": 5561,
+      "duration_ms": 2924213
+    }
+  },
+  "full_profile_live_contract": {
+    "workflow_run_id": 41185627597,
+    "passed": true,
+    "friends": 4,
+    "release_votes": 25,
+    "release_comments": 24,
+    "badge_sections": 1,
+    "blog": "sample has no blog; correctly accepts original code 2",
+    "authenticated_mutations": "not executed"
+  },
+  "last_full_profile_ui_candidate": {
+    "source_commit": "c7f007e8925c52ce8218d4c217ae1b54fed9d8fe",
+    "workflow_run_id": 41185846988,
+    "result": "failure",
+    "swift_unit_tests_passed": 59,
+    "core_ui_passed": 7,
+    "core_ui_failed": 1,
+    "core_ui_skipped": 1,
+    "poster_scroll_and_restart_passed": true,
+    "profile_rendering": "header/statistics/dynamics/history and help alert displayed; screenshots inspected",
+    "failed_action": "Friends row empty center was not tappable; full-row contentShape added",
+    "ipa_published": false
+  },
+  "validation_scope": "interface_and_ipa_package",
+  "media_checks": "skipped_by_user",
+  "community_features": "excluded_by_user",
+  "final_checks": {
+    "swift_unit_tests_passed": 61,
+    "ui_tests_passed": 8,
+    "ui_tests_skipped": 1,
+    "ui_failures": 0,
+    "xcode_analyze": "passed",
+    "ipa_platform_arm64_bundle_id": "passed",
+    "media_checks": "skipped_by_user"
+  },
+  "delivered_ipa": {
+    "path": "C:\\Users\\danil\\Downloads\\Anixart-iOS-0.2.0-build27-b890743-unsigned.ipa",
+    "bytes": 1498862,
+    "sha256": "fc7fe30e7a20cc94cb7c9eec51f07b704893780f90bec7ac4ebeacbbf4093fea",
+    "bundle_id": "local.anixartport.client",
+    "minimum_ios": "27.0",
+    "version": "0.2.0",
+    "build": "27",
+    "extensions": 0,
+    "unchanged_executable_sha256": "6f7ad7cbe836815ed760fa8d932264a7f5e58cd85ddc83a455e2139f42cf21ae",
+    "changed_entries": [
+      "Payload/AnixartPort.app/Info.plist"
+    ],
+    "original_ci_ipa_sha256": "3ee7b6f4618107276cb3cc300d8818a6622b0e6e8509cc6d48f1be993aeee7a1",
+    "validation": {
+      "commit": "b890743ae00e0d973255a53a518050beb0a7be80",
+      "core_tests": "success",
+      "real_stream_resolution": "skipped_by_user",
+      "vlc_decoding": "skipped_by_user",
+      "validation_scope": "interface_and_ipa_package",
+      "community_features": "excluded_by_user",
+      "physical_iphone_handoff": "not tested",
+      "full_port_complete": false,
+      "version": "0.2.0",
+      "build": "27",
+      "providers": []
+    }
+  },
+  "artifact_warning": "GitHub artifact contains original template version 1.0(1); delivered local IPA corrects only Info.plist to 0.2.0(27); executable and all other entries are identical."
 }

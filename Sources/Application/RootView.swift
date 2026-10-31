@@ -6,13 +6,14 @@ import Observation
 }
 
 private enum MainTab: Int, CaseIterable, Identifiable {
-    case home, discover, bookmarks, feed, profile
+    case home, discover, bookmarks
+    case profile = 4
     var id: Int { rawValue }
     var title: String {
         OriginalCopy.text(["home", "discover", "bookmarks", "feed", "profile"][rawValue])
     }
     var icon: String {
-        switch self { case .home: "house"; case .discover: "safari"; case .bookmarks: "bookmark"; case .feed: "text.bubble"; case .profile: "person.crop.circle" }
+        switch self { case .home: "house"; case .discover: "safari"; case .bookmarks: "bookmark"; case .profile: "person.crop.circle" }
     }
 }
 
@@ -21,6 +22,7 @@ struct RootView: View {
     @Environment(SessionStore.self) private var session
     @State private var tab = MainTab.home
     @State private var chrome = NavigationChrome()
+    init() { _tab = State(initialValue:ProfilePreviewLaunch.id == nil ? .home : .profile) }
     var body: some View {
         TabView(selection: $tab) {
             ForEach(MainTab.allCases) { item in
@@ -31,7 +33,6 @@ struct RootView: View {
                         case .home: HomeScreen()
                         case .discover: DiscoverScreen()
                         case .bookmarks: LibraryScreen()
-                        case .feed: FeedScreen()
                         case .profile: ProfileScreen()
                         }
                     }

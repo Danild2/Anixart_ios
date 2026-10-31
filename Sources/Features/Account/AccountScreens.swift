@@ -40,6 +40,7 @@ struct ProfileScreen: View {
     var body: some View {
         Group {
             if let profile = session.session?.profile { FullProfileScreen(id:profile.id) }
+            else if let id = ProfilePreviewLaunch.id { FullProfileScreen(id:id) }
             else { List {
                 NavigationLink("Войти в аккаунт") { SignInScreen() }
                 NavigationLink("Настройки", destination: SettingsScreen())
@@ -68,17 +69,9 @@ struct SettingsScreen: View {
             Section("О переносе") {
                 LabeledContent("Версия", value: "\(Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "—") (\(Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "—"))")
                 Text("Неофициальный нативный клиент на основе исследования Anixart 10.5.")
-                Text("Функции и источники ещё требуют проверки с доступным сервером и на iPhone. Лента, каналы, друзья, уведомления и часть настроек оригинала пока не перенесены.").foregroundStyle(.secondary)
-                Text("Bundle ID: local.anixartport.client").font(.caption)
+                Text("Каталог, списки, история и статистика просмотров. Для воспроизведения используется VLC.").foregroundStyle(.secondary)
             }
         }.navigationTitle("Настройки")
     }
 }
 
-struct FeedScreen: View {
-    var body: some View {
-        ContentUnavailableView("Лента пока не перенесена", systemImage: "text.bubble",
-            description: Text("В APK обнаружены статьи, каналы и блочный редактор. Отображение всех типов блоков и социальные действия ещё не реализованы."))
-            .navigationTitle("Лента")
-    }
-}

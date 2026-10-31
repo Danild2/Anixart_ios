@@ -40,21 +40,14 @@ struct ReleaseScreen: View {
                                 Button("Убрать из списка", role: .destructive) { act { token in try await repository.setStatus(item.id, status: status, remove: true, token: token) } }
                             }
                         } label: { Label(item.profileListStatus.flatMap(WatchStatus.init(rawValue:))?.title ?? "В список", systemImage: "text.badge.plus") }
-                        Spacer()
-                        Menu {
-                            ForEach(1...5, id: \.self) { value in
-                                Button("\(value) ★") { act { token in try await repository.vote(item.id, value: value, token: token) } }
-                            }
-                        } label: { Label("Оценить", systemImage: "star") }
                     }.disabled(acting)
-                } else { NavigationLink("Войдите, чтобы сохранять и оценивать") { SignInScreen() } }
+                } else { NavigationLink("Войдите, чтобы сохранять в списки") { SignInScreen() } }
                 if let description = item.description { Text(description).textSelection(.enabled) }
                 Group {
                     if let genres = item.genres { LabeledContent("Жанры", value: genres) }
                     if let studio = item.studio { LabeledContent("Студия", value: studio) }
                     if let country = item.country { LabeledContent("Страна", value: country) }
                 }.font(.subheadline)
-                NavigationLink { CommentsScreen(releaseID: item.id) } label: { Label("Комментарии", systemImage: "text.bubble") }
                 if let related = item.relatedReleases, !related.isEmpty {
                     Text("Связанное").font(.headline)
                     ForEach(related) { release in NavigationLink(value: release) { ReleaseRow(release: release) } }

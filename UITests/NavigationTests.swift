@@ -19,65 +19,45 @@ import XCTest
         let disk = XCTNSPredicateExpectation(predicate:NSPredicate(format:"value MATCHES %@",".*;disk=[1-9][0-9]*;.*"),object:restarted)
         XCTAssertEqual(XCTWaiter.wait(for:[disk],timeout:30),.completed,"Real posters should survive process restart in the disk cache")
     }
-    func testRealPublicProfileStatisticsFromCommentAuthor() {
-        let app = XCUIApplication(); app.launchArguments = ["-theme","liquidGlass","-regionalAPI","NO"]; app.launch()
-        let search = app.searchFields.firstMatch
-        guard search.waitForExistence(timeout:15) else { XCTFail("Search unavailable"); return }
-        search.tap(); search.typeText("Инициал Ди")
-        let release = app.descendants(matching:.any).matching(identifier:"release.841").firstMatch
-        guard release.waitForExistence(timeout:30) else { XCTFail("Initial D unavailable"); return }; release.tap()
-        let comments = app.buttons["Комментарии"]
-        for _ in 0..<8 { if comments.isHittable { break }; app.swipeUp() }
-        guard comments.isHittable else { XCTFail("Comments navigation unavailable"); return }; comments.tap()
-        let authors = app.buttons.matching(NSPredicate(format:"identifier BEGINSWITH %@","comment.profile."))
-        guard authors.firstMatch.waitForExistence(timeout:30) else { XCTFail("Real comment authors unavailable"); return }
-        for index in 0..<min(3,authors.count) {
-            authors.element(boundBy:index).tap()
-            XCTAssertTrue(app.descendants(matching:.any).matching(identifier:"profileHeaderName").firstMatch.waitForExistence(timeout:30))
-            let header = XCTAttachment(screenshot:app.screenshot()); header.name = "full-profile-original-header"; header.lifetime = .keepAlways; add(header)
-            let count = app.staticTexts["profile.listCount.0"]
-            for _ in 0..<3 { if count.isHittable { break }; app.swipeUp() }
-            if count.exists {
-                for _ in 0..<3 { if app.staticTexts["profile.listCount.4"].frame.maxY < app.frame.maxY - 140 { break }; app.swipeUp() }
-                let stats = XCTAttachment(screenshot:app.screenshot()); stats.name = "full-profile-original-statistics"; stats.lifetime = .keepAlways; add(stats)
-                XCTAssertTrue(app.staticTexts["profile.listCount.4"].exists)
-                let details = app.buttons["profileDynamicsDetails"]
-                for _ in 0..<6 { if details.isHittable { break }; app.swipeUp() }
-                XCTAssertTrue(app.descendants(matching:.any).matching(identifier:"profileWatchDynamics").firstMatch.exists,"A profile with recent views must include its day-by-day graph")
-                let dynamics = XCTAttachment(screenshot:app.screenshot()); dynamics.name = "real-public-profile-viewing-dynamics"; dynamics.lifetime = .keepAlways; add(dynamics)
-                XCTAssertTrue(details.isHittable); details.tap()
-                XCTAssertTrue(app.alerts["Информация"].waitForExistence(timeout:5))
-                app.alerts.buttons["Понятно"].tap()
-                app.swipeUp()
-                let screenshot = XCTAttachment(screenshot:app.screenshot()); screenshot.name = "real-public-profile-statistics"; screenshot.lifetime = .keepAlways; add(screenshot)
-                let friends = app.buttons["profileFriends"]
-                for _ in 0..<6 {
-                    let header = app.descendants(matching:.any).matching(identifier:"profileHeaderName").firstMatch
-                    if header.exists, header.frame.minY >= 120, friends.frame.maxY < app.frame.maxY - 140 { break }
-                    app.swipeDown()
-                }
-                XCTAssertTrue(friends.isHittable); friends.tap()
-                guard app.navigationBars["Список друзей"].waitForExistence(timeout:10) else { XCTFail("Friends row did not open the real friends page"); return }
-                let friendsShot = XCTAttachment(screenshot:app.screenshot()); friendsShot.name = "full-profile-friends"; friendsShot.lifetime = .keepAlways; add(friendsShot)
-                app.navigationBars.buttons.element(boundBy:0).tap()
-                let chips = app.scrollViews["profileSections"]
-                XCTAssertTrue(chips.waitForExistence(timeout:15))
-                for section in 1...5 {
-                    let chip = app.buttons["profile.section.\(section)"]
-                    for _ in 0..<5 { if chip.isHittable { break }; chips.swipeLeft() }
-                    XCTAssertTrue(chip.isHittable); chip.tap()
-                    let shot = XCTAttachment(screenshot:app.screenshot()); shot.name = "full-profile-section-\(section)"; shot.lifetime = .keepAlways; add(shot)
-                }
-                let more = app.buttons["profile.section.more"]
-                for _ in 0..<3 { if more.isHittable { break }; app.swipeUp() }
-                XCTAssertTrue(more.isHittable); more.tap()
-                XCTAssertTrue(app.navigationBars["Значки"].waitForExistence(timeout:10))
-                let badgesShot = XCTAttachment(screenshot:app.screenshot()); badgesShot.name = "full-profile-badges"; badgesShot.lifetime = .keepAlways; add(badgesShot)
-                return
-            }
-            app.navigationBars.buttons.element(boundBy:0).tap()
+    func testRealProfileStatisticsAndViewingSections() {
+        let app = XCUIApplication()
+        app.launchArguments = ["-theme","liquidGlass","-regionalAPI","NO","-verifyProfileID","4804973"]
+        app.launch()
+        let name = app.descendants(matching:.any).matching(identifier:"profileHeaderName").firstMatch
+        guard name.waitForExistence(timeout:30) else { XCTFail("Real profile unavailable"); return }
+        let header = XCTAttachment(screenshot:app.screenshot()); header.name = "profile-viewing-header"; header.lifetime = .keepAlways; add(header)
+        XCTAssertFalse(app.buttons["profileFriends"].exists)
+        XCTAssertFalse(app.buttons["profile.section.1"].exists)
+        XCTAssertFalse(app.buttons["profile.section.3"].exists)
+        XCTAssertFalse(app.buttons["profile.section.4"].exists)
+        let count = app.staticTexts["profile.listCount.0"]
+        guard count.exists else { XCTFail("Real statistics unavailable"); return }
+        for _ in 0..<3 { if app.staticTexts["profile.listCount.4"].frame.maxY < app.frame.maxY - 140 { break }; app.swipeUp() }
+        let stats = XCTAttachment(screenshot:app.screenshot()); stats.name = "profile-viewing-statistics"; stats.lifetime = .keepAlways; add(stats)
+        XCTAssertTrue(app.staticTexts["profile.listCount.4"].exists)
+        let details = app.buttons["profileDynamicsDetails"]
+        for _ in 0..<6 { if details.isHittable { break }; app.swipeUp() }
+        XCTAssertTrue(app.descendants(matching:.any).matching(identifier:"profileWatchDynamics").firstMatch.exists)
+        let dynamics = XCTAttachment(screenshot:app.screenshot()); dynamics.name = "profile-viewing-dynamics"; dynamics.lifetime = .keepAlways; add(dynamics)
+        XCTAssertTrue(details.isHittable); details.tap()
+        XCTAssertTrue(app.alerts["Информация"].waitForExistence(timeout:5))
+        app.alerts.buttons["Понятно"].tap()
+        app.swipeUp()
+        let history = XCTAttachment(screenshot:app.screenshot()); history.name = "profile-recent-history"; history.lifetime = .keepAlways; add(history)
+        for _ in 0..<6 { if name.exists, name.frame.minY >= 120 { break }; app.swipeDown() }
+        let chips = app.scrollViews["profileSections"]
+        XCTAssertTrue(chips.waitForExistence(timeout:15))
+        for section in [2,5] {
+            let chip = app.buttons["profile.section.\(section)"]
+            for _ in 0..<4 { if chip.isHittable { break }; chips.swipeLeft() }
+            XCTAssertTrue(chip.isHittable); chip.tap()
+            let shot = XCTAttachment(screenshot:app.screenshot()); shot.name = "profile-section-\(section)"; shot.lifetime = .keepAlways; add(shot)
         }
-        XCTFail("No public statistics returned by the first three comment authors")
+        let more = app.buttons["profile.section.more"]
+        for _ in 0..<3 { if more.isHittable { break }; app.swipeUp() }
+        XCTAssertTrue(more.isHittable); more.tap()
+        XCTAssertTrue(app.navigationBars["Значки"].waitForExistence(timeout:10))
+        let badges = XCTAttachment(screenshot:app.screenshot()); badges.name = "profile-badges"; badges.lifetime = .keepAlways; add(badges)
     }
     func testKodikResolvesRealMediaStream() { resolveInitialD(source:8) }
     func testSibnetResolvesRealMediaStream() { resolveInitialD(source:1) }
@@ -201,7 +181,8 @@ import XCTest
         app.launch()
         let bar = app.tabBars.firstMatch
         XCTAssertTrue(bar.waitForExistence(timeout: 10))
-        for title in ["Главная", "Обзор", "Закладки", "Лента", "Профиль"] { XCTAssertTrue(bar.buttons[title].exists) }
+        for title in ["Главная", "Обзор", "Закладки", "Профиль"] { XCTAssertTrue(bar.buttons[title].exists) }
+        XCTAssertFalse(bar.buttons["Лента"].exists)
         let release = app.descendants(matching: .any).matching(NSPredicate(format: "identifier BEGINSWITH %@", "release.")).firstMatch
         XCTAssertTrue(release.waitForExistence(timeout: 45))
         let screenshot = XCTAttachment(screenshot: app.screenshot()); screenshot.name = "iPhone17-native-liquid-glass-tabs"; screenshot.lifetime = .keepAlways; add(screenshot)

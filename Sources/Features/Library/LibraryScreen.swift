@@ -3,6 +3,7 @@ import SwiftUI
 struct LibraryScreen: View {
     @Environment(SessionStore.self) private var session
     @State private var selection = "favorite/all"
+    init(initialSelection: String = "favorite/all") { _selection = State(initialValue:initialSelection) }
     var body: some View {
         if session.token == nil { SignInScreen() }
         else {

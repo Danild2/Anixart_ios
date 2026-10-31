@@ -3,6 +3,7 @@ import SwiftUI
 enum ProfileSection: Int, CaseIterable, Identifiable {
     case statistics, votes, collections, comments, videos, badges
     var id: Int { rawValue }
+    static let enabled: [Self] = [.statistics,.collections,.badges]
     var title: String { OriginalCopy.text(["profile_stats","profile_votes","collections","title_comments","title_videos","profile_badges"][rawValue]) }
     func count(_ p: Profile) -> Int? {
         switch self {
@@ -14,7 +15,7 @@ enum ProfileSection: Int, CaseIterable, Identifiable {
         }
     }
     static func visible(in p: Profile) -> [Self] {
-        let visible = allCases.filter {
+        let visible = enabled.filter {
             switch $0 {
             case .statistics,.votes: p.isStatsHidden != true
             case .collections,.comments,.videos: p.isCountsHidden != true
@@ -39,9 +40,6 @@ struct FullProfileScreen: View {
     @State private var loadedContext: String?
     @State private var section = ProfileSection.statistics
     @State private var editing = false
-    @State private var showSocial = false
-    @State private var newPost = false
-    @State private var message: String?
     private var own: Bool { session.session?.profile.id == id }
     private var background: Color { Color(uiColor:.systemBackground) }
     private var context: String { "\(id)|\(session.identity)" }
@@ -60,11 +58,6 @@ struct FullProfileScreen: View {
                             }
                             if let history = p.history, !history.isEmpty { historySection(history) }
                         } else { Text(OriginalCopy.text("profile_is_hidden")).font(.footnote).foregroundStyle(.secondary).padding(20) }
-                        if let blog { ProfileBlogSection(channel:blog,own:own) }
-                        else if let blogError { FailureNotice(message:blogError) { Task { await loadBlog() } } }
-                        else if own {
-                            Button { newPost = true } label: { Label("Новая запись",systemImage:"square.and.pencil").frame(maxWidth:.infinity,minHeight:60) }.buttonStyle(.bordered).padding(20)
-                        }
                     }
                 } else if loading { ProgressView().padding(60) }
             }
@@ -84,11 +77,6 @@ struct FullProfileScreen: View {
             .sheet(isPresented:$editing,onDismiss: { Task { await load() } }) {
                 if let profile { NavigationStack { ProfileEditScreen(profile:profile) } }
             }
-            .sheet(isPresented:$showSocial) { NavigationStack { ProfileSocialScreen(id:id) } }
-            .sheet(isPresented:$newPost,onDismiss: { Task { await loadBlog() } }) { NavigationStack { ProfileArticleComposer() } }
-            .alert(OriginalCopy.text("information"),isPresented:Binding(get:{ message != nil },set:{ if !$0 { message = nil } })) {
-                Button(OriginalCopy.text("understand"),role:.cancel) { message = nil }
-            } message: { Text(message ?? "") }
     }
     private func header(_ p: Profile) -> some View {
         VStack(spacing:0) {
@@ -108,11 +96,6 @@ struct FullProfileScreen: View {
                     if let badge = p.badge { ProfileBadgeImage(badge:badge,size:24) }
                 }.accessibilityIdentifier("profileHeaderName")
                 if let status = p.status, !status.isEmpty { Text(status).font(.system(size:15)).multilineTextAlignment(.center).lineLimit(4).textSelection(.enabled) }
-                if let score = p.ratingScore {
-                    Button { message = OriginalCopy.text("tooltip_profile_rating_score") } label: {
-                        Label(score.formatted(),systemImage:"star.fill").font(.subheadline).foregroundStyle(.secondary)
-                    }.buttonStyle(.plain).accessibilityLabel("Репутация: \(score)")
-                }
                 VStack(spacing:5) {
                     if p.isOnline == true { Text("В сети").foregroundStyle(.green) }
                     else if let time = p.lastActivityTime, time > 0 { Text("был(а) в сети \(ProfileDate.text(time))") }
@@ -127,10 +110,6 @@ struct FullProfileScreen: View {
                 banners(p)
                 HStack(spacing:12) {
                     if own { Button(OriginalCopy.text("edit")) { editing = true }.buttonStyle(.bordered).frame(maxWidth:.infinity) }
-                    else if session.token != nil, p.isDeleted != true {
-                        Button(friendTitle(p)) { Task { await friendship(p) } }.buttonStyle(.bordered).disabled(loading || p.isFriendRequestsDisallowed == true && p.friendStatus == nil)
-                        Button { showSocial = true } label: { Image(systemName:"message") }.buttonStyle(.bordered).accessibilityLabel("Связаться")
-                    }
                     Menu {
                         ShareLink(item:URL(string:"https://anixart.tv/profile/\(id)")!) { Label("Поделиться профилем",systemImage:"square.and.arrow.up") }
                         Button("Скопировать ID") { UIPasteboard.general.string = String(id) }
@@ -141,18 +120,12 @@ struct FullProfileScreen: View {
                 if p.isSocialHidden != true {
                     ProfileSocialLinks(profile:p,own:own) { editing = true }
                 }
-                if p.isCountsHidden != true, let friendCount = p.friendCount {
-                NavigationLink { ProfilePeopleScreen(id:id,own:own) } label: {
-                    HStack(spacing:12) {
-                        HStack(spacing:-12) {
-                            ForEach(Array((p.friendsPreview ?? []).prefix(3))) { friend in
-                                Poster(url:friend.avatar.flatMap(URL.init(string:)),width:32,height:32).clipShape(Circle()).overlay(Circle().stroke(background,lineWidth:2))
-                            }
-                        }
-                        Text(friendCount > 0 ? "Друзья · \(friendCount)" : OriginalCopy.text("friends_zero"))
-                        Spacer(); Image(systemName:"chevron.right").font(.caption)
-                    }.font(.subheadline).foregroundStyle(.secondary).padding(.vertical,10).contentShape(Rectangle())
-                }.buttonStyle(.plain).accessibilityIdentifier("profileFriends")
+                if own {
+                    HStack(spacing:16) {
+                        NavigationLink { LibraryScreen(initialSelection:"profile/list/all/1") } label: { Label("Списки",systemImage:"list.bullet") }
+                        NavigationLink { CatalogScreen(title:"Избранное",feed:.library("favorite/all")) } label: { Label("Избранное",systemImage:"bookmark") }
+                        NavigationLink { CatalogScreen(title:"История",feed:.library("history")) } label: { Label("История",systemImage:"clock") }
+                    }.font(.footnote).padding(.vertical,10)
                 }
             }.padding(.horizontal,20).padding(.bottom,12)
                 .background(background,in:UnevenRoundedRectangle(topLeadingRadius:32,topTrailingRadius:32)).padding(.top,-16)
@@ -235,14 +208,6 @@ struct FullProfileScreen: View {
             }.scrollIndicators(.hidden)
         }.padding(.bottom,24).accessibilityIdentifier("profileRecentHistory")
     }
-    private func friendTitle(_ p: Profile) -> String {
-        OriginalCopy.text(p.friendStatus == 2 ? "profile_del_friend" : p.friendStatus == 0 ? "profile_friend_request_sent" : p.friendStatus == 1 ? "profile_friend_request_accept" : "profile_add_friend")
-    }
-    private func friendship(_ p: Profile) async {
-        guard let token = session.token else { return }
-        do { try await repository.friend(id,action:p.friendStatus == 2 || p.friendStatus == 0 ? "remove" : "send",token:token); await load() }
-        catch { message = error.localizedDescription }
-    }
     private func load() async {
         let requestGeneration = UUID(); generation = requestGeneration
         loading = true; error = nil
@@ -265,6 +230,18 @@ struct FullProfileScreen: View {
         catch is CancellationError { }
         catch let e as URLError where e.code == .cancelled { }
         catch { if identity == session.identity, profile?.id == profileID, generation == requestGeneration { blogError = error.localizedDescription } }
+    }
+}
+
+enum ProfilePreviewLaunch {
+    static var id: Int64? {
+        #if DEBUG
+        let args = ProcessInfo.processInfo.arguments
+        guard let index = args.firstIndex(of:"-verifyProfileID"), args.indices.contains(index + 1), let value = Int64(args[index + 1]), value > 0 else { return nil }
+        return value
+        #else
+        return nil
+        #endif
     }
 }
 

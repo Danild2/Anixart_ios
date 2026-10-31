@@ -34,7 +34,7 @@ struct ProfileEditScreen: View {
             }
             Section("Статус") { TextField("Расскажите о себе",text:$status,axis:.vertical).lineLimit(2...4) }
             Section(OriginalCopy.text("profile_pinned_section_title")) {
-                Picker("Секция профиля",selection:$pinned) { ForEach(ProfileSection.allCases) { Text($0.title).tag($0.rawValue) } }
+                Picker("Секция профиля",selection:$pinned) { ForEach(ProfileSection.enabled) { Text($0.title).tag($0.rawValue) } }
             }
             Section("Социальные сети") {
                 TextField("ВКонтакте",text:$social.vkPage)
@@ -49,11 +49,7 @@ struct ProfileEditScreen: View {
                 } footer: { Text(OriginalCopy.text("profile_theme_summary")) }
                 Section(OriginalCopy.text("privacy")) {
                     privacyPicker("preference_privacy_stats",selection:$privacyStats)
-                    privacyPicker("preference_privacy_counts",selection:$privacyCounts)
                     privacyPicker("preference_privacy_social",selection:$privacySocial)
-                    Picker(OriginalCopy.text("preference_privacy_friend_requests"),selection:$privacyFriends) {
-                        Text("Все пользователи").tag(0); Text("Никто").tag(1)
-                    }
                     Toggle(OriginalCopy.text("pref_incognito_title"),isOn:$incognito)
                     Text(OriginalCopy.text("pref_incognito_summary")).font(.caption).foregroundStyle(.secondary)
                 }
@@ -63,7 +59,7 @@ struct ProfileEditScreen: View {
         }.navigationTitle(OriginalCopy.text("profile_settings"))
             .toolbar { ToolbarItem(placement:.cancellationAction) { Button("Закрыть") { dismiss() } }; ToolbarItem(placement:.confirmationAction) { Button("Сохранить") { Task { await save() } }.disabled(busy || loadedSocial == nil || preferences == nil) } }
             .task {
-                status = profile.status ?? ""; pinned = profile.pinnedSectionId ?? 0
+                status = profile.status ?? ""; pinned = ProfileSection.enabled.first(where:{ $0.rawValue == profile.pinnedSectionId })?.rawValue ?? 0
                 do {
                     let response = try await repository.profileSocial(profile.id,token:session.token)
                     social = ProfileSocialEdit(vkPage:response.vkPage ?? "",tgPage:response.tgPage ?? "",instPage:response.instPage ?? "",ttPage:response.ttPage ?? "",discordPage:response.discordPage ?? "")

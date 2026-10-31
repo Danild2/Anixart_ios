@@ -170,6 +170,17 @@ def inspect_media_and_profile(base, catalog):
         if not public_id: continue
         response = request(base, f'profile/{int(public_id)}') or {}
         public_profile = response.get('profile') or {}
+        if 'profile_page_schema' not in REPORT and public_profile.get('is_stats_hidden') is False:
+            keys = ['rating_score','register_date','last_activity_time','friend_count','comment_count','collection_count','video_count','badge_count','roles','badge','badges_preview','friends_preview','history','votes','collections_preview','comments_preview','release_videos_preview','pinned_section_id','theme_enabled','theme_gradient_start_color','theme_gradient_end_color','theme_gradient_angle','theme_icon_res_name','theme_icon_url','theme_icon_alpha','theme_icon_density','theme_icon_size','theme_background_url','theme_background_mode','theme_background_alpha','friend_status']
+            REPORT['profile_page_schema'] = {key:{'type':type(public_profile.get(key)).__name__,'count':len(public_profile[key]) if isinstance(public_profile.get(key),list) else None,
+                'sample_keys':sorted(public_profile[key][0]) if isinstance(public_profile.get(key),list) and public_profile[key] and isinstance(public_profile[key][0],dict) else sorted(public_profile[key]) if isinstance(public_profile.get(key),dict) else None}
+                for key in keys}
+            for route in [f'channel/blog/{int(public_id)}',f'profile/friend/all/{int(public_id)}/0',f'profile/vote/release/voted/{int(public_id)}/0',f'collection/all/profile/{int(public_id)}/0',f'video/profile/{int(public_id)}/0',f'profile/{int(public_id)}/badge/list']:
+                value = request(base,route)
+                if value:
+                    content = value.get('content') or value.get('sections') or []
+                    channel = value.get('channel')
+                    REPORT.setdefault('profile_page_routes',{})[route] = {'keys':sorted(value),'count':len(content),'sample_keys':sorted(content[0]) if content and isinstance(content[0],dict) else None,'channel_keys':sorted(channel) if isinstance(channel,dict) else None}
         profile_samples.append({'id':public_id,'stats_hidden':public_profile.get('is_stats_hidden'),
             'watch_dynamics_count':len(public_profile.get('watch_dynamics') or []),
             'genre_count':len(public_profile.get('preferred_genres') or []),
